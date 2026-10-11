@@ -111,3 +111,39 @@ and 1,058 ms P95 on the shared local machine. The recorded training phase, inclu
 took 2,445 seconds; post-training calibration, evaluation and performance measurement are additional.
 The next class-weighted cross-entropy screen is running under the same serial GPU lock. There are now
 49 completed jobs, one running and no failed jobs. Test evaluation and the human audit remain pending.
+
+## Weighting and discard policies: 2026-10-11, 14:39 UTC
+
+Both cross-entropy head screens are complete and verified on the identical 1,000-document training
+subset and 1,024-token context. Both select epoch three from the same pre-update model. Weighting
+reduces default review-to-routine misses here, while their selection macro F1 scores are close.
+These are single-seed fitting results; no significance or generalization claim follows from this screen.
+
+| Cross-entropy recipe | Selection macro F1 | Selection critical misses / 552 | Calibration macro F1 | Calibration critical misses / 252 |
+| --- | ---: | ---: | ---: | ---: |
+| Unweighted | 0.539 | 62 | 0.619 | 23 |
+| Class-weighted | 0.535 | 37 | 0.552 | 14 |
+
+Separate calibration chooses the largest discard count satisfying each empirical review-worthy miss
+budget. The 1% target permits two calibration misses in both runs: five documents discarded unweighted,
+four weighted. The 5% target permits twelve misses: 33 discarded unweighted, 37 weighted. Independent
+checks verified saved policy flags, every count/rate and maximum feasible calibration discard counts.
+
+Applying those fixed thresholds to the selection cohort gives:
+
+| Recipe | Calibration miss target | Selection discarded / 837 | Workload reduction | Selection critical misses / 552 | Selection miss rate | Unclear references discarded |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Unweighted | 1% | 19 | 2.27% | 1 | 0.18% | 9 |
+| Class-weighted | 1% | 15 | 1.79% | 2 | 0.36% | 6 |
+| Unweighted | 5% | 101 | 12.07% | 27 | 4.89% | 32 |
+| Class-weighted | 5% | 104 | 12.43% | 33 | 5.98% | 25 |
+
+The weighted 5% calibration target exceeds 5% on selection; the fitted target is not a population
+guarantee. Both 1% policies filter little work. Only predicted routine documents are eligible for
+discard, but mistaken unclear references can still be discarded, as counted above. These selection
+results are descriptive checks, not a new recipe-selection criterion or held-out test evaluation.
+
+The weighted model measured 251 ms mean and 1,056 ms P95 on the same 128-document warm sample;
+its training phase including epoch validation took 2,394 seconds, excluding subsequent calibration,
+prediction and timing passes. The first unweighted Brier-loss screen is now running. There are 50
+completed jobs and no failures; the remaining loss, context and learning-curve matrix is unchanged.
