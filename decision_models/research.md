@@ -256,3 +256,46 @@ Training peak allocated VRAM was 2.35 GiB. Timing is descriptive on the shared l
 There are 54 completed jobs and no failed jobs at this snapshot. The context-2,048 run is active on
 the identical subset. Context 4,096, the full adaptation/sample-efficiency matrix, model/policy
 freeze, held-out test, qualified human audit and final report/reproducibility review remain pending.
+
+## Third context run completed: 2026-10-11, 22:55 UTC
+
+The context-2,048 Laya head run completed on the same 4,000-document subset, unweighted
+cross-entropy recipe and fixed whole-document pooling. Complete checkpoint/cohort identities,
+source/runtime fingerprints, probability metrics, timing summaries and calibrated discard
+policies passed independent verification.
+
+| Context | Selected epoch | Selection macro F1 | Critical misses / 552 | Predicted unclear / 837 | Calibration macro F1 | Calibration critical misses / 252 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 512 | 2 | 0.560 | 177 | 188 | 0.572 | 77 |
+| 1,024 | 2 | 0.582 | 105 | 195 | 0.571 | 45 |
+| 2,048 | 3 | 0.556 | 111 | 260 | 0.512 | 47 |
+
+Among the three completed contexts, 1,024 has the highest selection F1. Increasing context
+does not improve it monotonically in these runs; no significance or model-family claim follows
+from this fitting comparison. The matched word TF-IDF/logistic baseline remains at 0.726 F1
+with 84 critical misses. The fourth context and remaining adaptation/sample curves are pending.
+
+For context 2,048, the pre-update control scores 0.381 F1 with 87 critical misses. Epochs one,
+two and three score 0.497, 0.540 and 0.556 with 59, 91 and 111 misses respectively. Raw selection
+F1 selects epoch three, a gain of 0.175 over its own control, while default critical misses rise.
+These classifier counts are distinct from outcomes under the calibrated discard policies below.
+
+| Calibration miss target | Selection discarded / 837 | Workload reduction | Selection critical misses / 552 | Selection miss rate | Unclear references discarded |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1% | 31 | 3.70% | 10 | 1.81% | 1 |
+| 5% | 64 | 7.65% | 31 | 5.62% | 1 |
+
+Both policies exceed their calibration miss targets on selection. On calibration they discard
+three and fifteen documents, with two and twelve review-worthy misses among 252 references and
+no unclear references discarded. Verification confirms maximal feasible calibration discard
+counts; this transfer failure illustrates why an empirical fitting constraint is not a population
+risk guarantee. It does not trigger selection-cohort retuning of the prescribed policies.
+
+The recorded training phase, including epoch validation, took 7,110 seconds; subsequent calibration,
+prediction and timing passes are additional. The common 128-document warm sample measured
+250 ms mean and 1,171 ms P95, including text processing and excluding model loading. Training
+peak allocated VRAM was 2.84 GiB. These timings describe the shared local machine.
+
+There are 55 completed jobs and no failed jobs at this snapshot. The context-4,096 run is active
+on the identical subset. The full adaptation/sample-efficiency matrix, model/policy freeze,
+held-out test, qualified human audit and final report/reproducibility review remain pending.
