@@ -83,3 +83,31 @@ Full local evidence is under `decision_models/training_runs/research-study/` and
 `decision_models/data/research/checks/`; generated artifacts remain ignored. Source, runtime, manifest
 and artifact fingerprints accompany completed runs. This committed snapshot lets reviewers follow
 progress without distributing source bodies or treating unfinished experiments as findings.
+
+## First adaptation screen completed: 2026-10-11, 13:51 UTC
+
+The first Laya head screen completed on the frozen 1,000-document subset, with cross-entropy,
+unweighted classes, learning rate 0.00003 and 1,024-token context. Raw selection macro F1 selected
+epoch three. The best, pre-update and resume checkpoints, training-subset identity, source/runtime
+fingerprints, complete selection/calibration cohorts and independently recomputed metrics passed
+verification. Neural prediction files preserve a deterministic seed-42 shuffle of those cohorts.
+
+| Epoch | Selection macro F1 | Critical misses / 552 | Predicted unclear |
+| --- | ---: | ---: | ---: |
+| Pre-update | 0.362 | 76 | 0 |
+| 1 | 0.363 | 80 | 0 |
+| 2 | 0.379 | 87 | 0 |
+| 3, selected | 0.539 | 62 | 117 |
+
+The selection gain is 0.177 macro F1 against this screen's own pre-update model. Calibration-set
+agreement is 0.619 macro F1 with 23 critical misses among 252 review-worthy references. These are
+fitting-cohort results, with no independent significance or held-out performance claim. At the same
+1,000 training labels, the highest-F1 linear baseline is word TF-IDF/SVM: 0.675 selection macro F1
+and 99 critical misses. Default classifier misses and achieved calibrated discard-policy rates are
+separate comparisons; the remaining recipe and learning-curve experiments are still required.
+
+On the common 128-document warm sample, this screen's selected model measured 252 ms mean latency
+and 1,058 ms P95 on the shared local machine. The recorded training phase, including epoch validation,
+took 2,445 seconds; post-training calibration, evaluation and performance measurement are additional.
+The next class-weighted cross-entropy screen is running under the same serial GPU lock. There are now
+49 completed jobs, one running and no failed jobs. Test evaluation and the human audit remain pending.
