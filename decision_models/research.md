@@ -147,3 +147,33 @@ The weighted model measured 251 ms mean and 1,056 ms P95 on the same 128-documen
 its training phase including epoch validation took 2,394 seconds, excluding subsequent calibration,
 prediction and timing passes. The first unweighted Brier-loss screen is now running. There are 50
 completed jobs and no failures; the remaining loss, context and learning-curve matrix is unchanged.
+
+## Four head recipes completed: 2026-10-11, 16:19 UTC
+
+All four Laya head screens completed on the same frozen 1,000-document subset at context 1,024,
+learning rate 0.00003 and seed 42. Each selected epoch three. Complete prediction cohorts, checkpoint
+state, source/runtime fingerprints, training identity and calibrated discard counts passed verification.
+
+| Head recipe | Selection macro F1 | Critical misses / 552 | Predicted unclear / 837 |
+| --- | ---: | ---: | ---: |
+| Cross-entropy, unweighted | 0.539 | 62 | 117 |
+| Cross-entropy, class-weighted | 0.535 | 37 | 180 |
+| Brier, unweighted | 0.472 | 85 | 32 |
+| Brier, class-weighted | 0.493 | 21 | 266 |
+
+Unweighted cross-entropy advances under the prespecified raw selection macro F1 criterion.
+An independent check confirmed that the running 4,000-document, 512-token context job uses that
+recipe. The remaining context candidates are 1,024, 2,048 and 4,096 tokens; these runs start from
+the pretrained model on the common 4,000-document subset.
+
+Weighted Brier has fewer default critical misses, but predicts substantially more unclear labels.
+Its separately fitted 1% and 5% calibration policies discard 13 and 64 selection documents
+(1.55% and 7.65%), with two and 21 review-worthy misses (0.36% and 3.80%). They also discard two
+and eleven unclear references. On the calibration cohort they discard four and 24 documents,
+with two and twelve review-worthy misses among 252 references. Fewer default misses alone
+does not establish a better workload/safety operating point.
+
+These are teacher-agreement fitting results, with no significance or held-out performance claim.
+There are 52 completed jobs, one context job running and no failed jobs at this snapshot.
+LoRA screens, context and sample-efficiency curves, model/policy freeze, held-out test, the
+qualified human audit and final report/reproducibility review remain pending.
