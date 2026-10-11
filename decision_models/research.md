@@ -177,3 +177,43 @@ These are teacher-agreement fitting results, with no significance or held-out pe
 There are 52 completed jobs, one context job running and no failed jobs at this snapshot.
 LoRA screens, context and sample-efficiency curves, model/policy freeze, held-out test, the
 qualified human audit and final report/reproducibility review remain pending.
+
+## First context run completed: 2026-10-11, 18:43 UTC
+
+The 4,000-document Laya head run at context 512 completed with the selected unweighted
+cross-entropy recipe. Raw selection macro F1 selects epoch two; retaining the final epoch would
+have reduced agreement and increased critical misses. Complete cohorts, checkpoint state,
+source/runtime fingerprints, training identity, timing summaries and discard policies passed
+independent verification. The next context-1,024 run uses the identical 4,000-document subset.
+
+| Epoch | Selection macro F1 | Critical misses / 552 | Predicted unclear / 837 |
+| --- | ---: | ---: | ---: |
+| Pre-update | 0.392 | 111 | 0 |
+| 1 | 0.534 | 180 | 195 |
+| 2, selected | 0.560 | 177 | 188 |
+| 3 | 0.494 | 258 | 216 |
+
+The selected model gains 0.168 macro F1 against its own pre-update control, but has more default
+critical misses. Calibration agreement is 0.572 macro F1 with 77 misses among 252 review-worthy
+references. At the same 4,000 training labels, the highest-F1 linear baseline is word TF-IDF/logistic:
+0.726 selection macro F1 and 84 critical misses. This is a fitting-cohort comparison; the remaining
+contexts and adaptation methods are required before any model-family conclusion.
+
+| Calibration miss target | Selection discarded / 837 | Workload reduction | Selection critical misses / 552 | Selection miss rate | Unclear references discarded |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1% | 14 | 1.67% | 4 | 0.72% | 1 |
+| 5% | 46 | 5.50% | 21 | 3.80% | 1 |
+
+The empirical calibration policies discard five and nineteen calibration documents respectively,
+with two and twelve review-worthy misses. Each maximizes calibration discard count within its
+fitted budget; the target is not a population guarantee. Classifier errors and achieved discard
+rates remain separate measures.
+
+The recorded training phase, including epoch validation, took 8,195 seconds; subsequent calibration,
+prediction and timing passes are additional. Warm inference on the common 128-document sample
+measured 291 ms mean and 1,189 ms P95, including text processing and excluding model loading.
+Training peak allocated VRAM was 2.10 GiB on the shared local machine.
+
+There are 53 completed jobs, one context job running and no failures at this snapshot. These are
+single-seed teacher-agreement fitting results. The remaining context/adaptation/sample curves,
+model/policy freeze, held-out test, qualified human audit and final report remain pending.
