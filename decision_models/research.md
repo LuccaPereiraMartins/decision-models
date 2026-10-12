@@ -60,6 +60,8 @@ qualified non-expert audit and the actual research report/PDF remain pending. Th
 remains intact while the experiment scope is replanned. Future larger LoRA curves, architecture
 controls and FinBERT/BGE/Qwen adaptation require a compute proposal based on measured pilot time,
 cloud pricing and checkpoint portability. No cloud job or additional paid model call is dispatched.
+The [cloud compute proposal](cloud-compute.md) records public reference prices, the transfer checks
+and a suggested order for the replanned experiments; it does not authorise paid execution.
 
 ## Progress snapshot: 2026-10-11, 13:15 UTC
 
