@@ -18,4 +18,6 @@ Each starts from its pinned pretrained weights: seed 42, rank 8, alpha 16, dropo
 
 Independent human review is deferred by agreement. Findings therefore concern agreement with Luna's rubric labels, with their limitations stated plainly. There are no analyst-validated materiality or trading-profitability claims. No cloud jobs or additional paid API calls are part of this continuation.
 
-The preset command and resume procedure are in [README.md](README.md#bounded-core-study). The previous completed results remain in [review-checkpoint.md](review-checkpoint.md); [research.md](research.md) retains the detailed historical evidence log.
+The preset command is in [README.md](README.md#bounded-core-study), with artifact and evidence requirements in [reproduce.md](reproduce.md). The previous completed results remain in [review-checkpoint.md](review-checkpoint.md); [research.md](research.md) retains the detailed historical evidence log.
+
+Execution started on 12 October at 21:41 London time. The progress checkpoint is 13 October around 17:41. Laya is first in the serial queue; ModernBERT and FinBERT follow. The original source bytes and frozen benchmark inputs are archived with verified hashes. Report construction and seven-page rendering checks use an explicitly synthetic fixture; real 4k adaptation findings, held-out evaluation and final report inspection remain pending.

@@ -205,7 +205,7 @@ def figures(output, entries, configs, results, intervals, main, primary):
         x = [entries[n]["samples"] for n in names]
         y = [results[n]["macro_f1"] for n in names]
         ax.plot(x, y, "o-", label=title, alpha=.8)
-    ax.set(xscale="log", xlabel="Training documents (fixed recipe, additional tuning labels)", ylabel="Test macro F1",
+    ax.set(xscale="log", xlabel="Training documents (validation-selected recipes)", ylabel="Test macro F1",
            ylim=(-.02, 1.05), title="Sample efficiency on the same temporal test cohort")
     ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=8)
     fig.tight_layout()
@@ -222,20 +222,21 @@ def figures(output, entries, configs, results, intervals, main, primary):
             ax.vlines(x, [intervals[n]["macro_f1"]["lower"] for n in selected],
                       [intervals[n]["macro_f1"]["upper"] for n in selected], color=line.get_color())
     ax.set(xlabel="Laya total context tokens", ylabel="Test macro F1", ylim=(-.02, 1.05),
-           title="Context ablation; paired group-bootstrap 95% intervals")
+           title="Context ablation; group-bootstrap 95% intervals")
     if names:
         ax.legend()
     fig.tight_layout()
     fig.savefig(output / "context.png", dpi=180)
     plt.close(fig)
     fig, ax = plt.subplots(figsize=(9, 5))
-    for name in main:
+    for index, name in enumerate(main):
         perf = json.loads((output.parent / entries[name]["directory"] / "performance.json").read_text())
         x = perf["batch_throughput"]["1"]["documents_per_second"]
-        ax.scatter(x, results[name]["macro_f1"])
-        ax.annotate(label(configs[name]), (x, results[name]["macro_f1"]), xytext=(4, 4), textcoords="offset points", fontsize=7)
+        ax.scatter(x, results[name]["macro_f1"], color=plt.get_cmap("tab20")(index % 20),
+                   label=f"{label(configs[name])} (n={entries[name]['samples']})")
     ax.set(xscale="log", xlabel="Warm single-document throughput (documents/s)", ylabel="Test macro F1", ylim=(-.02, 1.05),
            title="Agreement and local throughput; shared RTX 3060/CPU environment")
+    ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=10)
     fig.tight_layout()
     fig.savefig(output / "throughput.png", dpi=180)
     plt.close(fig)
@@ -262,6 +263,7 @@ def pdf(markdown, destination):
     from reportlab.platypus import Image, KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
     styles = getSampleStyleSheet()
     styles["BodyText"].fontSize, styles["BodyText"].leading = 10, 14
+    styles["Heading2"].keepWithNext = True
     cell = ParagraphStyle("Cell", fontSize=7.5, leading=10, alignment=TA_LEFT)
     header = ParagraphStyle("Header", parent=cell, textColor=colors.white)
     width = A4[0] - 84
@@ -348,6 +350,8 @@ def build(splits, study, human=None):
     main = {}
     for name, entry in entries.items():
         if entry["role"] in ("curve", "reference"):
+            if plan.get("preset") == "core" and entry["role"] == "curve" and entry["samples"] != freeze["primary_samples"]:
+                continue
             key = label(configs[name])
             if key not in main or entry["samples"] > entries[main[key]]["samples"]:
                 main[key] = name
@@ -390,7 +394,8 @@ def build(splits, study, human=None):
              "", "## Source and label coverage", ""]
     if plan.get("preset") == "core":
         parts.insert(parts.index("## Task and evaluation") + 1,
-                     "The primary contrast uses 4000 training documents for both methods. Larger imported curves are supplementary. "
+                     "The primary contrast and main trained-model tables use 4000 training documents per method. "
+                     "Unadapted references use no task training; larger imported curves are supplementary. "
                      "Generative LLM adaptation, larger LoRA runs and independent human review are deferred by the user. "
                      "This is an end-to-end teacher-agreement study, not expert validation of materiality.")
     if "synthetic" in freeze["manifest"]["prepared"].get("method", "").lower():
@@ -611,11 +616,12 @@ def build(splits, study, human=None):
                           audit['models'][n]['overall']['default_discard']['review_worthy_support']] for n in names])]
     content = "\n\n".join(parts) + "\n"
     (output / "report.md").write_text(content, encoding="utf-8")
+    (output / "report-source.py").write_bytes((HERE / "report.py").read_bytes())
     pdf(content, output / "report.pdf")
     save({"freeze_sha256": fingerprint(study / "freeze.json"), "results_sha256": fingerprint(study / "results.json"),
           "report_source_sha256": fingerprint(HERE / "report.py"),
           "versions": {n: version(n) for n in ('matplotlib', 'reportlab', 'pypdf')},
           "outputs": {name: fingerprint(output / name) for name in
-                      ('report.md', 'report.pdf', 'human-audit.json', 'reference-quote.json', 'training-composition.json', 'uncertainty-bands.json',
+                      ('report.md', 'report.pdf', 'report-source.py', 'human-audit.json', 'reference-quote.json', 'training-composition.json', 'uncertainty-bands.json',
                        'learning-curves.png', 'context.png', 'throughput.png', 'confusion.png')}}, output / "manifest.json")
     print(f"Report written to {output}; render and inspect PDF before publication", flush=True)
