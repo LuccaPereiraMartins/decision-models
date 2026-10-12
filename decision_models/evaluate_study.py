@@ -87,6 +87,20 @@ def interval(values):
     return {"lower": float(lower), "upper": float(upper), "valid_replicates": len(valid)}
 
 
+def claim_holdout(splits, output, freeze_hash):
+    """A new output directory must not silently reset the test-set firewall."""
+    from filelock import FileLock
+    path = splits / "test-evaluation.json"
+    identity = {"manifest_sha256": fingerprint(splits / "manifest.json"), "freeze_sha256": freeze_hash}
+    with FileLock(splits / "test-evaluation.lock", timeout=0):
+        if path.exists():
+            saved = json.loads(path.read_text(encoding="utf-8"))
+            if any(saved[key] != value for key, value in identity.items()):
+                raise ValueError("This holdout belongs to another frozen study; a new study needs fresh test data")
+        else:
+            save({**identity, "study": str(output.resolve())}, path)
+
+
 def evaluate(splits, output):
     import torch
     from filelock import FileLock
@@ -97,6 +111,7 @@ def evaluate(splits, output):
     path = output / "test-started.json"
     if path.exists() and json.loads(path.read_text()) != marker:
         raise ValueError("Test inference belongs to another freeze")
+    claim_holdout(splits, output, marker["freeze_sha256"])
     save(marker, path)
     records = load_split(splits, "test")
     predictions = {}

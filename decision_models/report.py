@@ -312,6 +312,7 @@ def pdf(markdown, destination):
 
 
 def build(splits, study, human=None):
+    plan = json.loads((study / "plan.json").read_text(encoding="utf-8"))
     freeze = validate_freeze(splits, study)
     results = json.loads((study / "results.json").read_text(encoding="utf-8"))
     for key, name in (("bootstrap", "bootstrap.json"), ("matched_coverage", "matched-coverage.json")):
@@ -330,6 +331,8 @@ def build(splits, study, human=None):
         configs[name] = json.loads((study / entry["directory"] / "config.json").read_text(encoding="utf-8"))
     records = load_split(splits, "test")
     audit = human_audit(human, records, predictions, freeze["primary_linear"])
+    if plan.get("preset") == "core" and human is None:
+        audit["status"] = "Deferred for this version by agreement"
     quote = reference_quote(records)
     composition = training_composition(splits)
     bands = {name: uncertainty_bands(rows) for name, rows in predictions.items()}
@@ -348,9 +351,16 @@ def build(splits, study, human=None):
             key = label(configs[name])
             if key not in main or entry["samples"] > entries[main[key]]["samples"]:
                 main[key] = name
-    names = list(main.values())
-    raw_scores = {name: json.loads((study / "test" / f"{name}.json").read_text())["raw_metrics"]["overall"] for name in names}
     primary, reference = freeze["primary_decision"], freeze["primary_linear"]
+    names = list(dict.fromkeys((primary, reference, *main.values())))
+    raw_scores = {name: json.loads((study / "test" / f"{name}.json").read_text())["raw_metrics"]["overall"] for name in names}
+    has_qwen = any(config["kind"].startswith("qwen") for config in configs.values())
+    recipe_note = ("The bounded study adds one predeclared 4000-document LoRA recipe each for Laya, ModernBERT and FinBERT, "
+                   "without a new hyperparameter sweep. Imported head recipes were previously selected at 1000/4000; "
+                   "their tuning labels are additional to the stated training size."
+                   if plan.get("preset") == "core" else
+                   "Recipes are screened at 1000/4000 or nearest attainable sizes. Their tuning labels are additional, "
+                   "so the smallest point is not a claim that its training rows alone suffice to discover the recipe.")
     figures(output, entries, configs, scored, intervals, names, (primary, reference))
     git_revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=HERE, text=True).strip()
     delta = intervals[primary]["paired_delta_vs_reference"]["macro_f1"]
@@ -369,15 +379,20 @@ def build(splits, study, human=None):
              "Macro F1 averages all three declared labels, including absent classes in small slices. "
              "The critical error is a review-worthy document predicted routine.",
              "The research question is whether supervised decision-model adaptation and larger contiguous context improve "
-             "triage agreement, critical misses and throughput relative to lexical, encoder and small decoder baselines. "
+             "triage agreement, critical misses and throughput relative to lexical and encoder baselines. "
              "FinBERT's published sentiment results do not establish triage quality; BGE is an embedding model. "
-             "ModernBERT controls for Laya's backbone, while Qwen tests a bounded non-thinking deployment. "
+             "ModernBERT supplies a backbone-family system comparison; classifier/decision heads and source-window budgets differ. "
              f"Primary sources and distinctions are documented in [literature.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/{git_revision}/decision_models/literature.md).",
              "Train ends 2026-03-31; selection/calibration use April-June; test uses July-September. "
              "Event and verified near-duplicate groups cannot cross boundaries. Old experimental bodies and near duplicates "
              "are excluded from fresh validation/test. Candidate retrieval is approximate and can miss duplicates. "
              "Every core recipe, checkpoint, calibration and discard threshold was frozen before test inference.",
              "", "## Source and label coverage", ""]
+    if plan.get("preset") == "core":
+        parts.insert(parts.index("## Task and evaluation") + 1,
+                     "The primary contrast uses 4000 training documents for both methods. Larger imported curves are supplementary. "
+                     "Generative LLM adaptation, larger LoRA runs and independent human review are deferred by the user. "
+                     "This is an end-to-end teacher-agreement study, not expert validation of materiality.")
     if "synthetic" in freeze["manifest"]["prepared"].get("method", "").lower():
         parts.insert(1, "Synthetic engineering fixture: this document verifies the pipeline and contains no research findings.")
     manifest = freeze["manifest"]["splits"]
@@ -475,9 +490,7 @@ def build(splits, study, human=None):
               "![Nested learning curves on the same held-out cohort](learning-curves.png)",
               "Training sizes are nested 250/1000/4000/16000/all where attainable. Each neural run restarts from pinned pretrained "
               "weights. Deterministic family/label round-robin sampling changes class/source proportions as strata exhaust; "
-              "the allocation must be considered when interpreting sample efficiency. One training seed is used. "
-              "Recipes are screened at 1000/4000 or nearest attainable sizes. Their tuning labels "
-              "are additional, so the smallest point is not a claim that its training rows alone suffice to discover the recipe.",
+              "the allocation must be considered when interpreting sample efficiency. One training seed is used. " + recipe_note,
               *training_tables(composition),
               "Counts use the exact frozen training subsets shared by all models. Independent groups may contain multiple "
               "related documents. These tables describe training allocation; recipe-screening and validation labels are additional.",
@@ -485,8 +498,9 @@ def build(splits, study, human=None):
               "Laya uses fixed uniform whole-document pooling and 50% overlapping windows; the native SDK reference uses "
               "most-confident-window aggregation. CE/Brier objectives are document-level; no chunk labels are invented. "
               "Matched pre-update controls separate supervised adaptation from aggregation and k-bit precision changes. "
-              "FinBERT/BGE/ModernBERT use fresh triage heads; FinBERT's sentiment head is not mapped to triage labels. "
-              "Qwen uses non-thinking NF4/BF16 A/B/C scoring; QLoRA is conditional discriminative CE, not full-vocabulary SFT."]
+              "FinBERT/BGE/ModernBERT use fresh triage heads; FinBERT's sentiment head is not mapped to triage labels."]
+    if has_qwen:
+        parts.append("Qwen uses non-thinking NF4/BF16 A/B/C scoring; QLoRA is conditional discriminative CE, not full-vocabulary SFT.")
     contrasts = json.loads((study / "bootstrap.json").read_text())["contrasts"]
     parts += [table(["Adapted model", "Train", "Matched-zero F1", "Adapted F1", "Paired gain 95% CI"],
                     [[label(configs[n]), entries[n]['samples'], number(scored[entries[n]['matched_zero']]['macro_f1']),
@@ -504,18 +518,19 @@ def build(splits, study, human=None):
               "All source tokens remain covered at each context size; the difference is not previously omitted text.",
               "These paired differences describe this fixed-seed cohort. Additional tuning labels and multiple comparisons "
               "limit claims about minimum data requirements or statistical significance."]
-    matched = json.loads((study / "matched-coverage.json").read_text())
-    parts += ["", "## Truncation and matched coverage", "",
-              f"Qwen's 4096-token budget includes the prompt. Long bodies retain first/last tokens, omitting the middle. "
-              f"The common fully covered subset contains {matched['documents']} documents, identical for every model.",
-              table(["Model", "Matched F1", "Review-worthy support", "Dangerous misses"],
-                    [[label(configs[n]), number(matched['models'][n]['overall'].get('macro_f1')),
-                      matched['models'][n]['overall'].get('default_discard', {}).get('review_worthy_support', 0),
-                      matched['models'][n]['overall'].get('default_discard', {}).get('dangerous_misses', 0)] for n in names]),
-              "This subset can differ systematically from long documents; full-cohort results remain necessary. "
-              "Encoder/Laya windows retain all source tokens. Qwen probabilities are conditional on A/B/C; "
-              "full-vocabulary answer mass and retained-token fractions are saved per document.",
-              "", "## Latency and cost", "", "![Warm throughput measured locally](throughput.png)"]
+    if has_qwen:
+        matched = json.loads((study / "matched-coverage.json").read_text())
+        parts += ["", "## Truncation and matched coverage", "",
+                  f"Qwen's 4096-token budget includes the prompt. Long bodies retain first/last tokens, omitting the middle. "
+                  f"The common fully covered subset contains {matched['documents']} documents, identical for every model.",
+                  table(["Model", "Matched F1", "Review-worthy support", "Dangerous misses"],
+                        [[label(configs[n]), number(matched['models'][n]['overall'].get('macro_f1')),
+                          matched['models'][n]['overall'].get('default_discard', {}).get('review_worthy_support', 0),
+                          matched['models'][n]['overall'].get('default_discard', {}).get('dangerous_misses', 0)] for n in names]),
+                  "This subset can differ systematically from long documents; full-cohort results remain necessary. "
+                  "Encoder/Laya windows retain all source tokens. Qwen probabilities are conditional on A/B/C; "
+                  "full-vocabulary answer mass and retained-token fractions are saved per document."]
+    parts += ["", "## Latency and cost", "", "![Warm throughput measured locally](throughput.png)"]
     timing = []
     for n in names:
         perf = json.loads((study / entries[n]["directory"] / "performance.json").read_text())
@@ -525,15 +540,17 @@ def build(splits, study, human=None):
     parts += [table(["Model", "P50 s", "P95 s", "Batch 1 docs/s", "Batch 8 docs/s", "Peak VRAM GiB"], timing),
               "Warm timings include preprocessing and all model windows, exclude loading, and use a fixed 128-document "
               "selection sample on a shared machine. Sklearn batches are native; neural/SDK/prompt document batches are serial, "
-              "with window batching where supported. Local API charges are zero; hardware, electricity and collection are additional.",
+              "with window batching where supported. Local API charges are zero; hardware, electricity and collection are additional."]
+    if plan.get("preset") != "core":
+        parts += [
               "The paid GPT-6.1 Sol reference was not executed. Using checked Flex prices without cache discounts, this test cohort "
               "would cost the following input/output scenarios. o200k tokenization is an approximation; the separate byte bound "
               "reserves prompt overhead and is deliberately conservative.",
               table(["Output tokens/doc", "Approximate USD", "Conservative USD"],
                     [[k, number(v['approximate_usd'], 2), number(v['conservative_usd'], 2)] for k, v in quote['scenarios_output_tokens_per_document'].items()]),
               f"Pricing checked {quote['pricing_checked']}: [official pricing]({quote['pricing_source']}). Reasoning tokens count as output. "
-              "A future paid run needs an updated concrete quote and authorization; it has no measured accuracy or latency here.",
-              "", "## Critical-error inspection", ""]
+              "A future paid run needs an updated concrete quote and authorization; it has no measured accuracy or latency here."]
+    parts += ["", "## Critical-error inspection", ""]
     resources = []
     for n in names:
         directory = study / entries[n]["directory"]
@@ -547,7 +564,7 @@ def build(splits, study, human=None):
     parts.insert(parts.index("## Critical-error inspection") - 1,
                  table(["Model", "Fit elapsed s", "Training VRAM GiB", "Original weights GiB", "Saved checkpoint MiB"], resources) +
                  "\n\nFit elapsed includes training/grid selection and recorded validation work; cached features can reduce elapsed time. "
-                 "Original weights are cached pretrained input files, including unquantized Qwen weights, not packed deployment size. "
+                 "Original weights are cached pretrained input files, not packed deployment size. "
                  "Saved checkpoints may include optimizer/RNG state. Peak VRAM is torch-allocated memory, excluding driver/display overhead; "
                  "the latency table reports inference peak, with training peak listed separately.")
     features = [(name, configs[name]["feature_preparation"]) for name in names if configs[name].get("feature_preparation")]
@@ -582,8 +599,8 @@ def build(splits, study, human=None):
               "Raw-source rights/attribution travel with the corpus. Old API/container behavior remains separate.",
               "This is source-only inbox triage on constrained public cohorts, not expert materiality assessment or a trading strategy. "
               "One seed cannot quantify training instability. Bootstrap intervals quantify cohort sampling only. Teacher labels "
-              "favor agreement with the labeling approach; the limited non-expert audit is reported separately. "
-              "Missing source/date coverage, approximate duplicate retrieval, pretraining exposure and long-document clipping restrict generalization. "
+              "favor agreement with the labeling approach; independent audit availability is stated above. "
+              "Missing source/date coverage, approximate duplicate retrieval and pretraining exposure restrict generalization. "
               "No paid SOTA comparison or RL/RLCD result is claimed. RL/RLCD remains a possible follow-on after the core study."]
     if audit["resolved"]:
         parts += ["", "## Independent non-expert audit", "",

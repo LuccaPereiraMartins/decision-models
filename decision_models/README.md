@@ -313,6 +313,26 @@ K-bit training preparation can change frozen layer precision, so the matched epo
 correct baseline for adaptation gains. The separate prompt-only reference remains useful as a deployed setup.
 No paid LLM reference is executed; its proposed cost will be quoted before any future authorization.
 
+## Bounded core study
+
+The current [agreed plan](core-study.md) reuses completed runs and adds exactly three 4,000-document
+LoRA recipes: Laya, ModernBERT and FinBERT. It does not launch the full matrix below.
+
+```bash
+python decision_models/study.py --preset core --reuse decision_models/training_runs/research-study --splits decision_models/data/research/benchmark --output decision_models/training_runs/research-core-v1 --stage all
+```
+
+Run in the existing pinned CUDA environment. Preserve the original study and its source snapshots before
+updating the checkout; imported artifacts must pass unchanged model-source/runtime/data checks. The core
+plan also fingerprints the original plan/state and its own runner/evaluator/report. Completed weights are
+referenced, not copied. Keep both study directories when transferring or archiving this result.
+
+Resume with the same command. After freezing, fitting is skipped; test inference resumes only against
+the identical freeze. The benchmark-level `test-evaluation.json` binds this holdout to that freeze, so
+another output directory cannot reset the firewall. Human review is explicitly deferred for this version.
+Use `--stage report` to regenerate the report after completed test inference. This command dispatches no
+paid API calls or cloud jobs. The larger matrix remains available with the default `full` preset.
+
 ## Serial study and report
 
 Install the optional report dependencies in the same Python environment used for the study:
@@ -388,4 +408,5 @@ Engineering verification covered an actual CPU baseline, tiny Laya and Qwen adap
 freeze-before-test, resumable test inference, identical coverage filtering, changed-metadata rejection and
 Markdown/PDF rendering on synthetic fixtures. Hand checks verified paired group-bootstrap F1/miss behavior.
 These checks establish the pipeline, not findings from the new corpus. Keep all five PRs draft until the
-actual study, human audit and publication/reproducibility review are complete.
+actual study and publication/reproducibility review are complete. The bounded core version defers human
+review and must describe its results as teacher agreement throughout.

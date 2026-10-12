@@ -2,8 +2,9 @@
 
 Approved scope: source-content-only triage for analyst inboxes, written for AI/ML engineers in finance. Labels remain routine, review_worthy and unclear; unclear routes to review. Macro F1 is primary. Review-worthy -> routine is the critical miss. Trading strategies and historical-context reasoning are outside this study.
 
-The [12 October review handoff](review-checkpoint.md) is the current status. Both bounded jobs
-are complete, compute is stopped, and the remaining study awaits review and replanning.
+The [bounded core study](core-study.md) is the current agreed plan: three 4k LoRA runs including FinBERT,
+then frozen held-out evaluation and the report. Human review and larger/generative adaptation are deferred.
+The [12 October review handoff](review-checkpoint.md) records the completed earlier checkpoint.
 
 ## Five dependent PRs
 

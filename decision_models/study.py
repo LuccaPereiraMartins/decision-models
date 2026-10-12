@@ -3,6 +3,7 @@
 import argparse
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -17,7 +18,7 @@ def nearest(sizes, target):
 
 
 class Study:
-    def __init__(self, splits, output):
+    def __init__(self, splits, output, preset=None, reuse=None):
         self.splits, self.output = splits.resolve(), output.resolve()
         self.output.mkdir(parents=True, exist_ok=True)
         self.manifest = json.loads((splits / "manifest.json").read_text(encoding="utf-8"))
@@ -25,6 +26,12 @@ class Study:
             raise ValueError("Use the fresh research benchmark")
         subsets = json.loads((splits / "subsets.json").read_text(encoding="utf-8"))
         self.sizes = sorted(map(int, subsets["subsets"]))
+        path = output / "plan.json"
+        previous_plan = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        self.preset = preset or previous_plan.get("preset", "full")
+        self.reuse = Path(reuse or previous_plan["reuse"]).resolve() if reuse or previous_plan.get("reuse") else None
+        if self.preset == "core" and (self.reuse is None or 4000 not in self.sizes):
+            raise ValueError("The core study needs the completed study and the frozen 4000-document subset")
         plan = {"manifest_sha256": fingerprint(splits / "manifest.json"),
                 "subsets_sha256": fingerprint(splits / "subsets.json"), "seed": 42,
                 "sizes": self.sizes, "screen_samples": nearest(self.sizes, 1000),
@@ -35,7 +42,17 @@ class Study:
                                   ("study.py", "research_runtime.py", "evaluate_study.py")},
                 "sample_efficiency_note": "Recipes screened at 1000/4000 or nearest attainable sizes; tuning labels are additional",
                 "api_execution": "None; labels use the separate shared Luna ledger"}
-        path = output / "plan.json"
+        if self.preset == "core":
+            plan.update(preset="core", reuse=str(self.reuse), primary_samples=4000,
+                        reuse_plan_sha256=fingerprint(self.reuse / "plan.json"),
+                        reuse_state_sha256=fingerprint(self.reuse / "state.json"),
+                        new_recipes=[{"kind": kind, "adaptation": "lora", "samples": 4000,
+                                      "context": context, "learning_rate": 1e-4, "loss": "ce",
+                                      "class_weight_power": 0.0, "lora_rank": 8}
+                                     for kind, context in (("laya", 1024), ("modernbert", 1024), ("finbert", 512))],
+                        human_review="Deferred by the user; teacher-agreement study only",
+                        deferred=["larger LoRA runs", "generative LLM adaptation", "BGE adaptation", "extra recipe/context sweeps", "RL/RLCD"])
+            plan["source_sha256"]["report.py"] = fingerprint(HERE / "report.py")
         if path.exists() and json.loads(path.read_text(encoding="utf-8")) != plan:
             raise ValueError("Study data, matrix or source changed; preserve this study and use a new output")
         if not path.exists():
@@ -43,6 +60,47 @@ class Study:
         state = output / "state.json"
         self.state = json.loads(state.read_text(encoding="utf-8")) if state.exists() else {"jobs": {}, "attempts": []}
         self.comparisons = {}
+
+    def reuse_run(self, name, record, role):
+        directory = self.reuse / record["directory"]
+        if not directory.resolve().is_relative_to(self.reuse):
+            raise ValueError(f"Imported job escapes the original study: {name}")
+        config, _ = verify(directory, self.manifest)
+        imported = {**record, "directory": os.path.relpath(directory, self.output),
+                    "role": role, "status": "completed", "imported_from": str(self.reuse)}
+        previous = self.state["jobs"].get(name)
+        if previous and previous != imported:
+            raise ValueError(f"Imported job changed: {name}")
+        self.state["jobs"][name] = imported
+        self.comparisons[name] = {"directory": imported["directory"], "role": role, "control_of": None}
+        return config
+
+    def fit_core(self):
+        if (self.reuse / "test-started.json").exists():
+            raise ValueError("The reused study already opened this holdout; use a fresh benchmark")
+        original_plan = json.loads((self.reuse / "plan.json").read_text(encoding="utf-8"))
+        if original_plan["manifest_sha256"] != fingerprint(self.splits / "manifest.json"):
+            raise ValueError("The reused study has a different frozen benchmark")
+        original = json.loads((self.reuse / "state.json").read_text(encoding="utf-8"))
+        for name, record in original["jobs"].items():
+            if record["status"] != "completed":
+                continue
+            role = record["role"]
+            keep = record["script"] == "fit_baselines.py" or name == "laya-sdk"
+            if record["script"] == "train.py" and name.startswith("laya-"):
+                keep = role in ("curve", "context") or name == "laya-lora-ce-w0-lr0.0001-n1000-c1024"
+                if "-lora-" in name:
+                    role = "curve"
+            if keep:
+                self.reuse_run(name, record, role)
+        save(self.state, self.output / "state.json")
+        choices = {}
+        for kind, context in (("laya", 1024), ("modernbert", 1024), ("finbert", 512)):
+            name = self.neural(kind, "lora", 4000, context, lr=1e-4, role="curve")
+            if name is None:
+                raise RuntimeError(f"The required {kind} recipe is infeasible; preserve its OOM attempts")
+            choices[kind + "-lora"] = {"predeclared_recipe": self.recipe(name)}
+        return choices
 
     def job(self, name, script, arguments, role="screen", control=None, fallback_of=None):
         directory = self.output / "runs" / name
@@ -127,8 +185,14 @@ class Study:
     def fit(self):
         if (self.output / "freeze.json").exists() or (self.output / "test-started.json").exists():
             raise ValueError("Model selection is frozen; resume test/report without fitting")
+        if (self.splits / "test-evaluation.json").exists():
+            raise ValueError("This holdout has been evaluated; do not select new recipes against it")
         for name in ("train", "selection", "calibration"):
             load_split(self.splits, name)  # Verify inputs; deliberately never open test.
+        if self.preset == "core":
+            choices = self.fit_core()
+            self.finish_selection(choices)
+            return
         small, context_n = nearest(self.sizes, 1000), nearest(self.sizes, 4000)
         for n in self.sizes:
             for kind in ("majority", "tfidf", "char", "combined", "finbert", "bge"):
@@ -166,6 +230,9 @@ class Study:
                 sizes = [context_n] if kind in ("modernbert", "qwen4") else self.sizes
                 for n in sizes:
                     self.neural(kind, adaptation, n, recipe["max_len"], lr=recipe["learning_rate"], role="curve")
+        self.finish_selection(choices)
+
+    def finish_selection(self, choices):
         # Preserve matched controls for every final neural context/recipe, once per identical setup.
         controls = {}
         for name, comparison in list(self.comparisons.items()):
@@ -197,7 +264,7 @@ class Study:
                              "selection_macro_f1": json.loads((directory / "selection.json").read_text())["metrics"]["overall"]["macro_f1"],
                              "samples": config.get("samples", 0), "kind": config.get("kind", "laya"),
                              "family": config["family"]}
-        maximum = max(self.sizes)
+        maximum = 4000 if self.preset == "core" else max(self.sizes)
         linear = [n for n, e in entries.items() if e["family"] == "research_linear" and e["samples"] == maximum]
         decision = [n for n, e in entries.items() if e["family"] == "research_neural" and
                     e["kind"] == "laya" and e["samples"] == maximum]
@@ -208,6 +275,7 @@ class Study:
                   "state_sha256": fingerprint(self.output / "state.json"),
                   "manifest": self.manifest, "entries": entries,
                   "primary_linear": choose(linear), "primary_decision": choose(decision),
+                  "primary_samples": maximum,
                   "criterion": "All selections frozen before test inference", "utc": datetime.now(timezone.utc).isoformat()}
         save(freeze, self.output / "freeze.json")
 
@@ -217,9 +285,11 @@ if __name__ == "__main__":
     parser.add_argument("--splits", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--stage", choices=("fit", "freeze", "test", "report", "all"), default="all")
+    parser.add_argument("--preset", choices=("full", "core"), help="Core adds only the three agreed 4000-document LoRA recipes")
+    parser.add_argument("--reuse", type=Path, help="Completed study used by the core preset; original artifacts stay unchanged")
     parser.add_argument("--human", type=Path, help="Optional resolved human-review overlay; report only")
     args = parser.parse_args()
-    study = Study(args.splits, args.output)
+    study = Study(args.splits, args.output, args.preset, args.reuse)
     if args.stage == "fit" and (args.output / "freeze.json").exists():
         parser.error("The study is frozen; use test/report to resume")
     if args.stage in ("fit", "all") and not (args.output / "freeze.json").exists():
