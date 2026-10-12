@@ -76,5 +76,10 @@ verification. Do not rename old directories, alter their plan or restart the unr
    fresh human audit, and the publication report/PDF. Additional BGE/model/loss/context sweeps remain
    explicit deferred work rather than completed study claims. RL/RLCD stays a later optional experiment.
 
-The local pilot will supply a measured training/evaluation time breakdown for the next quote.
-Full-matrix GPU hours and the attainable cloud speedup remain unknown until a cloud trial is measured.
+The completed local LoRA pilot's training clock is 3,929 seconds (1.09 hours), including epoch
+validation but excluding startup and final calibration/selection/performance work; training peak
+allocation is 3.18 GiB. Its common warm inference sample averages 266.5 ms per document.
+This supplies a local reference, not a cloud speed estimate. Validation overhead is partly fixed
+and document/window composition changes with subset size, so multiplying this clock by the ratio
+of training sizes would not produce a trustworthy full-run quote. Full-matrix GPU hours and the
+attainable cloud speedup remain unknown until a cloud trial is measured.

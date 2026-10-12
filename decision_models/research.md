@@ -2,6 +2,9 @@
 
 Approved scope: source-content-only triage for analyst inboxes, written for AI/ML engineers in finance. Labels remain routine, review_worthy and unclear; unclear routes to review. Macro F1 is primary. Review-worthy -> routine is the critical miss. Trading strategies and historical-context reasoning are outside this study.
 
+The [12 October review handoff](review-checkpoint.md) is the current status. Both bounded jobs
+are complete, compute is stopped, and the remaining study awaits review and replanning.
+
 ## Five dependent PRs
 
 1. **Data**: corporate releases, 6-Ks, Fed, ECB and general news alongside 8-Ks; source census and rights register; provenance; staged Luna labels; temporal/event/near-duplicate separation; blinded human-review pack.
@@ -490,3 +493,45 @@ Timings include text processing, exclude model loading, and come from the shared
 
 The 25,000-document head run remains deferred. Only the LoRA pilot is active; compute still stops
 at 18:00 London for the 19:00 review handoff. No model freeze or held-out test has started.
+
+## LoRA pilot verified and compute stopped: 2026-10-12, 17:00 UTC
+
+Both bounded review jobs completed; the runner stopped at 12:47 UTC (13:47 London). At this
+verification checkpoint, all 60 recorded jobs are complete, no research training processes remain,
+the GPU lock is available, and no model freeze or test evaluation has started. No larger run starts.
+
+The Laya LoRA pilot used 1,000 training documents, 1,024-token whole-document pooling,
+unweighted cross-entropy, rank 8, learning rate 0.0001 and seed 42. Epoch three was selected.
+Completion hashes, finite weights, optimizer/RNG checkpoints, all 375 steps, source/runtime pins,
+canonical training identities and fitting-cohort predictions passed independent checks. Its
+pre-update probabilities exactly match the designated head curve on all 837 selection documents.
+
+| Matched 1,000-document recipe | Selection macro F1 | Critical misses / 552 |
+| --- | ---: | ---: |
+| Word TF-IDF + linear SVM | 0.675 | 99 |
+| Laya LoRA, selected epoch three | 0.656 | 104 |
+| Laya head, selected epoch three | 0.544 | 67 |
+
+LoRA gains 0.112 macro F1 over the matched head, but adds 37 critical misses and remains below
+the lexical baseline. Both adaptations start from identical predictions; their learning rates
+differ, so this is a recipe comparison, not an isolated causal LoRA effect. The training size
+does not include additional labels used for recipe/context selection. This single pilot cannot
+establish a LoRA learning curve or a model-family ranking on held-out financial documents.
+
+The separate calibration result is F1 0.660 with 52 critical misses among 252 review-worthy
+references. The 1%/5% policies discard eight/33 calibration documents with two/twelve critical
+misses and no unclear references discarded. On selection they discard 28/91 documents
+(3.35%/10.87% workload reduction), with seven/36 critical misses among 552 (1.27%/6.52%).
+Neither achieves its miss target on selection. No unclear references are discarded there.
+The thresholds remain calibration-selected and were not retuned after observing this failure.
+
+The training clock is 3,929 seconds (1.09 hours), including epoch validation and excluding final
+calibration/selection and performance measurement. Training peak allocation is 3.18 GiB.
+On the common 128-document warm sample, mean inference is 266.5 ms, P50 143.0 ms and P95
+1,123.7 ms; inference peak allocation is 2.10 GiB. The matched word/SVM baseline averages 4.4 ms
+on the same sample. Both timings include text processing and exclude loading; TF-IDF uses CPU
+and Laya the local RTX 3060, with shared-machine measurements. All raw timing calculations passed.
+
+The [review handoff](review-checkpoint.md) brings the current findings and five-PR review order
+together. The larger matrix, final selection/freeze, held-out evaluation, fresh qualified human
+audit, actual publication report/PDF and remaining reproduction review await replanning.
