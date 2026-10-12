@@ -299,3 +299,52 @@ peak allocated VRAM was 2.84 GiB. These timings describe the shared local machin
 There are 55 completed jobs and no failed jobs at this snapshot. The context-4,096 run is active
 on the identical subset. The full adaptation/sample-efficiency matrix, model/policy freeze,
 held-out test, qualified human audit and final report/reproducibility review remain pending.
+
+## Head context ablation completed: 2026-10-12, 01:21 UTC
+
+All four Laya head context runs completed on the identical 4,000-document subset with unweighted
+cross-entropy, learning rate 0.00003, seed 42 and fixed whole-document pooling. Checkpoints, complete
+cohorts, source/runtime fingerprints, probability metrics, timing and discard policies passed
+independent verification. A separate check recomputed all four selection scores on matching row
+identities and confirmed that the new 250-document curve run uses the selected recipe and context.
+
+| Context | Selected epoch | Selection macro F1 | Critical misses / 552 | Predicted unclear / 837 | Calibration macro F1 | Calibration critical misses / 252 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 512 | 2 | 0.560 | 177 | 188 | 0.572 | 77 |
+| 1,024 | 2 | 0.582 | 105 | 195 | 0.571 | 45 |
+| 2,048 | 3 | 0.556 | 111 | 260 | 0.512 | 47 |
+| 4,096 | 3 | 0.572 | 121 | 229 | 0.544 | 54 |
+
+Context 1,024 advances under the prespecified raw selection macro F1 criterion. Larger contexts
+do not improve agreement monotonically in this head ablation. These are single-seed fitting results
+against Luna references, with no significance or held-out performance claim. The matched word
+TF-IDF/logistic baseline scores 0.726 F1 with 84 critical misses; the full learning curves and
+remaining adaptation methods are needed before broader model-family conclusions.
+
+At context 4,096, the pre-update control scores 0.379 F1 with 91 critical misses. Epochs one,
+two and three score 0.534, 0.569 and 0.572 with 84, 107 and 121 misses respectively. Raw F1
+selects epoch three, a gain of 0.194 against its own control, while default critical misses rise.
+
+| Calibration miss target | Selection discarded / 837 | Workload reduction | Selection critical misses / 552 | Selection miss rate | Unclear references discarded |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1% | 42 | 5.02% | 15 | 2.72% | 1 |
+| 5% | 76 | 9.08% | 36 | 6.52% | 1 |
+
+Both context-4,096 policies exceed their calibration miss targets on selection. Calibration
+discards four and nineteen documents respectively, with two and twelve review-worthy misses among
+252 references and no unclear references discarded. Each maximizes calibration discard count
+within its fitted budget. Empirical fitting constraints do not guarantee population risk, and
+these transfer checks do not retune the prescribed policies.
+
+The context-4,096 recorded training phase, including epoch validation, took 8,043 seconds; subsequent
+calibration, prediction and timing passes are additional. The common 128-document warm sample
+measured 263 ms mean and 1,268 ms P95, including text processing and excluding loading. Training
+peak allocated VRAM was 3.83 GiB. Timing describes the shared local machine.
+
+There are 56 completed jobs and no failures at this snapshot. The selected context-1,024 head recipe
+is now running the 250-document point of its nested learning curve; sizes 1,000/4,000/16,000/25,000
+follow, reusing the completed selected 4,000-document context run. Recipe/context selection used
+additional 1,000/4,000-document supervision and validation labels, so the smallest curve point is
+not a claim of only 250 total supervised labels. LoRA and language-model adaptation, the full
+sample-efficiency matrix, model/policy freeze, held-out test, qualified human audit and final
+report/reproducibility review remain pending.
