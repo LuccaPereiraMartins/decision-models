@@ -52,7 +52,6 @@ class Study:
                                      for kind, context in (("laya", 1024), ("modernbert", 1024), ("finbert", 512))],
                         human_review="Deferred by the user; teacher-agreement study only",
                         deferred=["larger LoRA runs", "generative LLM adaptation", "BGE adaptation", "extra recipe/context sweeps", "RL/RLCD"])
-            plan["source_sha256"]["report.py"] = fingerprint(HERE / "report.py")
         if path.exists() and json.loads(path.read_text(encoding="utf-8")) != plan:
             raise ValueError("Study data, matrix or source changed; preserve this study and use a new output")
         if not path.exists():

@@ -324,7 +324,8 @@ python decision_models/study.py --preset core --reuse decision_models/training_r
 
 Run in the existing pinned CUDA environment. Preserve the original study and its source snapshots before
 updating the checkout; imported artifacts must pass unchanged model-source/runtime/data checks. The core
-plan also fingerprints the original plan/state and its own runner/evaluator/report. Completed weights are
+plan also fingerprints the original plan/state and its own runner/evaluator. The report records its source
+and output hashes separately, allowing presentation fixes after evaluation. Completed weights are
 referenced, not copied. Keep both study directories when transferring or archiving this result.
 
 Resume with the same command. After freezing, fitting is skipped; test inference resumes only against
