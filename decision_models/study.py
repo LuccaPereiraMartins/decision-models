@@ -101,6 +101,8 @@ class Study:
         return name
 
     def neural(self, kind, adaptation, n, context, objective="ce", weight=0, lr=1e-4, role="screen"):
+        # Match CLI parsing so integer and float recipes reuse the same job.
+        weight = float(weight)
         name = f"{kind}-{adaptation}-{objective}-w{weight}-lr{lr:g}-n{n}-c{context}"
         arguments = ["--model", kind, "--adaptation", adaptation, "--samples", n, "--context", context,
                      "--objective", objective, "--class-weight-power", weight, "--learning-rate", lr,

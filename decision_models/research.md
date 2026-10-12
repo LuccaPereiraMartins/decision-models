@@ -348,3 +348,67 @@ additional 1,000/4,000-document supervision and validation labels, so the smalle
 not a claim of only 250 total supervised labels. LoRA and language-model adaptation, the full
 sample-efficiency matrix, model/policy freeze, held-out test, qualified human audit and final
 report/reproducibility review remain pending.
+
+## First head learning-curve points verified: 2026-10-12, 03:01 UTC
+
+The selected context-1,024, unweighted cross-entropy head recipe now has verified points at
+250, 1,000 and 4,000 training documents. The 4,000-document point reuses its completed context
+run. Checkpoints, exact nested identities, full selection/calibration cohorts, source/runtime
+fingerprints, probability metrics, discard policies and timing summaries passed verification.
+
+| Training documents | Selected epoch | Head selection F1 | Head critical misses / 552 | Predicted unclear / 837 | Highest-F1 matched baseline | Baseline selection F1 | Baseline critical misses / 552 |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| 250 | 2 | 0.364 | 76 | 0 | Word TF-IDF/SVM | 0.678 | 82 |
+| 1,000 | 3 | 0.544 | 67 | 110 | Word TF-IDF/SVM | 0.675 | 99 |
+| 4,000 | 2 | 0.582 | 105 | 195 | Word TF-IDF/logistic | 0.726 | 84 |
+
+The common pre-update control at context 1,024 scores 0.362 F1 with 76 critical misses and no
+unclear predictions. The selected head gains are 0.002, 0.182 and 0.220 respectively. At 250
+documents, none of the three updated epochs predicts unclear; this point gives little observed
+agreement gain. Default critical misses do not improve monotonically with sample size, despite
+the head F1 increases. Baseline F1 is also not monotonic between 250 and 1,000 documents.
+These are descriptive single-seed fitting comparisons, not significance or held-out claims.
+Changing class/source proportions and additional recipe/context supervision remain explicit
+parts of the learning-curve protocol.
+
+| Training documents | Calibration miss target | Selection discarded / 837 | Workload reduction | Critical misses / 552 | Miss rate | Unclear references discarded |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 250 | 1% | 21 | 2.51% | 3 | 0.54% | 11 |
+| 250 | 5% | 87 | 10.39% | 15 | 2.72% | 46 |
+| 1,000 | 1% | 20 | 2.39% | 2 | 0.36% | 8 |
+| 1,000 | 5% | 110 | 13.14% | 30 | 5.43% | 32 |
+| 4,000 | 1% | 18 | 2.15% | 4 | 0.72% | 1 |
+| 4,000 | 5% | 51 | 6.09% | 23 | 4.17% | 3 |
+
+The 1,000-document 5% target is exceeded on selection. The 250-document policies discard many
+unclear references despite meeting the review-worthy miss targets on this fitting cohort.
+Only predicted routine rows are eligible, so true unclear references can still be discarded
+through classification errors. Both outcomes are reported; fitting targets do not establish
+population risk guarantees or justify selection-cohort threshold retuning.
+
+The 250/1,000-document training phases, including epoch validation, took 1,424/2,406 seconds
+over 96/375 optimizer steps. Subsequent calibration, prediction and timing are additional.
+On the common 128-document warm sample they measured 253/252 ms mean latency and
+1,062/1,062 ms P95, including text processing and excluding loading. Peak allocated training
+VRAM was 2.34 GiB for each. These timings describe the shared local machine.
+
+A job-identifier inconsistency treated weight 0 and 0.0 differently, unnecessarily repeating
+the 1,000-document recipe screen as a curve fit. The screen scored 0.539 and the designated
+curve scored 0.544 despite identical captured configurations, training identities, source/version
+fingerprints, pre-update weights, Torch/CUDA RNG states and pre-update probabilities. Both fits
+are retained; the curve uses its designated run, without selecting the better duplicate. The
+specific cause of the fit difference has not been isolated, and this pair does not estimate
+training variance. A fixed seed alone does not enable all deterministic algorithms; see the
+[PyTorch reproducibility guidance](https://docs.pytorch.org/docs/2.14/notes/randomness.html).
+Paired bootstrap intervals remain conditional on the frozen fitted models.
+
+Future studies now normalize weight to the CLI's float type before forming the job identifier
+and arguments. Offline checks confirm identical integer/float identities across screen/curve
+roles for head/LoRA, with no GPU job launched; Ruff and compilation pass. This launcher-only
+fix remains deferred in the review worktree until the live model freeze and test finish.
+Existing study identifiers, snapshots and artifacts are retained under their original pins.
+
+There are 58 completed jobs and no failures at this snapshot. The 16,000-document head point
+is running on the checked nested prefix with the same selected recipe; 25,000 follows.
+LoRA and language-model adaptation, the remaining sample-efficiency matrix, model/policy
+freeze, held-out test, qualified human audit and final report/reproducibility review remain pending.
