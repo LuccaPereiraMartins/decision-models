@@ -447,3 +447,46 @@ There are 58 completed jobs and no failures at this snapshot. The 16,000-documen
 is running on the checked nested prefix with the same selected recipe; 25,000 follows.
 LoRA and language-model adaptation, the remaining sample-efficiency matrix, model/policy
 freeze, held-out test, qualified human audit and final report/reproducibility review remain pending.
+
+## Larger head curve verified: 2026-10-12, 11:36 UTC
+
+The bounded runner completed the 16,000-document Laya head point and started the single planned
+1,000-document LoRA pilot. The head retained the selected 1,024-token context, unweighted
+cross-entropy, learning rate 0.00003 and seed 42. Raw selection F1 selected epoch three.
+The unchanged training prefix hash is
+`4d41eb45714cd91b7c6a0d940d1d8f9eaf3a19a259bacdb085127d4f255ec97a`.
+Completion hashes, finite saved weights, optimizer/RNG history, all 6,000 optimizer steps,
+source/runtime pins, ordered fitting cohorts and independently recomputed metrics passed.
+The deliberate checkpoint continuation is recorded once in the training history.
+
+| Completed 16,000-document recipe | Selection macro F1 | Review-worthy -> routine / 552 |
+| --- | ---: | ---: |
+| Laya head, selected epoch three | 0.661 | 131 |
+| Combined TF-IDF + linear SVM | 0.766 | 67 |
+| Word TF-IDF + logistic regression | 0.759 | 61 |
+| Frozen FinBERT + logistic regression | 0.716 | 84 |
+| Frozen BGE + logistic regression | 0.691 | 77 |
+
+All nine matched baseline artifacts, training hashes and fitting-cohort metrics were checked.
+The head gains 0.299 macro F1 over its own matched pre-update control (0.362), but the lexical
+baseline remains higher. Across the completed 250/1,000/4,000/16,000 head points, F1 rises from
+0.364/0.544/0.582 to 0.661; critical misses are 76/67/105/131 and do not improve monotonically.
+These are descriptive validation-set teacher-agreement results, with additional recipe/context
+supervision and changing training composition; they are not held-out or significance claims.
+
+The separate calibration cohort has macro F1 0.684 and 57 critical misses among 252 review-worthy
+references. Its empirical 1%/5% miss-target policies discard four/30 calibration documents,
+with two/twelve critical misses and zero/one unclear references discarded. On selection they
+discard 27/84 of 837 documents (3.23%/10.04% workload reduction), with four/24 critical misses
+(0.72%/4.35% of 552) and two/three unclear references discarded. Thresholds were not retuned on
+selection, and these fitting-cohort constraints do not establish population safety.
+
+The recorded training phase took 31,591 seconds (8.78 hours), including epoch validation and the
+checkpoint continuation but excluding final calibration/selection and performance evaluation.
+Training peak allocation was 2.35 GiB. On the common 128-document warm inference sample, mean
+latency was 251.9 ms, P50 136.4 ms and P95 1,058.4 ms; inference peak allocation was 2.09 GiB.
+The raw timings, quantiles, throughput arithmetic and common sample identities were verified.
+Timings include text processing, exclude model loading, and come from the shared local machine.
+
+The 25,000-document head run remains deferred. Only the LoRA pilot is active; compute still stops
+at 18:00 London for the 19:00 review handoff. No model freeze or held-out test has started.
