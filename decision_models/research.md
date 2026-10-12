@@ -26,7 +26,40 @@ Approved scope: source-content-only triage for analyst inboxes, written for AI/M
 - Supervised head/LoRA objectives are core. RL/RLCD is a possible follow-on after these five PRs.
 - Human review: 12 rubric examples, 72 fresh test documents, 12 overlapping second reviews; three hours total. Prepare now, review later. Unresolved disagreements stay unresolved. Independent quality claims wait for review.
 
-The first overnight/daytime phase covers collection pilots, staged labeling, splits, baselines and initial adaptation screening. The complete experiment matrix is a multi-day programme. Publication claims must distinguish teacher agreement, non-expert human review, missing paid benchmarks and training-seed limitations.
+The first overnight/daytime phase covers collection pilots, staged labeling, splits, baselines and initial adaptation screening. The complete experiment matrix requires a separately agreed compute plan. Publication claims must distinguish teacher agreement, non-expert human review, missing paid benchmarks and training-seed limitations. Dated snapshots below retain their original state; the latest execution boundary takes precedence.
+
+## Review checkpoint agreed: 2026-10-12, 7pm London
+
+The full local matrix was taking substantially longer than the original overnight/daytime estimate.
+The user set a review deadline of **2026-10-12 at 19:00 Europe/London**. The unrestricted pipeline
+has therefore been stopped, preserving its original plans, source hashes and resumable checkpoints.
+The current 16,000-document head run resumes with its unchanged recipe from epoch two, document
+15,600. Its finite weights, optimizer/RNG state and configuration were checked before resuming;
+all 27 workflow source/dependency fingerprints still match. This is a continuation of the same
+fit, not a new training-seed experiment.
+
+Only two jobs are permitted before the review handoff:
+
+1. Finish the current Laya head learning-curve point at 16,000 training documents.
+2. Run one Laya LoRA pilot on the frozen 1,000-document subset: cross-entropy, unweighted classes,
+   1,024-token context, rank 8, learning rate 0.0001 and at most three epochs. It uses the same
+   selection/calibration cohorts and full-document pooling as the completed head curve. The
+   adaptation-specific learning rates differ, so this is a recipe comparison rather than an
+   isolated causal estimate of the effect of LoRA. The designated 1,000-document head curve and
+   the matched lexical baselines provide the comparisons; no extra seed or LoRA tuning sweep runs.
+
+The bounded local runner stops compute at **18:00 London**, reserving the final hour for artifact
+verification, origin pushes and a review handoff. A job that reaches the cutoff retains its last
+checkpoint and is reported as interrupted, never as a completed result. No 25,000-document head
+fit or further model/size/context sweep starts automatically. The runner and transition receipt
+are retained under the ignored local checks directory; the pinned training source stays unchanged.
+
+Tonight's deliverable is the five draft PRs, verified fitting results and a clear list of outstanding
+work. It is not the completed publication study: model/policy freeze, held-out test, the fresh
+qualified non-expert audit and the actual research report/PDF remain pending. The test firewall
+remains intact while the experiment scope is replanned. Future larger LoRA curves, architecture
+controls and FinBERT/BGE/Qwen adaptation require a compute proposal based on measured pilot time,
+cloud pricing and checkpoint portability. No cloud job or additional paid model call is dispatched.
 
 ## Progress snapshot: 2026-10-11, 13:15 UTC
 
