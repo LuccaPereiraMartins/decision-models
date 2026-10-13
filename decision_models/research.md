@@ -739,3 +739,23 @@ figures were freshly inspected. The full public CPU replay, Ruff and diff checks
 Scientific evidence bytes, the 64-comparison core freeze/results, benchmark ownership and
 completed FinBERT/BGE artifacts are preserved. Only presentation/source hashes and navigation
 were updated. Earlier page references in this chronological log describe earlier releases.
+
+## 13 October 2026: LaTeX academic manuscript
+
+The results are additionally written as a standard single-column academic manuscript
+with an abstract, related work, explicit task/protocol and metric definitions, numbered
+tables/figures, development-only extensions, discussion, conclusion and nine primary
+references. The author order is Lucca Pereira Martins, then Matthew Ball; Lucca's supplied
+email is the corresponding address. Affiliations were not supplied and no matching Matthew
+email was found in available Git history, so neither is invented.
+
+The twelve-page PDF compiled with Tectonic 0.17.0. All five tables (33 quantitative rows)
+were checked against the frozen evidence, references resolve, fonts are embedded, and
+the final compiler log has no overfull/underfull or undefined-reference diagnostics.
+Every page and all six figures were inspected. The portable arXiv source archive contains
+only the main TeX file and six byte-identical scientific figures; an extracted offline
+build reproduces the page count and complete text. Source/build/output hashes and visual
+receipts are in paper/. All 38 original public evidence files retain their exact bytes,
+as do core/benchmark and completed development identities. No model, test inference,
+paid API call or cloud job was dispatched. This prepares a manuscript for author review;
+it does not constitute an arXiv submission.

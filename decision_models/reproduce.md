@@ -1,5 +1,10 @@
 # Reproducing the bounded study
 
+The [academic manuscript](paper/README.md) has a separate LaTeX source archive containing
+the main file and six unchanged figures. Its build and visual/transcription receipts are
+preserved alongside the compiled PDF. It recompiles independently of model training;
+the original 38-file evidence package remains byte-identical to commit 431d1e4.
+
 This procedure concerns the frozen mixed-source benchmark and the [bounded core study](core-study.md). The older 10k archive and its previously opened test are a separate experiment. Reproduction needs preserved artifacts; a fresh live collection cannot reconstruct the exact historical corpus.
 
 The [published core package](reports/core-v1/README.md) supplies all held-out logits, teacher references, fixed decisions,

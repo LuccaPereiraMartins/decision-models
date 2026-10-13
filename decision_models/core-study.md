@@ -1,5 +1,10 @@
 # Bounded end-to-end study: results checkpoint
 
+For an academic presentation, read [the LaTeX manuscript](paper/paper.pdf), edit
+[its source](paper/paper.tex), or use [the portable source archive](paper/arxiv-source.zip).
+It includes formal methods, numbered results and references; [the manuscript notes](paper/README.md)
+describe compilation and outstanding author details.
+
 All three new LoRA fits, seven matched pre-update controls and 64 frozen held-out evaluations are complete. Start with [the report](reports/core-v1/report.md) or [the PDF](reports/core-v1/report.pdf). Its first page explains the findings; later sections give source/class support, critical misses, policies, learning/context comparisons and resources.
 
 The main comparison uses the identical 4,000 training documents and 1,800 held-out documents, with 1,292 teacher review-worthy references. These are agreement results against Luna labels. Independent human review remains deferred.

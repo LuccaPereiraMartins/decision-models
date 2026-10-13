@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "utc": "2026-10-13T16:31:00.096565+00:00",
+  "pages": 12,
+  "inspected_pages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "pdf_sha256": "ace051e0dbd85fcc02f4561f720c3be06c009835cc9afedeeac04a51f5ec6214",
+  "source_sha256": "01ab8674d546958387a142783a2710b57fff9e4eb7a57fe9bd7f749d5fc1b4af",
+  "page_png_sha256": {
+    "1": "5e88bd4d3aaf6fd409f5790924fa7bf37089d66afb0e66a01aae870d0e060ac0",
+    "2": "e8edf5037f1701a3fc89b1e9610e40424675a43fa5dc5ab871a5bb28852409c6",
+    "3": "0dbe95bbddff0a6dfaee9c34e461b294a440caa60cf3b5b657319432aa9722c8",
+    "4": "05761d3848656c60a524f6488bbe73de278858978c9309a823fb7d5e1a72ec72",
+    "5": "27c29a3c19244be632d463ae47e63329db8932264b9b771d7943dba5b0907c42",
+    "6": "d0b5783d563d720377b0e6f8bcc392552142f3f978abf2d6856eef270beaa662",
+    "7": "5d87d9b21f7be6bb397c1f90c7be627758fad3e62e2d98e0840451934d56322c",
+    "8": "8b95f1e803b55ae26c778cbba590ef6e9e6eda41d32e67bef264eef25914b832",
+    "9": "8c9592cd6894676b1d64c4c8f751e21fd20686e715018ea8775488523ddba217",
+    "10": "e4b3f3102eb897d95366c7d12f9b2aa7107598992008b208554b8b74550323b9",
+    "11": "1ba11feba1dcf6a55d6d99fb5769f7cdca2f16e307d0cac9d88308cb5d02fa3f",
+    "12": "84e41256f5c7937d710cd4f2983b35d9433eeb477302fb12f1d12d417dbc7be1"
+  },
+  "figures": {
+    "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227",
+    "context.png": "9c3862bf1213695c25ff4087efa07432432ded226b89376ed1522a5c1ac65e57",
+    "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa",
+    "diagnostic-slices.png": "5a5bd843815c2134600fed9f505eda6afdc856458029bd94ef2170638fbdaf7a",
+    "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
+    "throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70"
+  },
+  "method": "Poppler at 120 dpi. All pages were visually reviewed; final pages 1-11 match the reviewed prior renders exactly, and final page 12 was freshly reviewed after compacting the bibliography.",
+  "findings": "Readable tables, mathematical glyphs and figure labels; no clipping, overlap or orphan headings. Paragraph widows are suppressed and all references fit on the final page."
+}
