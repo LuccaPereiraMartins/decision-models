@@ -503,7 +503,14 @@ def build(splits, study, human=None):
               "Laya uses fixed uniform whole-document pooling and 50% overlapping windows; the native SDK reference uses "
               "most-confident-window aggregation. CE/Brier objectives are document-level; no chunk labels are invented. "
               "Matched pre-update controls separate supervised adaptation from aggregation and k-bit precision changes. "
-              "FinBERT/BGE/ModernBERT use fresh triage heads; FinBERT's sentiment head is not mapped to triage labels."]
+              "FinBERT/BGE/ModernBERT use fresh triage heads; FinBERT's sentiment head is not mapped to triage labels.",
+              "Laya's adapted wrapper averages native three-choice window logits. Literal reserved mask tokens are replaced "
+              "with spaces before formatting. FinBERT/ModernBERT use non-overlapping source windows, average unpadded token "
+              "states within each window, then uniformly average window vectors before a new LayerNorm/dropout/linear classifier. "
+              "Frozen FinBERT/BGE baselines normalize the mean of all window vectors for logistic regression; BGE uses CLS "
+              "rather than mean token states. Lexical baselines process full bodies. These systems differ in tokenization, "
+              "window overlap and heads, so their differences do not isolate encoder architecture alone. LoRA updates Wqkv "
+              "in Laya/ModernBERT and query/value projections in FinBERT: rank 8, alpha 16, adapter dropout 0.05."]
     if has_qwen:
         parts.append("Qwen uses non-thinking NF4/BF16 A/B/C scoring; QLoRA is conditional discriminative CE, not full-vocabulary SFT.")
     contrasts = json.loads((study / "bootstrap.json").read_text())["contrasts"]
@@ -520,7 +527,8 @@ def build(splits, study, human=None):
                       number(scored[v['left']]['macro_f1'] - scored[v['right']]['macro_f1']), ci(v['metrics']['macro_f1'])]
                      for k, v in contrasts.items() if k.endswith('-context-increment')]),
               "Wider Laya windows change contiguous context and the number of votes under the same pooling rule. "
-              "All source tokens remain covered at each context size; the difference is not previously omitted text.",
+              "All encoded source tokens after tokenizer/reserved-token normalization remain covered at each context size; "
+              "the difference is not previously omitted text.",
               "These paired differences describe this fixed-seed cohort. Additional tuning labels and multiple comparisons "
               "limit claims about minimum data requirements or statistical significance."]
     if has_qwen:
