@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "utc": "2026-10-13T23:06:57.226637+00:00",
+  "reason": "Four originally selected definite training references were removed by the label-blind ECB training replacements; substitute before any audit label request.",
+  "selection_rule": "Smallest unused body hash in the same source family and original label, from current retained training bodies; exclude existing audited groups",
+  "documents": 200,
+  "changed_documents": 4,
+  "audit_label_requests_started": false,
+  "source_class_balance_preserved": true,
+  "all_in_current_retained_train": true,
+  "prior_queue_sha256": "210f012063cd11aa8fa86f3fd31e952b5419ed6e1a14c37bcc65fa0374048d27",
+  "updated_queue_sha256": "e2396ac47ae74a70b28b3eabccca115c1eb7ab548c8f4f05de86883a050d1448",
+  "maximum_queue_reservation_usd": 0.265204875,
+  "changes": [
+    {
+      "removed_body_sha256": "00c0e4b0e5130a73832f4803172ec890368405df14aa508163f7e91b442f3a3f",
+      "replacement_body_sha256": "009ce4594ab36b985ed890b474331b691e5701db695d723c90070cce13f770e4",
+      "family": "6k",
+      "original_label": "routine"
+    },
+    {
+      "removed_body_sha256": "014112e975aa932e7b3b71df319e6f187731336ba49c19b8b71a09f98b683909",
+      "replacement_body_sha256": "012341cd86c93d9e48974e7f452672ee8c8972634039ec11a46772d174afad07",
+      "family": "6k",
+      "original_label": "routine"
+    },
+    {
+      "removed_body_sha256": "0298b76eee3fa3ad5f2ad24efe678c6b3ec34a777ca022dfa511557503a25152",
+      "replacement_body_sha256": "00097246276fa34a0ed71dc369d0c0566f24aaff1600a26dde8f9b7fae4f874c",
+      "family": "6k",
+      "original_label": "review_worthy"
+    },
+    {
+      "removed_body_sha256": "05c8030973745ad7ea29040627b56fad2a69e3daa069902548debe0bcf2afe76",
+      "replacement_body_sha256": "00340fabbc577b98db73d61ed230dd016f119cc19961631fa686c64d62a99307",
+      "family": "6k",
+      "original_label": "review_worthy"
+    }
+  ]
+}

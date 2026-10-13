@@ -20,3 +20,15 @@ Exact training replay additionally requires the local frozen document bodies,
 checkpoints and pinned pretrained weights. The final public package will not
 include source bodies or weights. Source rights and attribution remain in
 [sources.md](../../sources.md).
+
+The training-only consistency audit remains balanced at 100 original routine
+and 100 original review-worthy references. Before that queue started, four
+documents removed by the ECB training replacements were substituted from current
+retained training bodies in the same source-family/class cells. The body-free
+[correction receipt](audit-membership-correction.json) preserves the input hashes,
+selection rule and substitutions. The original audit input is retained locally;
+no completed reference was changed.
+
+The planned published `verify.py` requires Python and NumPy, with no model runtime,
+GPU, source bodies or API access. Exact rendering/fitting environments and source
+archives will accompany completed results.

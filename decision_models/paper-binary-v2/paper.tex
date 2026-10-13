@@ -135,15 +135,20 @@ round-robin family/class sampling. All trainable core systems use the same
 requires no task training. TF-IDF and frozen FinBERT/logistic additionally use
 16,000 and 25,000 training documents. FinBERT LoRA uses 16,000; Laya LoRA at
 that size is admitted only when its measured runtime fits the compute deadline.
-No 25,000-document LoRA run enters this study.
+No 25,000-document LoRA run enters this study. Every learning-curve point also
+uses the same 1,500 development labels; training count is not total annotation cost.
 
 TF-IDF learns its vocabulary and transforms from training alone. Logistic
 regularization and class weighting are selected from a bounded grid using
-selection macro F1. Frozen FinBERT features are computed once and cached with
+selection macro F1: $C\in\{0.001,0.01,0.1,1,10,30,100\}$ and either no class
+weighting or balanced weights. Each training size selects from this same grid.
+Frozen FinBERT features are computed once and cached with
 body, recipe and source identities; encoding cost is reported separately from
 classifier fitting and cache reuse. Frozen encoder windows are averaged and
 L2-normalized before classification.
 
+We use pinned \texttt{convaiinnovations/laya} English root and
+\texttt{ProsusAI/finbert} checkpoints; full revisions accompany the evidence.
 Adapted neural systems use seed 42, unweighted document-level cross-entropy and
 up to three epochs. Raw selection macro F1 chooses the checkpoint; epoch zero
 is eligible, and ties retain the earlier epoch. Laya head adaptation updates
@@ -248,9 +253,9 @@ The earlier three-class study and its scientific bundles remain preserved.
 \clearpage
 \appendix
 \section{Supporting comparisons and provenance}
-The following tables support the main agreement/workload questions: exact
-recipes, pre-update controls, calibration policies, source support and fitting
-resources. The public evidence package carries per-document arithmetic and
-receipts, avoiding an additional appendix page for each audit operation.
+The following tables support the main agreement/workload questions: recipes,
+pre-update controls, source support and fitting resources. Full calibration
+policies, descriptive length/reference-basis slices and per-document arithmetic
+are retained in the public evidence package with their audit receipts.
 \input{generated/supporting.tex}
 \end{document}
