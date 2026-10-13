@@ -4,7 +4,7 @@ This procedure concerns the frozen mixed-source benchmark and the [bounded core 
 
 The [published core package](reports/core-v1/README.md) supplies all held-out logits, teacher references, fixed decisions,
 metrics, shared group intervals and execution/source evidence. `python decision_models/reports/core-v1/verify.py`
-replays the metrics/statistics, exploratory appendix and separate development evidence on CPU, without API calls, weights or document bodies. Full training/inference replay
+replays the metrics/statistics, exploratory diagnostics and separate development evidence on CPU, without API calls, weights or document bodies. Full training/inference replay
 still needs the inputs below. Published-file byte hashes are preserved across Windows/Linux by the package's attributes.
 
 ## Required inputs
@@ -19,7 +19,7 @@ still needs the inputs below. Published-file byte hashes are preserved across Wi
 | Original source archive | Exact original source/dependency bytes and original plan/state, preserved before updating the checkout |
 | Pinned pretrained weights and Python environment | Model revisions and package versions recorded in each run's `config.json` |
 | Report `report-source.py` and manifest | Exact renderer bytes and output hashes, including any later presentation fixes |
-| Report `diagnostic-inputs.json` and `diagnostics-source.py` | Optional recorded post-hoc scope and calculation source for the exploratory appendix |
+| Report `diagnostic-inputs.json` and `diagnostics-source.py` | Optional recorded post-hoc scope and calculation source for the exploratory diagnostics |
 | Report `development-evidence.json.gz` and `development-source.py` | Optional separate FinBERT 4k/16k development inputs and descriptive calculation source |
 | Report `compact-evidence.json.gz` and `compact-source.py` | Optional matched-4k BGE/FinBERT development inputs and descriptive calculation source |
 
@@ -31,9 +31,9 @@ Local collection/label artifacts, credentials and checkpoints are ignored by Git
 
 For an exact replay in the original paths and pinned environment, use the unchanged core command from [README.md](README.md#bounded-core-study). It reuses verified completed jobs. Once frozen, `--stage all` skips fitting and resumes test/report against the identical freeze. Completed test-result hashes are checked before reuse. `--stage report` rebuilds presentation from verified predictions, without changing model choices or dispatching paid calls.
 
-To include the exploratory appendix, copy the published `reports/core-v1/diagnostic-inputs.json` into the preserved core run's `report/` directory before that report command. The renderer checks its freeze and primary/reference identities and its ordered selection character counts against the original selection file. Preserve the published renderer and `diagnostics.py` bytes for exact analysis-source replay. Without this optional input, only the original core sections are generated. Diagnostics use existing predictions and policies; they cannot select a new model or threshold.
+To include the exploratory diagnostics, copy the published `reports/core-v1/diagnostic-inputs.json` into the preserved core run's `report/` directory before that report command. The renderer checks its freeze and primary/reference identities and its ordered selection character counts against the original selection file. Preserve the published renderer and `diagnostics.py` bytes for exact analysis-source replay. Without this optional input, only the original core sections are generated. Diagnostics use existing predictions and policies; they cannot select a new model or threshold.
 
-To also include the separate FinBERT development section, preserve `reports/core-v1/development-evidence.json.gz`
+To include the FinBERT part of the combined development section, preserve `reports/core-v1/development-evidence.json.gz`
 in the core run's `report/` directory and the published `development.py` source. The renderer checks the original
 freeze identity, matching recipes, nested training identities and shared development cohorts. This probability-based
 report replay does not evaluate a new checkpoint on test. For exact 16k training replay, preserve the extension
@@ -41,7 +41,7 @@ run/controller/source/configuration artifacts and the existing benchmark inputs.
 in a separate development output; selection/calibration are fitting cohorts, and any new held-out evaluation
 requires fresh data. Do not reopen the completed 64-comparison runner or reset ownership markers.
 
-For the compact section, also preserve `reports/core-v1/compact-evidence.json.gz` in the report directory
+For the compact-encoder part of that section, also preserve `reports/core-v1/compact-evidence.json.gz` in the report directory
 and its recorded `compact.py` source. The renderer checks the shared 4k training identities, matching
 neural recipes and canonical development cohorts; original prediction ordering remains inspectable.
 Public CPU replay additionally checks every metric, probability/temperature identity, calibrated policy

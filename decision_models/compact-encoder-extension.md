@@ -53,5 +53,5 @@ Independent verification checked source/runtime/artifact identities, exact share
 original ordered development cohorts, finite zero/best/final checkpoints and epoch-two selection,
 raw/calibrated metrics, temperature/maximal feasible policies and resource clocks/sample. The
 best and matched epoch-zero checkpoints were replayed on development data only. All original
-core and completed FinBERT hashes remain unchanged. The report's separate section on pages
-19–20 and exported development inputs/audit receipts retain the fitting-evidence limitations.
+core and completed FinBERT hashes remain unchanged. The report's combined development section
+and exported development inputs/audit receipts retain the fitting-evidence limitations.

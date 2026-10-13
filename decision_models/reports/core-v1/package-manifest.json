@@ -1,5 +1,5 @@
 {
-  "utc": "2026-10-13T15:21:09.581680+00:00",
+  "utc": "2026-10-13T15:55:40.392718+00:00",
   "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
   "results_sha256": "330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0",
   "models": 64,
@@ -12,7 +12,7 @@
   "reference": "Luna teacher labels; independent human review deferred",
   "files": {
     ".gitattributes": "d09e3e33b5885dd583045f69843093b2701147eb881dcc3c627fdf0191249cf0",
-    "README.md": "a28e2193fb0219884d1faeb26c832be180acba1f58161245c9c59d46a6f49199",
+    "README.md": "a42c9b30ddfb7b56ff581a1a9b764e52bb6a9f20b7a3c8a2371ccbe8fccf3887",
     "audit-evidence.zip": "4cfc0c3619d232cd2135fabac7e24d065bed0ffeb177bf6f2d61eecf8a6a1276",
     "bootstrap.json": "478c8a6924f7d6236ac1bdf2d034a636b158199eca4a3b5c840c41e3e888fdde",
     "compact-audit.zip": "371931f5aa5c8d6a1705b3c847cf1673ad7f942666a92e10733f021454eca980",
@@ -38,18 +38,19 @@
     "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
     "predictions.json.gz": "1f6d0115817e6926f4011a1e1954dc881ea685d8aa4677e6d6ebfc4d9cf92dc6",
     "reference-quote.json": "31b3ae0cba8f90e29b55541f61944beb99d3183bfcf0dd5aa688f08f0117f9de",
-    "report-manifest.json": "1c6e3b04735b443a7920832b6de55bc72eeadf30ddfed140d82335e6c920f9ff",
-    "report-source.py": "a2554eaa34a54829121231156c511a8191952e3f00b7b1449f9661e4b96fca27",
-    "report.md": "54c9fb08a8b6a3510c2d01b8d535dc512d7f55ac28f2d95574842c3b59463bf1",
-    "report.pdf": "87c7e1882113a852781da7f2cbec688dcabcd49ac405741ccd9def1514f25070",
+    "report-manifest.json": "69555e559da4b65604db3c266832a5e228f44af4c8312bc15ab3c014df74f55c",
+    "report-source.py": "e26dbdd0b23cf0b0215102eb61c67325d2d92f5100ab5a5c3e44be66108cce7e",
+    "report.md": "623f928e0cdb9dd802c1875544cc7b7020d9c571479c4eae0b40be1dbb05e474",
+    "report.pdf": "b90640192f19fcc48e95839a3fb49dc2b9f5ee32f92b7eda6ac6d488c910fb8c",
     "results.json.gz": "452a0b826d43f88f8f2b6f1e139a8ffe022f5c02ec5785f9de82020543129aff",
     "throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70",
     "training-composition.json": "40e06c4c902c46aa154c5fd8d7e5e0ea8f31422e42c8ab8e1a70c9114fa62870",
     "uncertainty-bands.json": "007c4fc91a779b9cb9918c8e18aa3c7b19ad1c172ca410c2758ca9aaceb4db2f",
     "verify.py": "8a3b019313fba7cf42295fbb89c5d4834db0c6824ea91c7782e7f7235774f588",
-    "visual-verification.json": "909801a8b7e876fcc7c09d121251d830539bb7fe20ef3efecc0a25908409c090"
+    "visual-verification.json": "45403d01a1c3c6288b9ddf6cb44a886d868bf6ac501d3f4ce2d241a10f560419"
   },
-  "exploratory_appendix": "Post-hoc analysis of unchanged saved predictions and frozen policies; no model or policy selection",
+  "exploratory_appendix": "Post-hoc diagnostics integrated beside the findings they explain; unchanged saved predictions/policies and no new model or policy selection",
   "development_extension": "Separate post-test 16k FinBERT development fit; selection/calibration only; the original held-out model count stays 64",
-  "compact_extension": "Separate post-test 4k BGE/FinBERT development systems comparison; original held-out count remains 64"
+  "compact_extension": "Separate post-test 4k BGE/FinBERT development systems comparison; original held-out count remains 64",
+  "editorial_revision": "Question-led eight-page report replaces the twenty-page cumulative narrative; secondary tables and execution records remain in the unchanged scientific evidence package"
 }

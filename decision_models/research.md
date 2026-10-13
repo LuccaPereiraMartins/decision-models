@@ -722,3 +722,20 @@ BGE checkpoints were replayed on development data only. Published probabilities 
 common identity order; arithmetic/source/replay receipts are in compact-audit.zip. The new report section
 is pages 19–20; all original core and completed FinBERT evidence hashes remain unchanged. These are
 post-test fitting-cohort system comparisons, with no new held-out result or significance claim.
+
+## 13 October 2026: editorial consolidation
+
+Following the reader's request for a coherent report, the renderer now follows the research
+questions rather than the order experiments were completed. Class/routing diagnostics sit
+beside the held-out comparison; policy uncertainty accompanies calibration; source/length
+and shared errors have one focused section. The two later fits share a development-only
+section organized around label scaling and compact-encoder resource/workload tradeoffs.
+Repeated tables, execution notes and selected error vignettes were removed from the narrative.
+Full measurements, secondary contrasts, source records and audit receipts remain published.
+
+The resulting PDF is eight pages, replacing the cumulative twenty-page version; page count
+was an outcome of consolidation rather than a target. All eight pages and six unchanged
+figures were freshly inspected. The full public CPU replay, Ruff and diff checks passed.
+Scientific evidence bytes, the 64-comparison core freeze/results, benchmark ownership and
+completed FinBERT/BGE artifacts are preserved. Only presentation/source hashes and navigation
+were updated. Earlier page references in this chronological log describe earlier releases.

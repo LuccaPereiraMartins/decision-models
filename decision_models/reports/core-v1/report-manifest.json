@@ -1,16 +1,16 @@
 {
   "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
   "results_sha256": "330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0",
-  "report_source_sha256": "a2554eaa34a54829121231156c511a8191952e3f00b7b1449f9661e4b96fca27",
+  "report_source_sha256": "e26dbdd0b23cf0b0215102eb61c67325d2d92f5100ab5a5c3e44be66108cce7e",
   "versions": {
     "matplotlib": "3.11.2",
     "reportlab": "5.0.1",
     "pypdf": "6.19.0"
   },
   "outputs": {
-    "report.md": "54c9fb08a8b6a3510c2d01b8d535dc512d7f55ac28f2d95574842c3b59463bf1",
-    "report.pdf": "87c7e1882113a852781da7f2cbec688dcabcd49ac405741ccd9def1514f25070",
-    "report-source.py": "a2554eaa34a54829121231156c511a8191952e3f00b7b1449f9661e4b96fca27",
+    "report.md": "623f928e0cdb9dd802c1875544cc7b7020d9c571479c4eae0b40be1dbb05e474",
+    "report.pdf": "b90640192f19fcc48e95839a3fb49dc2b9f5ee32f92b7eda6ac6d488c910fb8c",
+    "report-source.py": "e26dbdd0b23cf0b0215102eb61c67325d2d92f5100ab5a5c3e44be66108cce7e",
     "human-audit.json": "2889c7edea1e1dd8da866100c6c9702ec4e31d6c4771b42376aadc35ed534a47",
     "reference-quote.json": "31b3ae0cba8f90e29b55541f61944beb99d3183bfcf0dd5aa688f08f0117f9de",
     "training-composition.json": "40e06c4c902c46aa154c5fd8d7e5e0ea8f31422e42c8ab8e1a70c9114fa62870",
