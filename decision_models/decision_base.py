@@ -11,13 +11,16 @@ import numpy as np
 import torch
 
 from protocol import breakdown, calibrate, discard, fingerprint, prediction_rows, probabilities, speed
-from schemas import HERE, LABELS, LAYA_MODEL, LAYA_QUESTIONS, LAYA_REVISION, load_split, save
+from schemas import BINARY_LABELS, BINARY_TASK, HERE, LAYA_MODEL, LAYA_REVISION, load_split, save, task_labels, task_questions
 
 
 class BaseLaya:
     def __init__(self, config, device="cuda"):
         import laya
         self.config = config
+        self.labels = task_labels(config)
+        if config["questions"] != task_questions(self.labels):
+            raise ValueError("SDK questions disagree with the declared task")
         self.device = device
         warnings.filterwarnings("ignore", message=r"laya:.*invalid temperatures")
         self.agent = laya.load(config["model"], device=device, revision=config["revision"])
@@ -29,10 +32,10 @@ class BaseLaya:
         vectors = []
         for answer in self.answers(bodies):
             p = answer["probabilities"]
-            vector = [p[label] for label in LABELS] if isinstance(p, dict) else p
+            vector = [p[label] for label in self.labels] if isinstance(p, dict) else p
             vector = np.asarray(vector, dtype=float)
-            if vector.shape != (3,) or not np.isfinite(vector).all() or (vector < 0).any() or vector.sum() <= 0:
-                raise ValueError("SDK did not return a valid three-class distribution")
+            if vector.shape != (len(self.labels),) or not np.isfinite(vector).all() or (vector < 0).any() or vector.sum() <= 0:
+                raise ValueError("SDK did not return a valid task distribution")
             vectors.append(np.log(np.maximum(vector / vector.sum(), 1e-12)))
         return np.array(vectors)
 
@@ -42,13 +45,18 @@ def fit(args):
     manifest = json.loads((args.splits / "manifest.json").read_text(encoding="utf-8"))
     if "prepared" not in manifest:
         raise ValueError("Use the fresh research splits")
+    labels = task_labels(manifest)
     kind = getattr(args, "model", "laya")
+    if labels == BINARY_LABELS and kind != "laya":
+        raise ValueError("Binary-v2 excludes generative prompt references")
     files = ("decision_base.py", "protocol.py", "schemas.py", "prepare.py")
     config = {"family": "research_sdk", "model": LAYA_MODEL, "revision": LAYA_REVISION,
-              "questions": LAYA_QUESTIONS, "labels": list(LABELS), "device": args.device,
+              "questions": task_questions(labels), "labels": list(labels), "device": args.device,
               "split_manifest": manifest, "source_sha256": {name: fingerprint(HERE / name) for name in files},
               "versions": {name: version(name) for name in ("laya", "torch", "transformers")},
               "selection": "Unadapted SDK reference, no training", "api_cost_usd": 0.0}
+    if labels == BINARY_LABELS:
+        config["task_id"] = BINARY_TASK
     if kind != "laya":
         from causal import MODELS
         files += ("causal.py", "label.py")
@@ -89,8 +97,10 @@ def fit(args):
     if kind != "laya":
         config.update(prompt_sha256=runtime.prompt_sha256, answer_ids=runtime.answer_ids,
                       source_budget=runtime.source_budget, truncation="First/last source tokens; middle omitted")
-    save({key: config[key] for key in ("model", "revision", "questions", "context", "pooling", "source_sha256")},
-         args.output / "base.json")
+    base = {key: config[key] for key in ("model", "revision", "questions", "context", "pooling", "source_sha256")}
+    if labels == BINARY_LABELS:
+        base.update(task_id=BINARY_TASK, labels=list(labels))
+    save(base, args.output / "base.json")
     config["artifact_sha256"] = fingerprint(args.output / "base.json")
     save(config, args.output / "config.json")
     selection, calibration = [load_split(args.splits, name) for name in ("selection", "calibration")]
@@ -114,17 +124,17 @@ def fit(args):
                     print(f"{kind} {name}: {len(saved)}/{len(records)}", flush=True)
         return np.array([row["logits"] for row in saved])
     logits, clogits = score("selection", selection), score("calibration", calibration)
-    decision = calibrate(calibration, clogits, args.output)
-    rows = prediction_rows(selection, logits, decision)
+    decision = calibrate(calibration, clogits, args.output, labels=labels)
+    rows = prediction_rows(selection, logits, decision, labels=labels)
     if kind != "laya":
         cached = [json.loads(line) for line in (args.output / "selection-logits.jsonl").read_text().splitlines()]
         for row, scored in zip(rows, cached, strict=True):
             row.update(coverage=scored["coverage"], answer_probability_mass=scored["answer_probability_mass"])
-    save({"metrics": breakdown(rows), "predictions": rows, "evaluation": "Selection data; no training"},
+    save({"metrics": breakdown(rows, labels=labels), "predictions": rows, "evaluation": "Selection data; no training"},
          args.output / "selection.json")
     def predict(bodies):
-        p = probabilities(runtime.logits(bodies), decision["temperature"])
-        return p, {key: discard(p, value["threshold"]) for key, value in decision["policies"].items()}
+        p = probabilities(runtime.logits(bodies), decision["temperature"], labels=labels)
+        return p, {key: discard(p, value["threshold"], labels=labels) for key, value in decision["policies"].items()}
     if args.device == "cuda":
         torch.cuda.reset_peak_memory_stats()
     measured = speed(predict, selection, torch.cuda.synchronize if args.device == "cuda" else lambda: None)

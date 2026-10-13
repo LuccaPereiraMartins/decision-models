@@ -21,7 +21,7 @@ from torch import nn
 
 from benchmark import Benchmark
 from encoders import load_model
-from schemas import LABELS, annotation, body_hash, load_split, replace_file, save as save_json
+from schemas import LABELS, annotation, body_hash, load_split, replace_file, save as save_json, task_labels
 
 
 HERE = Path(__file__).resolve().parent
@@ -34,22 +34,26 @@ CHECKPOINT_STEPS = 25
 def objective(logits, label, kind="ce"):
     if kind == "ce":
         return nn.functional.cross_entropy(logits[None], torch.tensor([label], device=logits.device))
-    target = nn.functional.one_hot(torch.tensor(label, device=logits.device), len(LABELS))
+    target = nn.functional.one_hot(torch.tensor(label, device=logits.device), logits.numel())
     return (logits.softmax(-1) - target).square().sum()
 
 
 def evaluate(model, items, loss_kind="ce"):
     model.eval()
+    labels = getattr(model, "labels", LABELS)
     rows, loss = [], 0.0
     with torch.no_grad():
         for index, (windows, label, body_hash) in enumerate(items, 1):
             logits, _ = model(windows)
+            if logits.shape != (len(labels),) or not torch.isfinite(logits).all():
+                raise ValueError("Validation logits do not match the model task")
             loss += objective(logits, label, loss_kind).item()
+            predicted = 1 if len(labels) == 2 and logits[1] >= logits[0] else logits.argmax().item()
             rows.append(
                 {
-                    "reference": LABELS[label],
+                    "reference": labels[label],
                     "body_sha256": body_hash,
-                    "prediction": LABELS[logits.argmax().item()],
+                    "prediction": labels[predicted],
                     "logits": logits.float().tolist(),
                     "probabilities": logits.softmax(-1).tolist(),
                 }
@@ -58,7 +62,7 @@ def evaluate(model, items, loss_kind="ce"):
                 rows[-1]["answer_probability_mass"] = model.answer_probability_mass
             if index % 250 == 0:
                 print(f"Validation: {index}/{len(items)}", flush=True)
-    return {"loss": loss / len(items), **Benchmark.scores(rows), "predictions": rows}
+    return {"loss": loss / len(items), **Benchmark.scores(rows, labels=labels), "predictions": rows}
 
 
 def save_torch(value, path):
@@ -71,6 +75,7 @@ def run(args):
     torch.manual_seed(SEED)
     torch.set_num_threads(4)
     manifest = json.loads((args.splits / "manifest.json").read_text(encoding="utf-8"))
+    labels = task_labels(manifest)
     research = "prepared" in manifest
     if research:
         from protocol import training_subset
@@ -81,8 +86,12 @@ def run(args):
         if args.samples is not None or args.context is not None or args.objective != "ce":
             raise ValueError("Research ablations require fresh research splits")
         records = load_split(args.splits, "train")
-    args.selection = args.selection or ("raw" if research else "tuned")
-    context = {"pooling_method": "uniform", "window_batch": args.window_batch} if research else None
+    args.selection = args.selection or ("raw" if research or len(labels) == 2 else "tuned")
+    if len(labels) == 2 and args.selection != "raw":
+        raise ValueError("Binary runs select checkpoints using raw macro F1")
+    context = {"task_id": manifest.get("task_id", "triage-v1"), "labels": list(labels)}
+    if research:
+        context.update(pooling_method="uniform", window_batch=args.window_batch)
     if research and args.context is not None:
         context["max_len"] = args.context
     # Resume with the checkpoint's pinned model/task, not today's default prompt.
@@ -105,11 +114,11 @@ def run(args):
     ]
     optimizer = torch.optim.AdamW(groups if encoder_params else groups[:1], weight_decay=0.01)
     counts = torch.tensor(
-        [sum(annotation(row)["label"] == label for row in records) for label in LABELS], dtype=torch.float
+        [sum(annotation(row)["label"] == label for row in records) for label in labels], dtype=torch.float
     )
     if (counts == 0).any():
-        raise ValueError("Training requires examples of all three labels")
-    weights = (len(records) / (3 * counts)).pow(args.class_weight_power)
+        raise ValueError("Training requires examples of every task label")
+    weights = (len(records) / (len(labels) * counts)).pow(args.class_weight_power)
     weights /= (weights * counts / len(records)).sum()
     weights = weights.to(model.device)
     config = {
@@ -138,7 +147,8 @@ def run(args):
         "objective": "class-weighted document-level cross-entropy",
         "precision": "bf16 CUDA / fp32 CPU",
         "split_manifest": manifest,
-        "labels": list(LABELS),
+        "task_id": manifest.get("task_id", "triage-v1"),
+        "labels": list(labels),
         "questions": model.questions if args.model == "laya" else {},
         "versions": {name: version(name) for name in ("laya", "torch", "transformers", "peft")},
         "source_sha256": {
@@ -190,6 +200,7 @@ def run(args):
             "encoder_learning_rate": saved["config"]["learning_rate"],
             "cache_window_features": False,
             "checkpoint_selection": "raw",
+            "task_id": "triage-v1",
             **saved["config"],
         }
         ignored = ("git_revision", "gpu") if research else ("epochs", "git_revision", "source_sha256", "gpu")
@@ -236,7 +247,7 @@ def run(args):
         items = [
             (
                 model.windows(row["body"]),
-                LABELS.index(annotation(row)["label"]),
+                labels.index(annotation(row)["label"]),
                 hashlib.sha256(row["body"].encode()).hexdigest(),
             )
             for row in rows
@@ -379,21 +390,21 @@ def run(args):
         citems = prepare("calibration")
         scored = evaluate(model, citems, args.objective)
         clogits = np.array([r["logits"] for r in scored["predictions"]])
-        decision = calibrate(prepared_records["calibration"], clogits, args.output)
+        decision = calibrate(prepared_records["calibration"], clogits, args.output, labels=labels)
         selected = evaluate(model, validation, args.objective)
         slogits = np.array([r["logits"] for r in selected["predictions"]])
-        result = prediction_rows(prepared_records[selection_name], slogits, decision)
+        result = prediction_rows(prepared_records[selection_name], slogits, decision, labels=labels)
         if args.model in ("qwen17", "qwen4"):
             for row, record, scored in zip(result, prepared_records[selection_name], selected["predictions"], strict=True):
                 row["coverage"] = model.coverage(record["body"])
                 row["answer_probability_mass"] = scored["answer_probability_mass"]
-        save_json({"metrics": breakdown(result), "predictions": result, "evaluation": "Selection fitting data"},
+        save_json({"metrics": breakdown(result, labels=labels), "predictions": result, "evaluation": "Selection fitting data"},
                   args.output / "selection.json")
         def predict(bodies):
             with torch.no_grad():
                 logits = [model(model.windows(body))[0].cpu().numpy() for body in bodies]
-            p = probabilities(logits, decision["temperature"])
-            return p, {key: discard(p, value["threshold"]) for key, value in decision["policies"].items()}
+            p = probabilities(logits, decision["temperature"], labels=labels)
+            return p, {key: discard(p, value["threshold"], labels=labels) for key, value in decision["policies"].items()}
         if args.device == "cuda":
             optimizer.zero_grad(set_to_none=True)
             torch.cuda.reset_peak_memory_stats()

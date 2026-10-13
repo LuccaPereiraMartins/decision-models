@@ -19,29 +19,35 @@ from threadpoolctl import threadpool_limits
 
 from baselines import FITTED_MODELS, make
 from protocol import breakdown, calibrate, discard, fingerprint, prediction_rows, probabilities, speed, training_subset
-from schemas import HERE, LABELS, annotation, body_hash, load_split, replace_file, save
+from schemas import BINARY_LABELS, BINARY_TASK, HERE, LABELS, annotation, body_hash, load_split, replace_file, save, task_labels
 
 
 GRID = (.001, .01, .1, 1, 10, 30, 100)
 
 
-def classifier_logits(model, inputs):
+def classifier_logits(model, inputs, *, labels=LABELS):
     classes = list(model.classes_)
     if hasattr(model, "predict_proba"):
         values = np.log(np.maximum(model.predict_proba(inputs), 1e-12))
     else:
         values = model.decision_function(inputs)
         if values.ndim == 1:
-            values = np.column_stack((-values, values))
-    aligned = np.full((len(values), len(LABELS)), -30.0)
+            scale = .5 if tuple(labels) == BINARY_LABELS else 1.0
+            values = np.column_stack((-scale * values, scale * values))
+    if set(classes) - set(labels) or values.shape != (len(values), len(classes)):
+        raise ValueError("Classifier classes or probability columns disagree with the task")
+    aligned = np.full((len(values), len(labels)), -30.0)
     for index, label in enumerate(classes):
-        aligned[:, LABELS.index(label)] = values[:, index]
+        aligned[:, labels.index(label)] = values[:, index]
     return aligned
 
 
 class LinearModel:
     def __init__(self, directory, device="cuda"):
         self.config = json.loads((directory / "config.json").read_text(encoding="utf-8"))
+        self.labels = task_labels(self.config)
+        if task_labels(self.config["split_manifest"]) != self.labels:
+            raise ValueError("Classifier and split tasks disagree")
         self.model = joblib.load(directory / "model.joblib")
         if fingerprint(directory / "model.joblib") != self.config["artifact_sha256"]:
             raise ValueError("Fitted artifact changed")
@@ -57,7 +63,7 @@ class LinearModel:
             with torch.no_grad():
                 inputs = np.array([self.encoder.embed(body).cpu().numpy() for body in bodies])
         with threadpool_limits(limits=4):
-            return classifier_logits(self.model, inputs)
+            return classifier_logits(self.model, inputs, labels=self.labels)
 
 
 def fit(args):
@@ -66,8 +72,9 @@ def fit(args):
     sources = ("baselines.py", "fit_baselines.py", "protocol.py", "encoders.py", "schemas.py", "prepare.py",
                "tune.py", "benchmark.py")
     manifest = json.loads((args.splits / "manifest.json").read_text(encoding="utf-8"))
+    labels = task_labels(manifest)
     config = {"family": "research_linear", "kind": args.model, "classifier": args.classifier,
-              "labels": list(LABELS), "seed": 42, "samples": len(train), "split_manifest": manifest,
+              "labels": list(labels), "seed": 42, "samples": len(train), "split_manifest": manifest,
               "train_subset_sha256": hashlib.sha256(json.dumps([
                   (body_hash(r), annotation(r)["label"]) for r in train]).encode()).hexdigest(),
               "regularization": list(args.regularization), "device": args.device,
@@ -76,6 +83,8 @@ def fit(args):
               "versions": {name: version(name) for name in ("scikit-learn", "numpy", "scipy", "joblib")},
               "python": platform.python_version(), "api_cost_usd": 0.0,
               "cost_note": "Local compute; hardware, electricity and collection excluded"}
+    if labels == BINARY_LABELS:
+        config["task_id"] = BINARY_TASK
     if args.output.exists() and any(args.output.iterdir()):
         if not args.resume:
             raise ValueError("Output exists; use --resume or another directory")
@@ -97,7 +106,7 @@ def fit(args):
         (snapshot / name).write_bytes((HERE / name).read_bytes())
     save(config, args.output / "config.json")
     started = time.perf_counter()
-    texts, labels = [r["body"] for r in train], [annotation(r)["label"] for r in train]
+    texts, y = [r["body"] for r in train], [annotation(r)["label"] for r in train]
     stext, ctext = [r["body"] for r in selection], [r["body"] for r in calibration]
     encoder = args.model in ("finbert", "bge")
     if encoder:
@@ -129,9 +138,9 @@ def fit(args):
     for parameters, estimator in candidates:
         with threadpool_limits(limits=4), warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always", ConvergenceWarning)
-            estimator.fit(x, labels)
-        rows = prediction_rows(selection, classifier_logits(estimator, sx))
-        scores = breakdown(rows)
+            estimator.fit(x, y)
+        rows = prediction_rows(selection, classifier_logits(estimator, sx, labels=labels), labels=labels)
+        scores = breakdown(rows, labels=labels)
         converged = not any(issubclass(w.category, ConvergenceWarning) for w in caught)
         trial = {"parameters": parameters, "macro_f1": scores["overall"]["macro_f1"],
                  "converged": converged, "warnings": [str(w.message) for w in caught]}
@@ -150,9 +159,9 @@ def fit(args):
     config.update(artifact_sha256=fingerprint(args.output / "model.joblib"),
                   fit_seconds=time.perf_counter() - started)
     save(config, args.output / "config.json")
-    decision = calibrate(calibration, classifier_logits(chosen, cx), args.output)
-    rows = prediction_rows(selection, classifier_logits(chosen, sx), decision)
-    save({"metrics": breakdown(rows), "predictions": rows, "evaluation": "Selection fitting data"},
+    decision = calibrate(calibration, classifier_logits(chosen, cx, labels=labels), args.output, labels=labels)
+    rows = prediction_rows(selection, classifier_logits(chosen, sx, labels=labels), decision, labels=labels)
+    save({"metrics": breakdown(rows, labels=labels), "predictions": rows, "evaluation": "Selection fitting data"},
          args.output / "selection.json")
     del model, chosen, prototype, x, sx, cx, texts, stext, ctext
     runtime = LinearModel(args.output, args.device)
@@ -163,8 +172,8 @@ def fit(args):
         torch.cuda.reset_peak_memory_stats()
         synchronize = torch.cuda.synchronize
     def predict(bodies):
-        p = probabilities(runtime.logits(bodies), decision["temperature"])
-        return p, {key: discard(p, value["threshold"]) for key, value in decision["policies"].items()}
+        p = probabilities(runtime.logits(bodies), decision["temperature"], labels=labels)
+        return p, {key: discard(p, value["threshold"], labels=labels) for key, value in decision["policies"].items()}
     measured = speed(predict, selection, synchronize)
     measured["artifact_bytes"] = (args.output / "model.joblib").stat().st_size
     measured["encoder_weight_size_note"] = "Pinned pretrained encoder weights are additional" if encoder else None

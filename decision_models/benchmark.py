@@ -18,6 +18,8 @@ from schemas import (
     annotation,
     body_hash,
     load_split,
+    task_labels,
+    task_questions,
     save as save_json,
 )
 
@@ -37,11 +39,12 @@ class SavedModel:
         self.config = json.loads((directory / "config.json").read_text(encoding="utf-8"))
         if self.config.get("family", "").startswith("research_"):
             raise ValueError("Research runs require the study evaluator and final selection freeze")
-        if self.config["labels"] != list(Benchmark.labels):
-            raise ValueError("Saved model label order differs from benchmark")
+        self.labels = task_labels(self.config)
+        if task_labels(self.config.get("split_manifest")) != self.labels:
+            raise ValueError("Saved model task differs from its split manifest")
         decision = directory / "decision.json"
         self.decision = (
-            json.loads(decision.read_text(encoding="utf-8")) if decision.exists() else {"offsets": [0, 0, 0]}
+            json.loads(decision.read_text(encoding="utf-8")) if decision.exists() else {"offsets": [0] * len(self.labels)}
         )
         if (
             decision.exists()
@@ -56,6 +59,8 @@ class SavedModel:
         self.artifact = directory / ("config.json" if self.blend else "model.joblib" if self.linear else "best.pt")
         if self.blend:
             self.model = [SavedModel(HERE / member["directory"], device) for member in self.config["members"]]
+            if any(member.labels != self.labels for member in self.model):
+                raise ValueError("Blend members use different reference tasks")
             for member, saved in zip(self.model, self.config["members"]):
                 if hashlib.sha256(member.artifact.read_bytes()).hexdigest() != saved["artifact_sha256"]:
                     raise ValueError("Blend member changed after validation selection")
@@ -67,7 +72,7 @@ class SavedModel:
             import joblib
 
             self.model = joblib.load(directory / "model.joblib")
-            self.order = [list(self.model.classes_).index(label) for label in Benchmark.labels]
+            self.order = [list(self.model.classes_).index(label) for label in self.labels]
             if self.config["kind"] in ("finbert", "bge"):
                 from encoders import EncoderModel
 
@@ -75,8 +80,10 @@ class SavedModel:
         else:
             from encoders import load_model
 
-            self.model = load_model(device, checkpoint=directory / "best.pt").eval()
+            self.model = load_model(device, checkpoint=directory / "best.pt", config=self.config).eval()
         self.offsets = np.array(self.decision["offsets"])
+        if self.offsets.shape != (len(self.labels),) or not np.isfinite(self.offsets).all():
+            raise ValueError("Decision offsets do not match the saved model task")
         if (
             "artifact_sha256" in self.decision
             and self.decision["artifact_sha256"] != hashlib.sha256(self.artifact.read_bytes()).hexdigest()
@@ -121,6 +128,8 @@ class Benchmark:
         self.split_manifest = json.loads((splits / "manifest.json").read_text(encoding="utf-8"))
         if "prepared" in self.split_manifest:
             raise ValueError("Fresh research test inference requires the study's final selection freeze")
+        self.labels = task_labels(self.split_manifest)
+        self.questions = task_questions(self.labels)
         self.sample = load_split(splits, "test")
 
     body_hash = staticmethod(body_hash)
@@ -132,14 +141,18 @@ class Benchmark:
         return label
 
     @classmethod
-    def scores(cls, rows):
-        matrix = {actual: {predicted: 0 for predicted in cls.labels} for actual in cls.labels}
+    def scores(cls, rows, *, labels=None):
+        labels = tuple(labels or cls.labels)
+        task_questions(labels)
+        matrix = {actual: {predicted: 0 for predicted in labels} for actual in labels}
         for row in rows:
+            if row["reference"] not in labels or row["prediction"] not in labels:
+                raise ValueError("Metric references and predictions must belong to the declared task")
             matrix[row["reference"]][row["prediction"]] += 1
         per_label = {}
-        for label in cls.labels:
+        for label in labels:
             tp = matrix[label][label]
-            predicted = sum(matrix[actual][label] for actual in cls.labels)
+            predicted = sum(matrix[actual][label] for actual in labels)
             support = sum(matrix[label].values())
             precision = tp / predicted if predicted else 0
             recall = tp / support if support else 0
@@ -150,11 +163,11 @@ class Benchmark:
                 "support": support,
             }
         return {
-            "agreement": sum(matrix[label][label] for label in cls.labels) / len(rows),
-            "macro_f1": sum(item["f1"] for item in per_label.values()) / len(cls.labels),
-            "reference_distribution": {label: sum(matrix[label].values()) for label in cls.labels},
+            "agreement": sum(matrix[label][label] for label in labels) / len(rows),
+            "macro_f1": sum(item["f1"] for item in per_label.values()) / len(labels),
+            "reference_distribution": {label: sum(matrix[label].values()) for label in labels},
             "prediction_distribution": {
-                label: sum(matrix[actual][label] for actual in cls.labels) for label in cls.labels
+                label: sum(matrix[actual][label] for actual in labels) for label in labels
             },
             "per_label": per_label,
             "confusion_matrix": matrix,
@@ -197,7 +210,7 @@ class Benchmark:
             completed=len(self.rows),
             total=len(self.sample),
             elapsed_seconds=time.perf_counter() - self.started,
-            scores=self.scores(self.rows),
+            scores=self.scores(self.rows, labels=self.labels),
             predictions=self.rows,
         )
         self.output.parent.mkdir(parents=True, exist_ok=True)
@@ -261,6 +274,8 @@ class Benchmark:
         import torch
 
         model = SavedModel(directory, self.device or "cuda")
+        if model.labels != self.labels:
+            raise ValueError("Saved model and benchmark use different reference tasks")
         if self.split_manifest != model.config["split_manifest"]:
             raise ValueError("Saved model and benchmark use different splits")
         name = directory.name
@@ -280,7 +295,9 @@ class Benchmark:
                 torch.cuda.synchronize()
             started = time.perf_counter()
             probabilities = model.probabilities(row["body"])
-            prediction = self.labels[(np.log(np.maximum(probabilities, 1e-12)) + model.offsets).argmax()]
+            scores = np.log(np.maximum(probabilities, 1e-12)) + model.offsets
+            predicted = 1 if len(self.labels) == 2 and scores[1] >= scores[0] else scores.argmax()
+            prediction = self.labels[predicted]
             if model.device == "cuda":
                 torch.cuda.synchronize()
             self.record(

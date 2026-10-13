@@ -8,17 +8,21 @@ import shutil
 import numpy as np
 
 from protocol import breakdown, calibrate, fingerprint, prediction_rows, speed
-from schemas import HERE, LABELS, load_split, save
+from schemas import BINARY_LABELS, HERE, load_split, save, task_labels
 
 
 def verify(directory, manifest, sources=True):
     config = json.loads((directory / "config.json").read_text(encoding="utf-8"))
     complete = json.loads((directory / "complete.json").read_text(encoding="utf-8"))
-    if config["split_manifest"] != manifest or config["labels"] != list(LABELS):
+    labels = task_labels(manifest)
+    if config["split_manifest"] != manifest or task_labels(config) != labels:
         raise ValueError(f"Different data or label order: {directory}")
     for key, name in (("config", "config.json"), ("decision", "decision.json")):
         if fingerprint(directory / name) != complete[f"{key}_sha256"]:
             raise ValueError(f"Completed metadata changed: {directory / name}")
+    decision = json.loads((directory / "decision.json").read_text(encoding="utf-8"))
+    if task_labels(decision) != labels:
+        raise ValueError(f"Calibration decision belongs to another task: {directory}")
     artifact = "model.joblib" if config["family"] == "research_linear" else (
         "base.json" if config["family"] in ("research_sdk", "research_prompt") else "best.pt")
     expected = complete.get("artifact_sha256", config.get("artifact_sha256"))
@@ -39,7 +43,12 @@ class Runtime:
         import torch
         torch.set_num_threads(4)
         self.config = json.loads((directory / "config.json").read_text(encoding="utf-8"))
+        self.labels = task_labels(self.config)
+        if task_labels(self.config["split_manifest"]) != self.labels:
+            raise ValueError("Runtime and split tasks disagree")
         self.family = self.config["family"]
+        if self.labels == BINARY_LABELS and self.family == "research_prompt":
+            raise ValueError("Binary-v2 excludes generative prompt references")
         self.device = device
         if self.family == "research_linear":
             from fit_baselines import LinearModel
@@ -54,7 +63,7 @@ class Runtime:
             self.model = CausalModel(device, config=self.config).eval()
         else:
             from encoders import load_model
-            self.model = load_model(device, checkpoint=directory / "best.pt").eval()
+            self.model = load_model(device, checkpoint=directory / "best.pt", config=self.config).eval()
 
     def score(self, body):
         import torch
@@ -63,7 +72,10 @@ class Runtime:
                 logits = self.model.logits([body])[0]
             else:
                 logits = self.model(self.model.windows(body))[0].cpu().numpy()
-        result = {"logits": np.asarray(logits, dtype=float).tolist()}
+        logits = np.asarray(logits, dtype=float)
+        if logits.shape != (len(self.labels),) or not np.isfinite(logits).all():
+            raise ValueError("Runtime logits disagree with the declared task")
+        result = {"logits": logits.tolist()}
         if hasattr(self.model, "coverage"):
             result.update(coverage=self.model.coverage(body),
                           answer_probability_mass=self.model.answer_probability_mass)
@@ -78,6 +90,7 @@ def zero_control(directory, splits, output):
     import torch
     manifest = json.loads((splits / "manifest.json").read_text(encoding="utf-8"))
     config, _ = verify(directory, manifest)
+    labels = task_labels(config)
     if (output / "complete.json").exists():
         verify(output, manifest)
         return
@@ -89,9 +102,9 @@ def zero_control(directory, splits, output):
     save(config, output / "config.json")
     model = Runtime(output)
     selection, calibration = [load_split(splits, name) for name in ("selection", "calibration")]
-    decision = calibrate(calibration, model.logits([r["body"] for r in calibration]), output)
-    rows = prediction_rows(selection, model.logits([r["body"] for r in selection]), decision)
-    save({"metrics": breakdown(rows), "predictions": rows, "evaluation": "Matched epoch zero; selection groups"},
+    decision = calibrate(calibration, model.logits([r["body"] for r in calibration]), output, labels=labels)
+    rows = prediction_rows(selection, model.logits([r["body"] for r in selection]), decision, labels=labels)
+    save({"metrics": breakdown(rows, labels=labels), "predictions": rows, "evaluation": "Matched epoch zero; selection groups"},
          output / "selection.json")
     torch.cuda.reset_peak_memory_stats()
     measured = speed(model.logits, selection, torch.cuda.synchronize)

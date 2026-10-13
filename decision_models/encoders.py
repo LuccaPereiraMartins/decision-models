@@ -5,7 +5,7 @@ from torch import nn
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.checkpoint import checkpoint
 from transformers import AutoModel, AutoTokenizer
-from schemas import LABELS, LAYA_MODEL, LAYA_REVISION, LAYA_QUESTIONS
+from schemas import LABELS, LAYA_MODEL, LAYA_REVISION, task_labels, task_questions
 
 
 MODELS = {
@@ -13,6 +13,15 @@ MODELS = {
     "bge": ("BAAI/bge-small-en-v1.5", "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"),
     "modernbert": ("answerdotai/ModernBERT-large", "45bb4654a4d5aaff24dd11d4781fa46d39bf8c13"),
 }
+
+
+def checkpoint_config(saved, requested=None):
+    """Reject a checkpoint from another reference task before loading pretrained weights."""
+    config = saved["config"] if saved else (requested or {})
+    labels = task_labels(config)
+    if saved and requested is not None and task_labels(requested) != labels:
+        raise ValueError("Checkpoint task differs from the requested task")
+    return config
 
 
 def window_checkpoint(function, *args):
@@ -26,9 +35,9 @@ class EncoderModel(nn.Module):
     def __init__(self, device="cuda", kind="finbert", adaptation="head", lora_rank=8, checkpoint=None, config=None):
         super().__init__()
         saved = torch.load(checkpoint, map_location="cpu", weights_only=True) if checkpoint else None
-        config = saved["config"] if saved else (config or {})
-        if tuple(config.get("labels", LABELS)) != LABELS:
-            raise ValueError("Checkpoint label order differs from the benchmark")
+        config = checkpoint_config(saved, config)
+        self.labels = task_labels(config)
+        self.task_id = config.get("task_id", "triage-v1")
         self.training_config = config or None
         self.selected_epoch = saved["state"]["epoch"] if saved else None
         self.device = torch.device(device)
@@ -59,7 +68,7 @@ class EncoderModel(nn.Module):
         width = self.encoder.config.hidden_size
         self.pool = nn.Sequential(nn.Linear(width, 32), nn.Tanh(), nn.Linear(32, 1, bias=False))
         nn.init.zeros_(self.pool[-1].weight)
-        self.classifier = nn.Sequential(nn.LayerNorm(width), nn.Dropout(0.1), nn.Linear(width, len(LABELS)))
+        self.classifier = nn.Sequential(nn.LayerNorm(width), nn.Dropout(0.1), nn.Linear(width, len(self.labels)))
         self.cfg = {"max_len": config.get("max_len", 512), "head_max_len": 0}
         if self.cfg["max_len"] > self.encoder.config.max_position_embeddings:
             raise ValueError("Context exceeds the pinned encoder's positional capacity")
@@ -123,28 +132,30 @@ class EncoderModel(nn.Module):
 
 class DocumentModel(nn.Module):
     def __init__(self, device="cuda", checkpoint=None, lora_rank=0, config=None):
-        import laya
         import warnings
 
         super().__init__()
         self.device = torch.device(device)
         saved = torch.load(checkpoint, map_location="cpu", weights_only=True) if checkpoint else None
+        config = checkpoint_config(saved, config)
+        self.labels = task_labels(config)
+        self.task_id = config.get("task_id", "triage-v1")
         self.training_config = saved["config"] if saved else None
         self.selected_epoch = saved["state"]["epoch"] if saved else None
-        config = self.training_config or {"model": LAYA_MODEL, "revision": LAYA_REVISION, **(config or {})}
+        config = {"model": LAYA_MODEL, "revision": LAYA_REVISION, **config}
         self.model_id, self.revision = config["model"], config["revision"]
         self.kind = "laya"
         self.lora_rank = config.get("lora_rank", lora_rank)
         warnings.filterwarnings("ignore", message=r"laya:.*invalid temperatures")
+        self.questions = config.get("questions", task_questions(self.labels))
+        if tuple(self.questions["triage"]["criteria"]) != self.labels:
+            raise ValueError("Question options must follow the task's label order")
+        import laya
+
         agent = laya.load(config["model"], device=device, revision=config["revision"], fast=False)
         self.base, self.tokenizer, self.cfg = agent.model, agent.tok, agent.cfg
-        self.questions = config.get("questions", LAYA_QUESTIONS)
-        if tuple(self.questions["triage"]["criteria"]) != LABELS:
-            raise ValueError("Question options must follow the benchmark label order")
         self.window_batch = config.get("window_batch", 8)
         if self.training_config:
-            if config["labels"] != list(LABELS):
-                raise ValueError("Checkpoint label order differs from benchmark")
             self.cfg.update(max_len=config["max_len"], head_max_len=config["head_max_len"])
         elif "max_len" in config:
             self.cfg["max_len"] = config["max_len"]
@@ -167,7 +178,7 @@ class DocumentModel(nn.Module):
             )
             self.base.encoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
         self.base.head_checkpointing = True
-        self.pool = nn.Sequential(nn.Linear(3, 16), nn.Tanh(), nn.Linear(16, 1, bias=False))
+        self.pool = nn.Sequential(nn.Linear(len(self.labels), 16), nn.Tanh(), nn.Linear(16, 1, bias=False))
         nn.init.zeros_(self.pool[-1].weight)  # Begin with uniform document pooling.
         self.uniform_pooling = config.get("pooling_method") == "uniform"
         if self.uniform_pooling:
@@ -201,7 +212,7 @@ class DocumentModel(nn.Module):
             ids, markers = build_sequence(
                 self.tokenizer, "", q, self.cfg["max_len"], self.cfg["head_max_len"], state_ids=chunk
             )
-            if len(markers) != 3 or ids[-len(chunk) - 1 : -1] != chunk:
+            if len(markers) != len(self.labels) or ids[-len(chunk) - 1 : -1] != chunk:
                 raise ValueError("Window formatting dropped input tokens or label markers")
             items.append((ids, markers))
             if start + budget >= len(tokens):
@@ -232,16 +243,20 @@ class DocumentModel(nn.Module):
         logits, _ = self.base(ids, mask, markers, torch.ones_like(markers, dtype=torch.bool),
                               torch.zeros(len(ids), dtype=torch.long, device=self.device),
                               detach_encoder=not self.lora_rank)
+        if logits.shape != (len(ids), len(self.labels)):
+            raise ValueError("Laya logits do not match the task's ordered labels")
         return logits
 
 
 def load_model(device="cuda", checkpoint=None, kind="laya", adaptation="head", lora_rank=0, config=None):
     if checkpoint:
-        config = torch.load(checkpoint, map_location="cpu", weights_only=True)["config"]
+        config = checkpoint_config(torch.load(checkpoint, map_location="cpu", weights_only=True), config)
         kind = config.get("kind", "laya")
     if kind == "laya":
         return DocumentModel(device, checkpoint, lora_rank, config)
     if kind in ("qwen17", "qwen4"):
+        if task_labels(config) != LABELS:
+            raise ValueError("Qwen adaptation supports only the original three-class task")
         from causal import CausalModel
         return CausalModel(device, kind, adaptation, lora_rank, checkpoint, config)
     return EncoderModel(device, kind, adaptation, lora_rank, checkpoint, config)
