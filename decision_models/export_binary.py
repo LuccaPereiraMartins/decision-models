@@ -53,7 +53,8 @@ def checkpoint_audit(directory, config):
     receipts = {}
     for name in ("epoch-zero.pt", "best.pt", "last.pt"):
         value = torch.load(directory / name, map_location="cpu", weights_only=True)
-        if value["config"] != config:
+        ignored = {"git_revision", "gpu"}  # The trainer records these on a source-identical research resume.
+        if {k: v for k, v in value["config"].items() if k not in ignored} != {k: v for k, v in config.items() if k not in ignored}:
             raise ValueError(f"Checkpoint configuration differs: {directory / name}")
         weights = value["weights"]
         if not weights or any(not torch.isfinite(v).all().item() for v in weights.values()):
@@ -64,7 +65,8 @@ def checkpoint_audit(directory, config):
             digest.update(tensor.contiguous().reshape(-1).view(torch.uint8).numpy().tobytes())
         receipts[name] = {"sha256": fingerprint(directory / name), "weights_sha256": digest.hexdigest(), "tensors": len(weights),
                           "parameters": sum(v.numel() for v in weights.values()),
-                          "epoch": value["state"]["epoch"], "best_epoch": value["state"]["best_epoch"]}
+                          "epoch": value["state"]["epoch"], "best_epoch": value["state"]["best_epoch"],
+                          "recorded_git_revision": value["config"].get("git_revision"), "recorded_gpu": value["config"].get("gpu")}
     history = read(directory / "history.json")
     best = max(history["history"], key=lambda row: row["validation"]["macro_f1"])
     check(best["epoch"], history["best_epoch"], "selected_epoch")
