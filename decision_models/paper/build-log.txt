@@ -896,12 +896,12 @@ num;+lnum;mapping=tex-text;" at 14.4pt
 
 ]
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/b/n' will be
-(Font)              scaled to size 12.0pt on input line 120.
+(Font)              scaled to size 12.0pt on input line 142.
 Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+t
 num;+lnum;mapping=tex-text;" at 12.0pt
  -> TeXGyreTermesX-Bold.otf
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/it' will be
-(Font)              scaled to size 10.95pt on input line 121.
+(Font)              scaled to size 10.95pt on input line 143.
 Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;-ss05;
 +tnum;+lnum;mapping=tex-text;" at 10.95pt
  -> TeXGyreTermesX-Italic.otf
@@ -963,27 +963,26 @@ Requested font "[lmsans8-regular]:mapping=tex-text;" at 8.0pt
  -> lmsans8-regular
 Requested font "[lmsans8-regular]:mapping=tex-text;" at 6.1pt
  -> lmsans8-regular
+ [2]
 Requested font "[lmmono10-regular]:" at 10.95pt
  -> lmmono10-regular
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
- [2]
 Requested font "[lmsans10-regular]:mapping=tex-text;" at 10.0pt
  -> lmsans10-regular
 Requested font "[lmsans8-regular]:mapping=tex-text;" at 7.3pt
  -> lmsans8-regular
 Requested font "[lmsans8-regular]:mapping=tex-text;" at 5.5pt
  -> lmsans8-regular
- [3]
+ [3] [4]
 Requested font "ntx-Bold-tlf-ot1" at 10.95pt
  -> ntx-Bold-tlf-ot1
 Requested font "ntx-Bold-tlf-ot1" at 8.0pt
  -> ntx-Bold-tlf-ot1
 Requested font "ntx-Bold-tlf-ot1" at 6.1pt
  -> ntx-Bold-tlf-ot1
- [4]
 Requested font "ntx-Bold-tlf-ot1" at 10.0pt
  -> ntx-Bold-tlf-ot1
 Requested font "ntx-Bold-tlf-ot1" at 7.3pt
@@ -993,29 +992,29 @@ Requested font "ntx-Bold-tlf-ot1" at 5.5pt
 File: figures//confusion.png Graphic file (type bmp)
 <figures//confusion.png>
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/it' will be
-(Font)              scaled to size 10.0pt on input line 349.
+(Font)              scaled to size 10.0pt on input line 371.
 Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;-ss05;
 +tnum;+lnum;mapping=tex-text;" at 10.0pt
  -> TeXGyreTermesX-Italic.otf
  [5]
+[6]
 File: figures//diagnostic-policies.png Graphic file (type bmp)
 <figures//diagnostic-policies.png>
-
-[6]
+ [7]
 File: figures//learning-curves.png Graphic file (type bmp)
 <figures//learning-curves.png>
 File: figures//context.png Graphic file (type bmp)
 <figures//context.png>
- [7] [8]
 File: figures//throughput.png Graphic file (type bmp)
 <figures//throughput.png>
+ [8] [9]
 File: figures//diagnostic-slices.png Graphic file (type bmp)
 <figures//diagnostic-slices.png>
- [9] [10] [11]
+ [10] [11]
 Requested font "[lmmono10-regular]:" at 10.0pt
  -> lmmono10-regular
- [12] (paper.aux)
+ [12] [13] (paper.aux)
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: BD938D5A930E23647C51ACCD7CB9D81A;5059.
  )
-Output written on paper.xdv (12 pages, 340004 bytes).
+Output written on paper.xdv (13 pages, 375892 bytes).

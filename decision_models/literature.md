@@ -1,5 +1,12 @@
 # Research context and primary sources
 
+The [13 October prior-work audit](prior-work-audit.md) identifies closely related
+financial filtering and decision-model studies, including a financial-complaint
+Laya benchmark and a Laya calibration/escalation preprint. The academic manuscript
+now cites these and frames its contribution as an incremental domain comparison.
+The audit records primary links, task differences, search terms and coverage limits;
+it does not claim global absence of an exact match.
+
 Core references checked 2026-10-09; lexical/scoring references checked 2026-10-10.
 This is a source-content-only financial triage study: agreement with review-oriented
 labels, dangerous review-to-routine errors, adaptation sample efficiency and throughput. It does not assess

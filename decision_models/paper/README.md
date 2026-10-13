@@ -6,6 +6,10 @@ tables and figures, an abstract, related work, methods, results, discussion and
 linked references. It keeps post-hoc diagnostics marked and puts the two later
 fits in one development-only section. There is no cumulative appendix.
 
+Read [the prior-work audit](../prior-work-audit.md) for the closest existing
+financial filtering/triage and Laya calibration studies. The paper's related work
+and contribution statements reflect that overlap; no first-study claim is made.
+
 Authors are Lucca Pereira Martins and Matthew Ball, in that order. The
 corresponding address is lp573@cantab.ac.uk. Affiliations have not been supplied;
 Matthew's email is omitted because no matching author email was found in the

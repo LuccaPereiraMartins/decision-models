@@ -1,6 +1,6 @@
 {
   "status": "verified",
-  "utc": "2026-10-13T16:31:00.096565+00:00",
+  "utc": "2026-10-13T16:53:33.320402+00:00",
   "authors": [
     "Lucca Pereira Martins",
     "Matthew Ball"
@@ -8,10 +8,10 @@
   "corresponding_email": "lp573@cantab.ac.uk",
   "affiliations": "Not supplied; omitted",
   "matthew_email": "Not found in available Git author history; omitted",
-  "pages": 12,
+  "pages": 13,
   "figures": 6,
   "tables": 5,
-  "references": 9,
+  "references": 18,
   "compiler": {
     "name": "Tectonic",
     "version": "0.17.0",
@@ -91,21 +91,23 @@
     "status": "passed",
     "tables": 5,
     "quantitative_rows": 33,
-    "citations": 9,
+    "citations": 18,
     "all_references_resolved": true,
     "all_fonts_embedded": true,
-    "font_instances_checked": 59,
-    "source_sha256": "01ab8674d546958387a142783a2710b57fff9e4eb7a57fe9bd7f749d5fc1b4af",
-    "pdf_sha256": "ace051e0dbd85fcc02f4561f720c3be06c009835cc9afedeeac04a51f5ec6214",
-    "evidence_commit": "431d1e40a6f3b567529c5b5e986247ea706e5c62"
+    "font_instances_checked": 61,
+    "source_sha256": "0ed70472db7ae7792f7dbc0cb63c19a01c195087264c777cb7301cec75f65c75",
+    "pdf_sha256": "c93a58fa41d6799b33020517116f2298c27d133c6153c1488ff8bdeab7dd71a3",
+    "evidence_commit": "431d1e40a6f3b567529c5b5e986247ea706e5c62",
+    "quantitative_content_preserved_from_commit": "989421825345e5d9cf8ca9d4ec5cad8c90598d34",
+    "verification_note": "All five table blocks and the complete scientific body are byte-identical to the independently checked prior manuscript; citation/reference resolution and embedded fonts were checked on the revised PDF."
   },
   "archive_replay": {
     "status": "passed",
     "offline": true,
-    "pages": 12,
+    "pages": 13,
     "text_identical": true,
-    "pdf_sha256": "05d7973907c6595ab4573765b84949983d1dd530b35192828d4a2522b117cd3d",
-    "log_sha256": "7d20695904aeaeaf855b51675d5239c925ff9a64a9f7ac15c19c00eaa1a30769"
+    "pdf_sha256": "c330797f48f98041791efc21534e86d2cf14187cd1ecc8e2c669c1d8fb916fe0",
+    "log_sha256": "e226625d4803cf816be032546432fe1f201b1087ae5200d4cfece16db3a34d12"
   },
   "submission_status": "Prepared for author review; not uploaded to arXiv",
   "bibliography_sources_checked_utc_date": "2026-10-13",
@@ -113,17 +115,25 @@
   "files": {
     ".gitattributes": "e971b6800c023e31077446af4ba25fe531394f0f6954367643f1da0d696451a3",
     ".gitignore": "f640369757cec3d5f34ddc8867161d9687af528805bc63a6d61f7c135f209927",
-    "arxiv-source.zip": "62903f4a6b130de899526d443c94dd41d4a16155d1cd9d3bd4b06570cf9d18c7",
-    "build-log.txt": "7d20695904aeaeaf855b51675d5239c925ff9a64a9f7ac15c19c00eaa1a30769",
+    "arxiv-source.zip": "ff9b59184a0fe2789fb2f5a2bda5b120ed33c3e4d1f13dbc3dc6f3c0cc5b6802",
+    "build-log.txt": "e226625d4803cf816be032546432fe1f201b1087ae5200d4cfece16db3a34d12",
     "figures/confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227",
     "figures/context.png": "9c3862bf1213695c25ff4087efa07432432ded226b89376ed1522a5c1ac65e57",
     "figures/diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa",
     "figures/diagnostic-slices.png": "5a5bd843815c2134600fed9f505eda6afdc856458029bd94ef2170638fbdaf7a",
     "figures/learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
     "figures/throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70",
-    "paper.pdf": "ace051e0dbd85fcc02f4561f720c3be06c009835cc9afedeeac04a51f5ec6214",
-    "paper.tex": "01ab8674d546958387a142783a2710b57fff9e4eb7a57fe9bd7f749d5fc1b4af",
-    "README.md": "9b3fc1cb744256a9756817603effe52fe5512964d3056d98c7123e99daa59217",
-    "visual-verification.json": "b4ef90218ab925f20c54c89c51a61e3fc456f32494dcf6b8356b555b8b368e46"
-  }
+    "paper.pdf": "c93a58fa41d6799b33020517116f2298c27d133c6153c1488ff8bdeab7dd71a3",
+    "paper.tex": "0ed70472db7ae7792f7dbc0cb63c19a01c195087264c777cb7301cec75f65c75",
+    "README.md": "a408d64a77576c8802d223e241c8d396baeb03ea55ae949b39330a18bdf2a982",
+    "visual-verification.json": "d4d16bbdffdc12a644a72ec284cec1dd9fa6da1614a734a624a493cfe3652628"
+  },
+  "literature_audit": {
+    "path": "../prior-work-audit.md",
+    "sha256": "1d425be4ba8a06ca54d140b25e6d500d9472221850885646d5d0283fd411a26e",
+    "search_date": "2026-10-13",
+    "closest_additional_references": 9,
+    "scope": "Targeted primary-source review; relevant prior work exists; no global absence or first-study claim"
+  },
+  "prior_manuscript_commit": "989421825345e5d9cf8ca9d4ec5cad8c90598d34"
 }

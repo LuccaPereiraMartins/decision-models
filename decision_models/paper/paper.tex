@@ -82,8 +82,9 @@ targets? A bounded core study addresses these questions without selecting method
 the final test outcomes. Subsequent encoder experiments are reported separately as
 development evidence.
 
-The contribution is a reproducible engineering comparison under an explicit
-teacher-labeling convention. It includes temporal and related-document controls,
+The contribution is an incremental, reproducible financial-domain comparison
+under an explicit teacher-labeling convention, situated against the prior
+filtering and decision-model studies discussed below. It includes temporal and related-document controls,
 paired uncertainty, whole-document resource measurements and inspectable per-document
 decisions. The primary result is limited but useful: the observed F1 difference does
 not resolve an advantage for the adapted decision model, despite substantially higher
@@ -91,29 +92,50 @@ local inference latency. This is not a claim that decision models generally fail
 that the teacher references identify all economically material information.
 
 \section{Related work}
-Lexical classification remains a relevant comparator when features and classifier
-choices are selected carefully. Wang and Manning \citep{wang} demonstrate that such
-choices affect sentiment and topic classification. We use word and character TF-IDF
-with logistic regression and linear support-vector classifiers, rather than import
-their task-specific accuracy claims. FinBERT \citep{finbert}, ModernBERT
-\citep{modernbert} and BGE \citep{bge} provide finance, general bidirectional and
-embedding-oriented representations respectively. Our comparisons measure transfer
-to this triage task; sentiment and retrieval benchmarks are not substitutes for it.
-Laya's checkpoint documentation describes its backbone and decision-head pretraining
-\citep{laya}; provider benchmarks use different tasks.
+Financial information filtering is an established application. Ahbali et al.\
+\citep{credit} use a TF-IDF/SVM relevance filter before corporate credit-event
+analysis. Del Corro and Hoffart \citep{financialrelevance} infer headline relevance
+from stock-prediction attention, while Feuerriegel and Pr\"ollochs
+\citep{disclosures} relate topics in 8-K disclosures to market reactions.
+FinLin \citep{finlin} supplies multi-source, expert-annotated entity relevance
+and sentiment. These targets differ from our source-content-only,
+whole-document routine/review-worthy/unclear convention.
 
-Low-rank adaptation (LoRA) introduces trainable low-rank updates to pretrained
-weights \citep{lora}. Equal adapter rank does not ensure an equal total training budget
-when classifiers differ. Proper scoring rules motivate cross-entropy and probability
-evaluation \citep{gneiting}, while temperature scaling provides a simple calibration
-method \citep{guo}. Neither a proper training objective nor calibrated confidence
-guarantees a specified miss rate after distribution shift.
+Disclosure materiality has also been studied directly. Park \citep{materiality}
+assesses physical-risk disclosure examples using firm financial, operational
+and geographic context; our inputs deliberately omit that context, so our
+labels cannot establish comparable materiality judgments. Johnsen and Shasharina
+\citep{noise} report a FinBERT-to-Claude headline cascade that can discard
+material signals when neutral sentiment gates review. This practitioner report
+motivates the distinction between sentiment and review triage; its measurements
+are not independent validation of our reference labels or operating rules.
 
-Automated annotation also requires a separate validity argument. Pangakis et al.\
-\citep{annotation} report task-dependent annotation performance and emphasize
-validation against human references. In this study the teacher supplies a consistent
-operational convention for model comparison. We do not treat consistency with that
-teacher as independent evidence of analyst-level materiality.
+Recent work overlaps closely with our decision-model methodology.
+Nandakishore \citep{assessor} studies Laya Typed-Decisions on synthetic workflows,
+including calibration, failed out-of-sample escalation targets and teacher
+agreement. We instead adapt the English root checkpoint to real public-source
+financial texts. Stuani's public engineering benchmark \citep{complaints}
+compares Laya, ModernBERT, TF-IDF and language models on financial complaint
+routing and fraud-report flags, with timing and calibration measurements.
+Those consumer-selected targets differ from investment review. Borchers
+\citep{borchers} compares fine-tuned decision models with a frozen-embedding
+classifier and learning curves on research-paper categories. These engineering
+benchmarks already motivate strong simpler comparators; their scores do not
+transfer to our corpus.
+
+Our methods build on established lexical classification \citep{wang},
+finance and general encoder representations \citep{finbert,modernbert,bge},
+low-rank adaptation \citep{lora}, proper scoring rules \citep{gneiting}
+and temperature scaling \citep{guo}. Automated annotation requires
+task-specific validation \citep{annotation}. Equal adapter rank does not
+equalize classifier budgets, and teacher agreement is not analyst correctness.
+
+Our contribution is a reproducible financial-domain comparison using a new
+teacher-labeled public-source cohort, temporal and event-group controls,
+equal-data comparisons, and whole-document context and resource measurements.
+It extends prior filtering, adaptation and model-assessment work. Financial
+triage, calibration and strong lexical comparators are established parts of
+that literature, rather than innovations claimed here.
 
 \section{Task and benchmark}
 \label{sec:data}
@@ -643,7 +665,7 @@ documented in the repository. The original freeze, ownership and held-out
 results remain preserved.
 
 \FloatBarrier
-\begin{thebibliography}{10}
+\begin{thebibliography}{99}
 \small
 \raggedright
 \setlength{\itemsep}{2pt}
@@ -700,5 +722,65 @@ In \emph{Proceedings of the 34th International Conference on Machine Learning},
 Nicholas Pangakis, Samuel Wolken, and Neil Fasching.
 Automated annotation with generative AI requires validation.
 2023. \href{https://arxiv.org/abs/2306.00176}{arXiv:2306.00176}.
+
+\bibitem{credit}
+Noujoud Ahbali, Xinyuan Liu, Albert Aristotle Nanda, Jamie Stark, Ashit Talukder,
+and Rupinder Paul Khandpur.
+Identifying corporate credit risk sentiments from financial news.
+In \emph{Proceedings of NAACL-HLT 2022: Industry Track Papers},
+pp.\ 362--370, 2022. \url{https://aclanthology.org/2022.naacl-industry.40/}.
+
+\bibitem{financialrelevance}
+Luciano Del Corro and Johannes Hoffart.
+From stock prediction to financial relevance: Repurposing attention weights
+to assess news relevance without manual annotations.
+2020. \href{https://arxiv.org/abs/2001.09466}{arXiv:2001.09466}.
+
+\bibitem{disclosures}
+Stefan Feuerriegel and Nicolas Pr\"ollochs.
+Investor reaction to financial disclosures across topics: An application
+of latent Dirichlet allocation.
+2018. \href{https://arxiv.org/abs/1805.03308}{arXiv:1805.03308}.
+
+\bibitem{finlin}
+Tobias Daudert.
+A multi-source entity-level sentiment corpus for the financial domain:
+the FinLin corpus.
+\emph{Language Resources and Evaluation}, 56:333--356, 2022
+(first published online 2021).
+\href{https://doi.org/10.1007/s10579-021-09555-3}{doi:10.1007/s10579-021-09555-3}.
+
+\bibitem{materiality}
+Taejin Park.
+Quantifying material risks from textual disclosures in financial statements
+using LLMs and LLM agents---a case study on physical risks.
+IFC-ECCBSO-Bank of Spain Workshop contribution, 17 October 2024;
+available in \emph{IFC Bulletin 65}.
+\href{https://www.bis.org/2026-07/ifcb65_09_rh.pdf}{BIS chapter}.
+
+\bibitem{assessor}
+Gowthamkumar Nandakishore.
+Laya as a typed probabilistic assessor: An independent reproduction and a
+preregistered study of calibration and selective escalation.
+2026. \href{https://arxiv.org/abs/2609.33843}{arXiv:2609.33843}.
+
+\bibitem{complaints}
+Eduardo Stuani.
+Laya vs LLMs: Picking the right model for financial complaint triage.
+Public engineering benchmark, 2026.
+\url{https://github.com/stuaninauts/bench-laya-vs-llms}.
+Repository snapshot \texttt{95cdee3e8539}; accessed 13 October 2026.
+
+\bibitem{borchers}
+Oliver Borchers.
+Do you even need a decision model?
+Engineering benchmark report, 4 October 2026; updated 7 October.
+\url{https://www.drborchers.com/en/blog/do-you-need-a-decision-model/}.
+
+\bibitem{noise}
+Tommi Johnsen and Svetlana Shasharina.
+We trusted FinBERT to filter the noise. It was also filtering the signal.
+Practitioner report, 16 April 2026.
+\href{https://tommijohnsen.substack.com/p/we-trusted-finbert-to-filter-the}{Report}.
 \end{thebibliography}
 \end{document}

@@ -759,3 +759,21 @@ receipts are in paper/. All 38 original public evidence files retain their exact
 as do core/benchmark and completed development identities. No model, test inference,
 paid API call or cloud job was dispatched. This prepares a manuscript for author review;
 it does not constitute an arXiv submission.
+
+## 13 October 2026: targeted prior-work audit
+
+A broader primary-source search found substantial overlap that the initial related-work
+section missed: Laya calibration/escalation on synthetic workflows, Laya-versus-baseline
+financial complaint triage, and existing financial relevance/materiality filtering work.
+The manuscript now cites the nine closest additional works and narrows its contribution
+to an incremental public-source financial-domain comparison. The dated search, source
+links, task differences, repository snapshots and limits are in prior-work-audit.md.
+No exact match to the complete rubric/cohort/protocol combination was identified among
+reviewed sources; that is not a proof of absence or grounds for a first-study claim.
+
+The revised thirteen-page paper has eighteen references. All original scientific body,
+five tables and six figures retain their prior content; the 38-file original evidence
+package is byte-identical. Every final PDF page was inspected. The source archive
+recompiles offline with identical text/page count and no layout/reference diagnostics.
+Source/package hashes and visual/transcription receipts were updated. No model, test
+evaluation, operating rule or paid computation was changed by the literature review.
