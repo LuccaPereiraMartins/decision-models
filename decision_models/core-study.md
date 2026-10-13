@@ -22,12 +22,13 @@ The preset command is in [README.md](README.md#bounded-core-study), with artifac
 
 Execution started on 12 October at 21:41 London time. The progress checkpoint is 13 October around 17:41. The original source bytes and frozen benchmark inputs are archived with verified hashes. Report construction and seven-page rendering checks use an explicitly synthetic fixture; held-out evaluation and final report inspection remain pending.
 
-As of 13 October at 04:01 London time, Laya and ModernBERT-large's 4k LoRA fits are complete and independently verified. FinBERT is running. All rows below use the same 4,000 training documents and 837-document selection cohort, with 552 review-worthy references.
+As of 13 October at 04:34 London time, all three 4k LoRA fits are complete and independently verified. Matched pre-update controls are running before the freeze. All rows below use the same 4,000 training documents and 837-document selection cohort, with 552 review-worthy references.
 
 | Method | Selection macro F1 | Critical misses | Warm mean ms |
 | --- | ---: | ---: | ---: |
 | Laya LoRA | 0.7272 | 81 / 552 | 267.8 |
 | ModernBERT-large LoRA | 0.7010 | 123 / 552 | 147.4 |
+| FinBERT LoRA | 0.6715 | 132 / 552 | 33.9 |
 | Word TF-IDF logistic | 0.7258 | 84 / 552 | 4.5 |
 
 Laya is close to the selected lexical baseline on these fitting scores, at roughly 59 times its warm latency. Its selected LoRA recipe improves F1 over the completed 4k head recipe (0.5825; 105 critical misses). The 1k-to-4k LoRA F1 increment is 0.0713, subject to the documented changing subset composition. No held-out advantage or significance is established yet.
@@ -36,4 +37,6 @@ The 1%/5% calibration-selected discard rules reach 2.17%/7.97% critical misses o
 
 Artifact/source/runtime/cohort checks, raw metric arithmetic, best epoch, finite checkpoints, policies and timing arithmetic passed. The 4k Laya pre-update weights and selection probabilities exactly match the imported 1k LoRA control, validating its reuse.
 
-ModernBERT-large selects epoch three with calibration F1 0.6752 and 60 critical misses among 252. Its 1%/5% rules discard 5.37%/16.13% of selection documents, with 1.27%/6.34% miss rates; both targets are exceeded. The training clock is 7,814 seconds (2.17 hours), with 2.88 GiB peak allocation. This is a system comparison: heads, window overlap/tokenization and updated parameter counts differ. Laya trains 27.166 million parameters including its native head; ModernBERT-large trains 0.923 million. Equal rank eight does not equalize adaptation budgets. FinBERT, matched controls, final freeze/test inference and real report/reproduction review remain required.
+ModernBERT-large selects epoch three with calibration F1 0.6752 and 60 critical misses among 252. Its 1%/5% rules discard 5.37%/16.13% of selection documents, with 1.27%/6.34% miss rates; both targets are exceeded. The training clock is 7,814 seconds (2.17 hours), with 2.88 GiB peak allocation. This is a system comparison: heads, window overlap/tokenization and updated parameter counts differ. Laya trains 27.166 million parameters including its native head; ModernBERT-large trains 0.923 million. Equal rank eight does not equalize adaptation budgets.
+
+FinBERT selects epoch three with calibration F1 0.6542 and 58 critical misses among 252. Its fitting F1 is close to frozen FinBERT/logistic at 0.6701, with more critical misses (132 versus 103). Its 1%/5% rules reach 2.17%/7.97% selection miss rates while discarding 5.37%/14.34%; both targets are exceeded. Training/validation takes 1,959 seconds (32.6 minutes), with 0.78 GiB peak and 0.299M trainable parameters. No recipe was retuned after these results. Matched controls, final freeze/test inference and actual report/reproduction review remain required.

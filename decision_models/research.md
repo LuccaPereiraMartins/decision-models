@@ -588,3 +588,23 @@ system comparison. Trainable counts also differ: Laya LoRA 27,165,697 versus Mod
 922,627, including heads. The report now records exact model IDs/revisions and neural parameter budgets.
 FinBERT started next at approximately 03:58 London time. Its fit, matched controls, freeze/test, actual
 report/PDF inspection and final reproduction audit remain required. No additional paid/cloud work ran.
+
+## 13 October: bounded FinBERT LoRA complete; training matrix finished
+
+The third predeclared 4k LoRA selects epoch three: selection macro F1 **0.6715172242** with 132
+critical misses among 552, and calibration F1 **0.6541647895** with 58 among 252. Frozen FinBERT/logistic
+on the identical training subset has F1 **0.6701110583** and 103 selection misses. A near-equal fitting
+F1 therefore does not establish an operational improvement. Different heads and updating budgets qualify
+the system comparison; no settings were changed after observing this result.
+
+The 1%/5% policies discard 10/42 calibration documents with two/twelve critical misses. Selection
+discards 45/120 (5.37%/14.34%), with twelve/44 critical misses (2.17%/7.97%) and zero/one unclear
+references discarded. Both rates exceed their targets. Training/validation takes 1,958.567 seconds
+(32.6 minutes), 1,500 steps, with 0.78 GiB training peak and 298,755 trainable parameters. Warm mean
+is 33.9 ms, P50/P95 19.6/117.6 ms, with 0.52 GiB inference peak on the common 128-document sample.
+
+All three fits passed source/runtime/artifact, ordered cohort/probability/raw metric, calibrated policy,
+best/zero/final checkpoint and timing checks. The FinBERT receipt is
+`checks/core-finbert-lora4000-verification-20261013.json`. Matched pre-update controls now run serially;
+their verification, final freeze, one held-out evaluation and actual report/PDF/reproduction review remain.
+The agreed 20-hour checkpoint is approximately 17:41 London time today; no cloud or extra API calls ran.
