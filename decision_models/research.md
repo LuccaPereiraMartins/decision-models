@@ -608,3 +608,22 @@ best/zero/final checkpoint and timing checks. The FinBERT receipt is
 `checks/core-finbert-lora4000-verification-20261013.json`. Matched pre-update controls now run serially;
 their verification, final freeze, one held-out evaluation and actual report/PDF/reproduction review remain.
 The agreed 20-hour checkpoint is approximately 17:41 London time today; no cloud or extra API calls ran.
+
+## 13 October: controls verified, study frozen, held-out inference started
+
+All seven controls completed without OOM/failures; the fit worker exited and its temporary awake guard
+released. CPU verification checked every control's exact copied checkpoint, finite weights, source/runtime,
+ordered selection/calibration cohort, probability/F1/confusion/critical-miss arithmetic, calibration identity
+and original epoch-zero probabilities after temperature scaling. Parameter digests match every one of the
+eleven adapted/control pairings, including reused head curves and the shared 1k/4k LoRA control. All seven
+sets of calibrated discard rules passed independent arithmetic/maximal feasible threshold checks.
+
+The final freeze contains 64 comparisons, with validation-selected primary **4k Laya LoRA versus 4k word
+TF-IDF/logistic**. All artifacts and plan/selection/state/data/source/version hashes were checked before
+test access. The freeze is `0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a`, timestamp
+04:21:49 UTC. The tracked [declaration](reports/core-v1/frozen-comparisons.json) contains no held-out outcomes.
+Receipts are `checks/core-controls-verification-20261013.json` and `checks/core-freeze-verification-20261013.json`.
+
+Held-out inference began at 04:24 UTC, with a new temporary awake guard. The benchmark ownership and local
+test markers both match the freeze. All choices remain locked; resumable prediction work is serial. Actual
+test/statistics verification, report/PDF every-page review and final reproduction/code review remain pending.
