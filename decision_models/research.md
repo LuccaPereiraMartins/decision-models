@@ -564,3 +564,27 @@ are identical, and their ordered selection probabilities have maximum difference
 deduplicated matched control is appropriate. The receipt and artifact hashes are retained locally in
 `checks/core-laya-lora4000-verification-20261013.json`. No real test inference was performed. The remaining
 two fits, freeze/test evaluation, actual report/PDF review and final reproduction audit remain pending.
+
+## 13 October: bounded ModernBERT-large LoRA complete
+
+The pinned `answerdotai/ModernBERT-large` run at 4k selects epoch three with selection macro F1
+**0.7009685480**, 123 critical misses among 552, and calibration F1 **0.6752113930**, 60 misses among 252.
+The 1%/5% policies discard 19/53 calibration documents, with two/twelve critical misses; on selection
+they discard 45/135 (5.37%/16.13%), with seven/35 critical misses (1.27%/6.34%) and zero/one unclear
+references discarded. Both selection rates exceed their targets. These remain fitting teacher-agreement
+results under the predeclared recipe; no held-out architecture advantage is inferred.
+
+Training/validation takes 7,813.667 seconds (2.17 hours), 1,500 steps, with 2.88 GiB training peak.
+The common warm sample averages 147.4 ms, P50/P95 72.2/525.4 ms, and 1.81 GiB inference peak.
+All source/runtime/cohort, raw metric, best/zero/final checkpoint, policy and timing checks passed;
+the receipt is `checks/core-modernbert-lora4000-verification-20261013.json`.
+
+Source review confirms that the native SDK supplies an actual three-choice distribution. Adapted Laya
+averages logits from 50% overlapping windows; ModernBERT/FinBERT average unpadded token states within
+non-overlapping windows and uniformly average their window vectors before a new triage classifier.
+The frozen FinBERT/BGE logistic baselines normalize mean window vectors; BGE uses CLS. Laya normalizes
+literal reserved mask tokens before encoding. These representation/window/head differences make this a
+system comparison. Trainable counts also differ: Laya LoRA 27,165,697 versus ModernBERT-large LoRA
+922,627, including heads. The report now records exact model IDs/revisions and neural parameter budgets.
+FinBERT started next at approximately 03:58 London time. Its fit, matched controls, freeze/test, actual
+report/PDF inspection and final reproduction audit remain required. No additional paid/cloud work ran.

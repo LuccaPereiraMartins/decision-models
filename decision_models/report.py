@@ -31,7 +31,7 @@ def table(headers, rows):
 
 def label(config):
     kind = {"laya": "Laya", "tfidf": "Word TF-IDF", "char": "Char TF-IDF", "combined": "Combined TF-IDF",
-            "majority": "Majority", "finbert": "FinBERT", "bge": "BGE", "modernbert": "ModernBERT",
+            "majority": "Majority", "finbert": "FinBERT", "bge": "BGE-small", "modernbert": "ModernBERT-large",
             "qwen17": "Qwen3-1.7B", "qwen4": "Qwen3-4B"}[config.get("kind", "laya")]
     suffix = config.get("classifier", config.get("adaptation", "SDK"))
     if config["family"] == "research_zero":
@@ -398,6 +398,9 @@ def build(splits, study, human=None):
                      "Unadapted references use no task training; larger imported curves are supplementary. "
                      "Generative LLM adaptation, larger LoRA runs and independent human review are deferred by the user. "
                      "This is an end-to-end teacher-agreement study, not expert validation of materiality.")
+    backbones = {config["model"]: config["revision"] for config in configs.values() if config.get("model")}
+    parts.insert(parts.index("## Source and label coverage") - 1,
+                 table(["Pretrained model", "Pinned Hub revision"], sorted(backbones.items())))
     if "synthetic" in freeze["manifest"]["prepared"].get("method", "").lower():
         parts.insert(1, "Synthetic engineering fixture: this document verifies the pipeline and contains no research findings.")
     manifest = freeze["manifest"]["splits"]
@@ -571,12 +574,15 @@ def build(splits, study, human=None):
         history = json.loads((directory / "history.json").read_text()) if (directory / "history.json").exists() else {}
         weights = cached_weights(configs[n])
         resources.append([label(configs[n]), number(history.get('seconds', configs[n].get('fit_seconds', 0)), 1),
+                          number(configs[n]['trainable_parameters'] / 1e6, 3) if 'trainable_parameters' in configs[n] else '-',
                           number(perf.get('training_peak_vram_bytes', 0) / 2**30, 2),
                           number(weights / 2**30 if weights is not None else None, 2),
                           number(perf.get('adapter_bytes', perf.get('artifact_bytes', 0)) / 2**20, 2)])
     parts.insert(parts.index("## Critical-error inspection") - 1,
-                 table(["Model", "Fit elapsed s", "Training VRAM GiB", "Original weights GiB", "Saved checkpoint MiB"], resources) +
+                 table(["Model", "Fit elapsed s", "Trainable neural M", "Training VRAM GiB", "Original weights GiB", "Saved checkpoint MiB"], resources) +
                  "\n\nFit elapsed includes training/grid selection and recorded validation work; cached features can reduce elapsed time. "
+                 "Neural trainable counts include heads and adapters. Equal LoRA rank does not imply equal updated parameter budgets: "
+                 "Laya also trains its larger native decision head. Counts for linear classifiers are not recorded in this column. "
                  "Original weights are cached pretrained input files, not packed deployment size. "
                  "Saved checkpoints may include optimizer/RNG state. Peak VRAM is torch-allocated memory, excluding driver/display overhead; "
                  "the latency table reports inference peak, with training peak listed separately.")
