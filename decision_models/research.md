@@ -696,3 +696,29 @@ raw/calibrated metrics, calibration optimum/maximal feasible policies, selected 
 Receipts and exact sources are in reports/core-v1/development-audit.zip; exported probabilities, train metadata,
 decisions and histories support CPU replay. The report's separate section spans pages 17–19. Original freeze,
 result, state and ownership hashes remain unchanged; the core still contains exactly 64 held-out comparisons.
+
+## 13 October: compact BGE development comparison completed
+
+The user authorized one further compact-encoder fit. BGE-small LoRA ran 14:36–14:58 UTC with the same
+4k subset and 512-token/rank-8/unweighted-CE/0.0001 learning-rate/seed-42 recipe as 4k FinBERT. Three epochs
+completed; raw selection F1 chooses epoch two. The controller released its awake guard normally.
+
+Selection F1 is 0.658591 versus FinBERT LoRA 0.671517 and frozen BGE/logistic 0.645911. BGE's critical
+misses are 84/552 versus 132/552 and 109/552, with default discards 219/837 versus 286/837 and 242/837.
+The workload tradeoffs are explicit; unclear discards are seven/five/nine among 93. BGE's matched
+epoch-zero selection F1 is 0.312025; training includes classifier-head and encoder-adapter updates,
+and differing architecture/pretrained objectives/normalization/classifier recipes prevent causal attribution.
+
+BGE train/validation takes 21.0 minutes (21.8 controller wall time), with 149,379 trainable parameters,
+0.32 GiB training peak, 0.19 GiB inference peak and 20.23 ms warm mean. FinBERT uses 32.6 minutes,
+298,755 parameters, 0.78/0.52 GiB and 33.94 ms. Timing samples match exactly; frozen BGE's mean is
+20.40 ms. Frozen feature preparation/classifier fitting have separate accounting. BGE's 1%/5% rules
+miss twelve/36 selection review-worthy documents (2.17%/6.52%) while discarding 41/91, with no unclear
+discards. All three systems exceed both empirical targets on selection.
+
+Independent artifact/source/runtime, original ordered-cohort, shared-subset, finite checkpoint and
+epoch-selection, metric/temperature/maximal-policy and resource checks passed. Best and epoch-zero
+BGE checkpoints were replayed on development data only. Published probabilities retain original and
+common identity order; arithmetic/source/replay receipts are in compact-audit.zip. The new report section
+is pages 19–20; all original core and completed FinBERT evidence hashes remain unchanged. These are
+post-test fitting-cohort system comparisons, with no new held-out result or significance claim.

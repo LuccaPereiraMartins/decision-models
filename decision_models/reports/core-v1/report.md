@@ -32,7 +32,7 @@ The primary contrast and main trained-model tables use 4000 training documents p
 
 Classify supplied source content as routine, review_worthy or unclear for an analyst inbox. No issuer history, portfolio context, future returns or market reaction is supplied. Unclear routes to review. Macro F1 averages all three declared labels, including absent classes in small slices. The critical error is a review-worthy document predicted routine.
 
-The research question is whether supervised decision-model adaptation and larger contiguous context improve triage agreement, critical misses and throughput relative to lexical and encoder baselines. FinBERT's published sentiment results do not establish triage quality; BGE is an embedding model. ModernBERT supplies a backbone-family system comparison; classifier/decision heads and source-window budgets differ. Primary sources and distinctions are documented in [literature.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/2afc7e45bbc966313c0d86fd0151353e7a34e73d/decision_models/literature.md).
+The research question is whether supervised decision-model adaptation and larger contiguous context improve triage agreement, critical misses and throughput relative to lexical and encoder baselines. FinBERT's published sentiment results do not establish triage quality; BGE is an embedding model. ModernBERT supplies a backbone-family system comparison; classifier/decision heads and source-window budgets differ. Primary sources and distinctions are documented in [literature.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/68f555c397f81b7a18d96c85fd016610d02f6b23/decision_models/literature.md).
 
 Train ends 2026-03-31; selection/calibration use April-June; test uses July-September. Event and verified near-duplicate groups cannot cross boundaries. Old experimental bodies and near duplicates are excluded from fresh validation/test. Candidate retrieval is approximate and can miss duplicates. Every core recipe, checkpoint, calibration and discard threshold was frozen before test inference.
 
@@ -99,7 +99,7 @@ Selection applies the recorded split ceilings and train/validation/test 8-K shar
 | news | 1373 | 38 | 12 | 35 |
 | releases | 7047 | 249 | 105 | 561 |
 
-Source shortfalls are not filled by additional 8-Ks. These institutional/public-news cohorts are not a representative commercial inbox. Publication dates and snapshots cannot establish the exact text available at the historical date; pretraining exposure remains possible. Rights and collection methods are documented in [sources.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/2afc7e45bbc966313c0d86fd0151353e7a34e73d/decision_models/sources.md).
+Source shortfalls are not filled by additional 8-Ks. These institutional/public-news cohorts are not a representative commercial inbox. Publication dates and snapshots cannot establish the exact text available at the historical date; pretraining exposure remains possible. Rights and collection methods are documented in [sources.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/68f555c397f81b7a18d96c85fd016610d02f6b23/decision_models/sources.md).
 
 | Split | Documents | routine | review_worthy | unclear |
 | --- | --- | --- | --- | --- |
@@ -627,3 +627,49 @@ Thresholds are fitted on the 363-document calibration cohort. The last three col
 The 16k 1% policy misses eight of 552 teacher review-worthy selection references (1.45%), exceeding its empirical calibration target. Its 5% policy misses 21 (3.80%), while also discarding four unclear references. Target satisfaction on a fitting cohort is not a population guarantee. Policies were fitted on calibration alone; no rule was chosen using the original test outcomes.
 
 Independent verification checks ordered cohorts and nested training identities, source/runtime fingerprints, finite zero/best/final checkpoints, matched initialization, raw and calibrated arithmetic, calibration temperature and maximal feasible policies, selected epoch, timing sample and resource clocks. The completed 16k checkpoint was replayed on development cohorts only. The original study/result/ownership hashes remain unchanged. Published development probabilities, training metadata, decisions, histories and verifier receipts support CPU arithmetic replay without corpus bodies or model weights.
+
+
+
+## Development-only compact encoder comparison
+
+
+
+The user authorized one additional BGE-small LoRA fit after inspecting the original test results and the FinBERT development extension. It uses the same 4,000 training documents, 837 selection documents and 363 calibration documents as the 4k FinBERT recipe. All scores below use fitting cohorts; no new test prediction or 65th held-out comparison is included. The original study and its conclusions remain frozen. Fresh held-out data is required for generalization evidence.
+
+BGE uses pinned BAAI/bge-small-en-v1.5 weights, context 512, uniform whole-document pooling, rank 8, alpha 16, dropout 0.05, unweighted CE, both learning rates 0.0001, seed 42 and three epochs. Raw selection F1 chooses epoch two, retaining epoch zero as eligible. FinBERT selects epoch three under the same recipe. Architecture, pretrained objectives and trainable parameter counts differ; the frozen-feature classifier additionally has a different normalization and classifier recipe. These are system comparisons, not isolated tests of finance pretraining or LoRA.
+
+| Method | Selection F1 | Critical misses / 552 | Unclear discarded / 93 | Default discards / 837 | Calibration F1 |
+| --- | --- | --- | --- | --- | --- |
+| BGE-small LoRA | 0.6586 | 84 | 7 | 219 | 0.6513 |
+| FinBERT LoRA | 0.6715 | 132 | 5 | 286 | 0.6542 |
+| Frozen BGE/logistic | 0.6459 | 109 | 9 | 242 | 0.6629 |
+
+BGE LoRA's selection F1 is -0.0129 relative to FinBERT and +0.0127 relative to frozen BGE. Against FinBERT, it misses 48 fewer teacher review-worthy documents but sends 67 more documents for review and discards two additional unclear references. Against frozen BGE, it misses 25 fewer review-worthy documents while sending 23 more for review. The default operating points therefore trade workload for misses; the F1 differences alone do not establish operational superiority.
+
+The matched BGE epoch-zero checkpoint has raw selection F1 0.3120. Its improvement after training includes both the fresh classifier head and encoder adapters. An untrained triage head is a weak starting control; frozen BGE/logistic is the more useful trained alternative. Neither comparison isolates the causal benefit of adapter updates alone.
+
+### Local resource comparison
+
+Warm inference uses the identical 128-document selection sample and includes processing all source windows, excluding loading. Training clocks include validation but exclude startup and final calibration/resource measurement. Frozen BGE feature preparation and classifier fit use separate accounting, so no combined frozen-training clock is placed alongside these neural fits.
+
+| Method | Train/validation min | Trainable parameters | Training peak GiB | Warm mean ms | Inference peak GiB |
+| --- | --- | --- | --- | --- | --- |
+| BGE-small LoRA | 21.0 | 149,379 | 0.32 | 20.23 | 0.19 |
+| FinBERT LoRA | 32.6 | 298,755 | 0.78 | 33.94 | 0.52 |
+
+BGE's observed warm mean is 0.60 times FinBERT's; the bounded controller completes in 21.8 minutes. Frozen BGE/logistic's measured warm mean is 20.40 ms. These local measurements support a smaller resource footprint, not a guaranteed deployment speed or a finance-domain accuracy advantage. The controller finished normally and released its awake guard; no cloud jobs, paid calls or further training ran.
+
+### Development discard policies
+
+Thresholds fit calibration alone. The following table shows selection behavior; all three systems exceed both empirical calibration miss targets on this cohort. Targets concern review-worthy misses and do not protect all unclear documents.
+
+| Method | Target | Selection discards / 837 | Critical misses / 552 | Miss rate | Unclear discarded |
+| --- | --- | --- | --- | --- | --- |
+| BGE-small LoRA | 0.01 | 41 | 12 | 2.17% | 0 |
+| BGE-small LoRA | 0.05 | 91 | 36 | 6.52% | 0 |
+| FinBERT LoRA | 0.01 | 45 | 12 | 2.17% | 0 |
+| FinBERT LoRA | 0.05 | 120 | 44 | 7.97% | 1 |
+| Frozen BGE/logistic | 0.01 | 57 | 15 | 2.72% | 1 |
+| Frozen BGE/logistic | 0.05 | 99 | 32 | 5.80% | 1 |
+
+Independent verification checks the exact shared 4k subset, original ordered cohorts, artifact/source/runtime identities, finite zero/best/final checkpoints, epoch-two selection, raw/calibrated arithmetic, calibration optimum and maximal feasible policies, and resource clocks/sample. Best and matched epoch-zero checkpoint probabilities were replayed on development data only. Published inputs retain original body ordering alongside a common identity order for comparison. All original core and completed FinBERT evidence hashes remain unchanged. These fitting-cohort findings motivate fresh evaluation; they carry no significance or independent generalization claim.

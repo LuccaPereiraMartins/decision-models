@@ -1,5 +1,5 @@
 {
-  "utc": "2026-10-13T14:08:59.193919+00:00",
+  "utc": "2026-10-13T15:21:09.581680+00:00",
   "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
   "results_sha256": "330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0",
   "models": 64,
@@ -12,9 +12,13 @@
   "reference": "Luna teacher labels; independent human review deferred",
   "files": {
     ".gitattributes": "d09e3e33b5885dd583045f69843093b2701147eb881dcc3c627fdf0191249cf0",
-    "README.md": "f5d0582ce0d02030d6df1e98293ea4ef702934a2a3a5301bdc88b90e27fb9e3a",
+    "README.md": "a28e2193fb0219884d1faeb26c832be180acba1f58161245c9c59d46a6f49199",
     "audit-evidence.zip": "4cfc0c3619d232cd2135fabac7e24d065bed0ffeb177bf6f2d61eecf8a6a1276",
     "bootstrap.json": "478c8a6924f7d6236ac1bdf2d034a636b158199eca4a3b5c840c41e3e888fdde",
+    "compact-audit.zip": "371931f5aa5c8d6a1705b3c847cf1673ad7f942666a92e10733f021454eca980",
+    "compact-evidence.json.gz": "a91b8c39f83feabaf2cfc855b21431b05c1c140bfc156eb15c56f942ea446588",
+    "compact-source.py": "f3aa839ec864cf19561bf6b49e4dafc6fdb6dba6d8d9a48f8df879740de7db7c",
+    "compact-summary.json": "aae91aac4c7ef5264491fbef7762c40f82e7b09cb7202d5ec061135513696779",
     "comparison-details.json.gz": "6db4e61602f0d8bfe53b0c46ba2dda8e7a04a476ddaa561e8d4ce36f27791856",
     "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227",
     "context.png": "9c3862bf1213695c25ff4087efa07432432ded226b89376ed1522a5c1ac65e57",
@@ -34,17 +38,18 @@
     "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
     "predictions.json.gz": "1f6d0115817e6926f4011a1e1954dc881ea685d8aa4677e6d6ebfc4d9cf92dc6",
     "reference-quote.json": "31b3ae0cba8f90e29b55541f61944beb99d3183bfcf0dd5aa688f08f0117f9de",
-    "report-manifest.json": "55b0bfb321c3a97095e85774ecf5ef547e0cadec96b79a481cf4665d9586245a",
-    "report-source.py": "1acf27e21206a410e1b63b7cae19d1a01baf76f10186325a5d3b2654be0d8728",
-    "report.md": "34b44ebee95f9f5ede5f17c11ebd6a71b34dc3ce07eb8e1f28aedece4ff4a052",
-    "report.pdf": "aedcedb98e55255a67405423b86a6fa28c709c6955d323de65b16aec0ac38de5",
+    "report-manifest.json": "1c6e3b04735b443a7920832b6de55bc72eeadf30ddfed140d82335e6c920f9ff",
+    "report-source.py": "a2554eaa34a54829121231156c511a8191952e3f00b7b1449f9661e4b96fca27",
+    "report.md": "54c9fb08a8b6a3510c2d01b8d535dc512d7f55ac28f2d95574842c3b59463bf1",
+    "report.pdf": "87c7e1882113a852781da7f2cbec688dcabcd49ac405741ccd9def1514f25070",
     "results.json.gz": "452a0b826d43f88f8f2b6f1e139a8ffe022f5c02ec5785f9de82020543129aff",
     "throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70",
     "training-composition.json": "40e06c4c902c46aa154c5fd8d7e5e0ea8f31422e42c8ab8e1a70c9114fa62870",
     "uncertainty-bands.json": "007c4fc91a779b9cb9918c8e18aa3c7b19ad1c172ca410c2758ca9aaceb4db2f",
-    "verify.py": "ec1aa8ba369f32acc8455f68c43386ea509a8bf790b9c84201cb3291abe8fe78",
-    "visual-verification.json": "d2db075c403ee2b8936993c2fb0dea14da3aae0f63b11643c23f490fba025092"
+    "verify.py": "8a3b019313fba7cf42295fbb89c5d4834db0c6824ea91c7782e7f7235774f588",
+    "visual-verification.json": "909801a8b7e876fcc7c09d121251d830539bb7fe20ef3efecc0a25908409c090"
   },
   "exploratory_appendix": "Post-hoc analysis of unchanged saved predictions and frozen policies; no model or policy selection",
-  "development_extension": "Separate post-test 16k FinBERT development fit; selection/calibration only; the original held-out model count stays 64"
+  "development_extension": "Separate post-test 16k FinBERT development fit; selection/calibration only; the original held-out model count stays 64",
+  "compact_extension": "Separate post-test 4k BGE/FinBERT development systems comparison; original held-out count remains 64"
 }

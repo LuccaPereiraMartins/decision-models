@@ -26,3 +26,32 @@ The controller runs one GPU job, temporarily prevents idle sleep and releases th
 exit. It preserves the latest resumable checkpoint if stopped at the cutoff. No cloud jobs,
 paid calls or restart of the full matrix are included. Independent verification and a separate
 development section will record completed results or the actual limitation.
+
+## Verified result
+
+The controller finished normally at 14:58 UTC (15:58 London), after 21.8 minutes overall, and
+released its awake guard. Recorded training/validation took 21.0 minutes; raw selection F1
+selects epoch two. Selection F1 is **0.6586**, compared with **0.6715** for 4k FinBERT LoRA and
+**0.6459** for frozen BGE/logistic. BGE's matched epoch-zero F1 is 0.3120; its gain includes
+training both a fresh classifier head and encoder adapters, rather than isolating LoRA's effect.
+
+BGE LoRA misses **84 / 552** teacher review-worthy references versus FinBERT's **132 / 552**,
+while sending 67 additional selection documents for review. Unclear discards are seven versus
+five among 93. Compared with frozen BGE's 109 critical misses, it sends 23 more documents for
+review. These different operating points do not establish operational superiority.
+
+Warm mean is **20.23 ms** versus FinBERT's **33.94 ms** on the identical 128-document sample.
+Training peak is 0.32 versus 0.78 GiB, inference peak 0.19 versus 0.52 GiB, and trainable
+parameters are 149,379 versus 298,755. Frozen BGE/logistic's warm mean is 20.40 ms; its feature
+preparation and classifier fit have separate accounting. These are local system measurements.
+
+BGE's calibration-selected 1%/5% policies discard 41/91 selection documents with twelve/36
+critical misses (2.17%/6.52%) and no unclear discards. All three compared systems exceed both
+empirical calibration targets on selection. Target satisfaction while fitting is not a population bound.
+
+Independent verification checked source/runtime/artifact identities, exact shared 4k subset,
+original ordered development cohorts, finite zero/best/final checkpoints and epoch-two selection,
+raw/calibrated metrics, temperature/maximal feasible policies and resource clocks/sample. The
+best and matched epoch-zero checkpoints were replayed on development data only. All original
+core and completed FinBERT hashes remain unchanged. The report's separate section on pages
+19–20 and exported development inputs/audit receipts retain the fitting-evidence limitations.

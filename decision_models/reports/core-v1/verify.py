@@ -93,6 +93,29 @@ def main():
                     check(fit_policies(p, truth), model['decision']['policies'])
         check(summarize(development), json.loads((directory / 'development-summary.json').read_text()))
         print('Verified separate 4k/16k FinBERT development evidence; no additional test comparison.')
+    if (directory / 'compact-evidence.json.gz').exists():
+        from compact import summarize
+        from protocol import fit_policies
+        compact = json.loads(gzip.decompress((directory / 'compact-evidence.json.gz').read_bytes()))
+        assert compact['freeze_sha256'] == manifest['freeze_sha256']
+        for model in compact['models'].values():
+            for split in ('selection', 'calibration'):
+                rows = model[split]['predictions']
+                check(breakdown(rows), model[split]['metrics'])
+                raw = np.asarray(model[split]['raw_probabilities'])
+                np.testing.assert_allclose(softmax(np.log(raw) / model['decision']['temperature'], axis=1),
+                                           [r['probabilities'] for r in rows], rtol=1e-10, atol=1e-12)
+                order = model[split]['original_body_order']
+                by_hash = {r['body_sha256']: r for r in rows}
+                assert len(by_hash) == len(order) and set(by_hash) == set(order)
+                if split == 'calibration':
+                    identities = [(key, by_hash[key]['reference']) for key in order]
+                    assert hashlib.sha256(json.dumps(identities).encode()).hexdigest() == model['decision']['calibration_sha256']
+                    p = np.array([r['probabilities'] for r in rows])
+                    truth = np.array([LABELS.index(r['reference']) for r in rows])
+                    check(fit_policies(p, truth), model['decision']['policies'])
+        check(summarize(compact), json.loads((directory / 'compact-summary.json').read_text()))
+        print('Verified separate BGE/FinBERT development comparison and matched epoch-zero metrics.')
     print("Verified all package hashes, 64 raw/calibrated evaluations and 2000 paired group-bootstrap draws.")
 
 

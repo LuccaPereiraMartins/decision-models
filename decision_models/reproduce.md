@@ -21,6 +21,7 @@ still needs the inputs below. Published-file byte hashes are preserved across Wi
 | Report `report-source.py` and manifest | Exact renderer bytes and output hashes, including any later presentation fixes |
 | Report `diagnostic-inputs.json` and `diagnostics-source.py` | Optional recorded post-hoc scope and calculation source for the exploratory appendix |
 | Report `development-evidence.json.gz` and `development-source.py` | Optional separate FinBERT 4k/16k development inputs and descriptive calculation source |
+| Report `compact-evidence.json.gz` and `compact-source.py` | Optional matched-4k BGE/FinBERT development inputs and descriptive calculation source |
 
 Keep the two study directories together. Core comparison paths reference original run directories rather than duplicate large weights. The core plan binds the original plan/state hashes; completed models also bind source bytes, versions, training-subset identities, labels and the split manifest. Each neural run retains its own source snapshots and pre-update/best/final checkpoints.
 
@@ -39,6 +40,13 @@ report replay does not evaluate a new checkpoint on test. For exact 16k training
 run/controller/source/configuration artifacts and the existing benchmark inputs. Train only this declared recipe
 in a separate development output; selection/calibration are fitting cohorts, and any new held-out evaluation
 requires fresh data. Do not reopen the completed 64-comparison runner or reset ownership markers.
+
+For the compact section, also preserve `reports/core-v1/compact-evidence.json.gz` in the report directory
+and its recorded `compact.py` source. The renderer checks the shared 4k training identities, matching
+neural recipes and canonical development cohorts; original prediction ordering remains inspectable.
+Public CPU replay additionally checks every metric, probability/temperature identity, calibrated policy
+and original calibration cohort hash. Full BGE replay requires the compact run's pinned weights/configuration
+and local corpus. Best and matched epoch-zero checkpoint replay are restricted to development cohorts.
 
 For a relocated replay, the constructor's recorded absolute reuse path needs the original directory layout. Do not edit frozen plan/state/checkpoint metadata to make a moved archive pass. An independent reproduction needs a clean installation of the preserved benchmark inputs, a fresh core output, and the relocated completed original study passed via `--reuse`, with exact source/runtime bytes. This is a new fit, not continuation of the evaluated study; reproduce the declared methods and keep the result separate. Do not use reported test outcomes to choose further recipes. The original benchmark's ownership marker stays preserved and rejects further fitting there; never delete it to continue experimentation.
 

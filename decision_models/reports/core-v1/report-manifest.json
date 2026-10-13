@@ -1,16 +1,16 @@
 {
   "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
   "results_sha256": "330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0",
-  "report_source_sha256": "1acf27e21206a410e1b63b7cae19d1a01baf76f10186325a5d3b2654be0d8728",
+  "report_source_sha256": "a2554eaa34a54829121231156c511a8191952e3f00b7b1449f9661e4b96fca27",
   "versions": {
     "matplotlib": "3.11.2",
     "reportlab": "5.0.1",
     "pypdf": "6.19.0"
   },
   "outputs": {
-    "report.md": "34b44ebee95f9f5ede5f17c11ebd6a71b34dc3ce07eb8e1f28aedece4ff4a052",
-    "report.pdf": "aedcedb98e55255a67405423b86a6fa28c709c6955d323de65b16aec0ac38de5",
-    "report-source.py": "1acf27e21206a410e1b63b7cae19d1a01baf76f10186325a5d3b2654be0d8728",
+    "report.md": "54c9fb08a8b6a3510c2d01b8d535dc512d7f55ac28f2d95574842c3b59463bf1",
+    "report.pdf": "87c7e1882113a852781da7f2cbec688dcabcd49ac405741ccd9def1514f25070",
+    "report-source.py": "a2554eaa34a54829121231156c511a8191952e3f00b7b1449f9661e4b96fca27",
     "human-audit.json": "2889c7edea1e1dd8da866100c6c9702ec4e31d6c4771b42376aadc35ed534a47",
     "reference-quote.json": "31b3ae0cba8f90e29b55541f61944beb99d3183bfcf0dd5aa688f08f0117f9de",
     "training-composition.json": "40e06c4c902c46aa154c5fd8d7e5e0ea8f31422e42c8ab8e1a70c9114fa62870",
@@ -26,6 +26,9 @@
     "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa",
     "development-evidence.json.gz": "8f86cc4a6811d6bb0369026a7c4c7b753a22b12cb555cfa2f734736a9edb6e42",
     "development-summary.json": "e250bf90f66e7a164ea0f0e909f6a6f3513277f1c05df6485e90c7aa6043fa80",
-    "development-source.py": "0859463aef4813128e9714a9638c7688bfe262cdcbf7f4bdb691e46ca1fbe3b9"
+    "development-source.py": "0859463aef4813128e9714a9638c7688bfe262cdcbf7f4bdb691e46ca1fbe3b9",
+    "compact-evidence.json.gz": "a91b8c39f83feabaf2cfc855b21431b05c1c140bfc156eb15c56f942ea446588",
+    "compact-summary.json": "aae91aac4c7ef5264491fbef7762c40f82e7b09cb7202d5ec061135513696779",
+    "compact-source.py": "f3aa839ec864cf19561bf6b49e4dafc6fdb6dba6d8d9a48f8df879740de7db7c"
   }
 }

@@ -451,6 +451,70 @@ def development_sections(result):
     return parts
 
 
+def compact_sections(result):
+    models = result['models']
+    names = {'bge_lora': 'BGE-small LoRA', 'finbert_lora': 'FinBERT LoRA', 'bge_frozen': 'Frozen BGE/logistic'}
+    order = ('bge_lora', 'finbert_lora', 'bge_frozen')
+    return ['', '## Development-only compact encoder comparison', '',
+            'The user authorized one additional BGE-small LoRA fit after inspecting the original test results '
+            'and the FinBERT development extension. It uses the same 4,000 training documents, 837 selection '
+            'documents and 363 calibration documents as the 4k FinBERT recipe. All scores below use fitting '
+            'cohorts; no new test prediction or 65th held-out comparison is included. The original study '
+            'and its conclusions remain frozen. Fresh held-out data is required for generalization evidence.',
+            'BGE uses pinned BAAI/bge-small-en-v1.5 weights, context 512, uniform whole-document pooling, '
+            'rank 8, alpha 16, dropout 0.05, unweighted CE, both learning rates 0.0001, seed 42 and three '
+            'epochs. Raw selection F1 chooses epoch two, retaining epoch zero as eligible. FinBERT selects '
+            'epoch three under the same recipe. Architecture, pretrained objectives and trainable parameter '
+            'counts differ; the frozen-feature classifier additionally has a different normalization and '
+            'classifier recipe. These are system comparisons, not isolated tests of finance pretraining or LoRA.',
+            table(['Method', 'Selection F1', 'Critical misses / 552', 'Unclear discarded / 93', 'Default discards / 837', 'Calibration F1'],
+                  [[names[n], number(models[n]['selection']['macro_f1'], 4), models[n]['selection']['default_discard']['dangerous_misses'],
+                    models[n]['selection']['default_discard']['unclear_discarded'], models[n]['selection']['default_discard']['discarded'],
+                    number(models[n]['calibration']['macro_f1'], 4)] for n in order]),
+            f"BGE LoRA's selection F1 is {result['f1_delta_vs_finbert']:.4f} relative to FinBERT and "
+            f"{result['f1_delta_vs_frozen']:+.4f} relative to frozen BGE. Against FinBERT, it misses 48 fewer "
+            'teacher review-worthy documents but sends 67 more documents for review and discards two '
+            'additional unclear references. Against frozen BGE, it misses 25 fewer review-worthy documents '
+            'while sending 23 more for review. The default operating points therefore trade workload '
+            'for misses; the F1 differences alone do not establish operational superiority.',
+            f"The matched BGE epoch-zero checkpoint has raw selection F1 {result['epoch_zero_selection']['macro_f1']:.4f}. "
+            'Its improvement after training includes both the fresh classifier head and encoder adapters. '
+            'An untrained triage head is a weak starting control; frozen BGE/logistic is the more useful '
+            'trained alternative. Neither comparison isolates the causal benefit of adapter updates alone.',
+            '### Local resource comparison',
+            'Warm inference uses the identical 128-document selection sample and includes processing all '
+            'source windows, excluding loading. Training clocks include validation but exclude startup '
+            'and final calibration/resource measurement. Frozen BGE feature preparation and classifier '
+            'fit use separate accounting, so no combined frozen-training clock is placed alongside these neural fits.',
+            table(['Method', 'Train/validation min', 'Trainable parameters', 'Training peak GiB', 'Warm mean ms', 'Inference peak GiB'],
+                  [[names[n], number(models[n]['training_seconds'] / 60, 1), f"{models[n]['trainable_parameters']:,}",
+                    number(models[n]['training_peak_gib'], 2), number(models[n]['warm_mean_ms'], 2), number(models[n]['inference_peak_gib'], 2)]
+                   for n in ('bge_lora', 'finbert_lora')]),
+            f"BGE's observed warm mean is {result['warm_mean_ratio_vs_finbert']:.2f} times FinBERT's; "
+            f"the bounded controller completes in {result['extension_wall_seconds'] / 60:.1f} minutes. Frozen "
+            f"BGE/logistic's measured warm mean is {models['bge_frozen']['warm_mean_ms']:.2f} ms. "
+            'These local measurements support a smaller resource footprint, not a guaranteed deployment '
+            'speed or a finance-domain accuracy advantage. The controller finished normally and released '
+            'its awake guard; no cloud jobs, paid calls or further training ran.',
+            '### Development discard policies',
+            'Thresholds fit calibration alone. The following table shows selection behavior; all three '
+            'systems exceed both empirical calibration miss targets on this cohort. Targets concern '
+            'review-worthy misses and do not protect all unclear documents.',
+            table(['Method', 'Target', 'Selection discards / 837', 'Critical misses / 552', 'Miss rate', 'Unclear discarded'],
+                  [[names[n], key, models[n]['selection']['policies'][key]['discarded'],
+                    models[n]['selection']['policies'][key]['dangerous_misses'],
+                    f"{100 * models[n]['selection']['policies'][key]['dangerous_miss_rate']:.2f}%",
+                    models[n]['selection']['policies'][key]['unclear_discarded']] for n in order for key in ('0.01', '0.05')]),
+            'Independent verification checks the exact shared 4k subset, original ordered cohorts, '
+            'artifact/source/runtime identities, finite zero/best/final checkpoints, epoch-two selection, '
+            'raw/calibrated arithmetic, calibration optimum and maximal feasible policies, and resource '
+            'clocks/sample. Best and matched epoch-zero checkpoint probabilities were replayed on '
+            'development data only. Published inputs retain original body ordering alongside a common '
+            'identity order for comparison. All original core and completed FinBERT evidence hashes remain '
+            'unchanged. These fitting-cohort findings motivate fresh evaluation; they carry no significance '
+            'or independent generalization claim.']
+
+
 def build(splits, study, human=None):
     plan = json.loads((study / "plan.json").read_text(encoding="utf-8"))
     freeze = validate_freeze(splits, study)
@@ -843,6 +907,19 @@ def build(splits, study, human=None):
         (output / 'development-source.py').write_bytes((HERE / 'development.py').read_bytes())
         parts += development_sections(development)
         development_outputs = ('development-evidence.json.gz', 'development-summary.json', 'development-source.py')
+    compact_outputs = ()
+    evidence_path = output / 'compact-evidence.json.gz'
+    if evidence_path.exists():
+        import gzip
+        from compact import summarize
+        evidence = json.loads(gzip.decompress(evidence_path.read_bytes()))
+        if evidence['freeze_sha256'] != fingerprint(study / 'freeze.json'):
+            raise ValueError('Compact development evidence belongs to another original study')
+        compact = summarize(evidence)
+        save(compact, output / 'compact-summary.json')
+        (output / 'compact-source.py').write_bytes((HERE / 'compact.py').read_bytes())
+        parts += compact_sections(compact)
+        compact_outputs = ('compact-evidence.json.gz', 'compact-summary.json', 'compact-source.py')
     content = "\n\n".join(parts) + "\n"
     (output / "report.md").write_text(content, encoding="utf-8")
     (output / "report-source.py").write_bytes((HERE / "report.py").read_bytes())
@@ -852,5 +929,5 @@ def build(splits, study, human=None):
           "versions": {n: version(n) for n in ('matplotlib', 'reportlab', 'pypdf')},
           "outputs": {name: fingerprint(output / name) for name in
                       ('report.md', 'report.pdf', 'report-source.py', 'human-audit.json', 'reference-quote.json', 'training-composition.json', 'uncertainty-bands.json',
-                       'learning-curves.png', 'context.png', 'throughput.png', 'confusion.png') + diagnostic_outputs + development_outputs}}, output / "manifest.json")
+                       'learning-curves.png', 'context.png', 'throughput.png', 'confusion.png') + diagnostic_outputs + development_outputs + compact_outputs}}, output / "manifest.json")
     print(f"Report written to {output}; render and inspect PDF before publication", flush=True)

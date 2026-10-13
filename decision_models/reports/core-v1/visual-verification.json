@@ -1,11 +1,12 @@
 {
   "status": "passed",
-  "utc": "2026-10-13T14:08:59.179468+00:00",
-  "pdf_sha256": "aedcedb98e55255a67405423b86a6fa28c709c6955d323de65b16aec0ac38de5",
-  "report_source_sha256": "1acf27e21206a410e1b63b7cae19d1a01baf76f10186325a5d3b2654be0d8728",
+  "utc": "2026-10-13T15:21:09.560168+00:00",
+  "pdf_sha256": "87c7e1882113a852781da7f2cbec688dcabcd49ac405741ccd9def1514f25070",
+  "report_source_sha256": "a2554eaa34a54829121231156c511a8191952e3f00b7b1449f9661e4b96fca27",
   "diagnostics_source_sha256": "541b4e205e22b024b2acc2d42dbe978170dec9b95a84249c9efcc44f1fbb912e",
   "development_source_sha256": "0859463aef4813128e9714a9638c7688bfe262cdcbf7f4bdb691e46ca1fbe3b9",
-  "pages": 19,
+  "compact_source_sha256": "f3aa839ec864cf19561bf6b49e4dafc6fdb6dba6d8d9a48f8df879740de7db7c",
+  "pages": 20,
   "inspected_pages": [
     1,
     2,
@@ -25,7 +26,8 @@
     16,
     17,
     18,
-    19
+    19,
+    20
   ],
   "page_png_sha256": {
     "1": "4e749da98c534502fbb7aa6457fbf0de29fa4549f39c2d347df5f6e395259db9",
@@ -46,7 +48,8 @@
     "16": "990285d862edfc5f3517ea329f5ba2631452be79710579fd2bf477c81ce9d01e",
     "17": "5c27f584082f45cd050ca922c164b9c4e985ae740a8056c45140192331efe6f9",
     "18": "71d46fe279ce88aa49125dc8eedf364a8cf75f6a580430793cb95e6aa8a63fc0",
-    "19": "4a0406cbe68c64b428c95ac829ab003f4775c3278320082a13b1e68c2741eb15"
+    "19": "f51bc7bfb5a88b79df1b61f22f09ff4a433f210cd060946d586dccfeed73cbf5",
+    "20": "50685c831f97946566e6c23afed9157dab59fa3ef165d14c929ebcd7ab05817e"
   },
   "figures": {
     "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
@@ -56,9 +59,9 @@
     "diagnostic-slices.png": "5a5bd843815c2134600fed9f505eda6afdc856458029bd94ef2170638fbdaf7a",
     "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa"
   },
-  "method": "Poppler render at 120 dpi. Pages 1-16 are pixel-identical to previously inspected renders; final pages 17-19 were freshly inspected. All six unchanged figures retain their reviewed hashes.",
-  "prior_release_commit": "8db7ef35ea900cb4618f0963caa9655673a1f051",
-  "prior_visual_receipt_sha256": "918b7857050f1443ff8a92382b14174fd9d49c98dc0da278f5522b65e651388f",
-  "findings": "No clipping, overlaps, missing visible glyphs or orphan headings observed. The policy section heading stays with its explanatory paragraph; its table is readable on the following page.",
+  "method": "Poppler render at 120 dpi. Pages 1-18 are pixel-identical to previously inspected renders; final pages 19-20 were freshly inspected. All six unchanged figures retain their reviewed hashes.",
+  "prior_release_commit": "0a4acc4eeee422647c1d8acf92e7eab10fb8750e",
+  "prior_visual_receipt_sha256": "d2db075c403ee2b8936993c2fb0dea14da3aae0f63b11643c23f490fba025092",
+  "findings": "No clipping, overlaps, missing visible glyphs or orphan headings observed. All added comparison/resource/policy tables are readable.",
   "renderer_notes": "Poppler reported unavailable Symbol/ArialUnicode display fonts; rendered visible text was inspected."
 }
