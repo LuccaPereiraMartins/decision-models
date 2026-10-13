@@ -536,3 +536,31 @@ and Laya the local RTX 3060, with shared-machine measurements. All raw timing ca
 The [review handoff](review-checkpoint.md) brings the current findings and five-PR review order
 together. The larger matrix, final selection/freeze, held-out evaluation, fresh qualified human
 audit, actual publication report/PDF and remaining reproduction review await replanning.
+
+## 13 October: bounded 4k Laya LoRA complete
+
+The [core study](core-study.md) supersedes the earlier unrestricted matrix. It adds three predeclared
+4k LoRA recipes and defers larger/generative adaptation and independent human review. The first fit
+completed at approximately 01:43 London time; ModernBERT started immediately afterward, with FinBERT next.
+
+Laya's 4k LoRA selects epoch three with selection macro F1 **0.7272074842**, 81 critical misses among
+552 review-worthy references, and calibration F1 **0.7303494269**, 29 misses among 252. Word TF-IDF/logistic
+at the identical 4k subset scores **0.7257928066**, with 84 selection misses. The LoRA recipe's gain over
+the designated 4k head recipe is 0.1447129308; its 1k-to-4k increment is 0.0713337415. These are fitting
+teacher-agreement scores, not held-out or significance findings. Sampling composition and additional
+tuning labels qualify sample-efficiency interpretation.
+
+The 1%/5% rules discard 17/49 calibration documents with two/twelve critical misses (0.79%/4.76%).
+On selection they discard 67/162 (8.00%/19.35%), with twelve/44 critical misses (2.17%/7.97%) and
+one/four unclear references discarded. Both selection miss rates exceed their calibration targets;
+thresholds remain unchanged. Training takes 13,962.542 recorded seconds (3.88 hours), with 1,500 steps
+and 3.18 GiB peak allocation. Warm mean is 267.8 ms versus 4.52 ms for word/logistic on the identical
+128-document cohort; P50/P95 are 144.0/1,127.9 ms, with 2.11 GiB inference peak.
+
+Completion/source/runtime checks, ordered cohorts, probabilities, F1/confusion/miss arithmetic,
+calibration identity, raw best-epoch selection, finite best/zero/final checkpoints, discard rules and
+common timing arithmetic all passed CPU checks. The 4k and original 1k LoRA epoch-zero trainable tensors
+are identical, and their ordered selection probabilities have maximum difference zero. This proves the
+deduplicated matched control is appropriate. The receipt and artifact hashes are retained locally in
+`checks/core-laya-lora4000-verification-20261013.json`. No real test inference was performed. The remaining
+two fits, freeze/test evaluation, actual report/PDF review and final reproduction audit remain pending.
