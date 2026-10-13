@@ -4,7 +4,7 @@ This procedure concerns the frozen mixed-source benchmark and the [bounded core 
 
 The [published core package](reports/core-v1/README.md) supplies all held-out logits, teacher references, fixed decisions,
 metrics, shared group intervals and execution/source evidence. `python decision_models/reports/core-v1/verify.py`
-replays the metrics/statistics on CPU, without API calls, weights or document bodies. Full training/inference replay
+replays the metrics/statistics and exploratory appendix on CPU, without API calls, weights or document bodies. Full training/inference replay
 still needs the inputs below. Published-file byte hashes are preserved across Windows/Linux by the package's attributes.
 
 ## Required inputs
@@ -19,6 +19,7 @@ still needs the inputs below. Published-file byte hashes are preserved across Wi
 | Original source archive | Exact original source/dependency bytes and original plan/state, preserved before updating the checkout |
 | Pinned pretrained weights and Python environment | Model revisions and package versions recorded in each run's `config.json` |
 | Report `report-source.py` and manifest | Exact renderer bytes and output hashes, including any later presentation fixes |
+| Report `diagnostic-inputs.json` and `diagnostics-source.py` | Optional recorded post-hoc scope and calculation source for the exploratory appendix |
 
 Keep the two study directories together. Core comparison paths reference original run directories rather than duplicate large weights. The core plan binds the original plan/state hashes; completed models also bind source bytes, versions, training-subset identities, labels and the split manifest. Each neural run retains its own source snapshots and pre-update/best/final checkpoints.
 
@@ -27,6 +28,8 @@ Local collection/label artifacts, credentials and checkpoints are ignored by Git
 ## Exact replay and independent rerun
 
 For an exact replay in the original paths and pinned environment, use the unchanged core command from [README.md](README.md#bounded-core-study). It reuses verified completed jobs. Once frozen, `--stage all` skips fitting and resumes test/report against the identical freeze. Completed test-result hashes are checked before reuse. `--stage report` rebuilds presentation from verified predictions, without changing model choices or dispatching paid calls.
+
+To include the exploratory appendix, copy the published `reports/core-v1/diagnostic-inputs.json` into the preserved core run's `report/` directory before that report command. The renderer checks its freeze and primary/reference identities and its ordered selection character counts against the original selection file. Preserve the published renderer and `diagnostics.py` bytes for exact analysis-source replay. Without this optional input, only the original core sections are generated. Diagnostics use existing predictions and policies; they cannot select a new model or threshold.
 
 For a relocated replay, the constructor's recorded absolute reuse path needs the original directory layout. Do not edit frozen plan/state/checkpoint metadata to make a moved archive pass. An independent reproduction needs a clean installation of the preserved benchmark inputs, a fresh core output, and the relocated completed original study passed via `--reuse`, with exact source/runtime bytes. This is a new fit, not continuation of the evaluated study; reproduce the declared methods and keep the result separate. Do not use reported test outcomes to choose further recipes. The original benchmark's ownership marker stays preserved and rejects further fitting there; never delete it to continue experimentation.
 

@@ -316,6 +316,77 @@ def pdf(markdown, destination):
         flow, onFirstPage=footer, onLaterPages=footer)
 
 
+def exploratory_sections(result, labels, statistics):
+    primary, reference = result["primary"], result["reference"]
+    routing, overlap = result["routing"], result["critical_miss_overlap"]
+    unclear = next(r for r in result["class_decomposition"] if r["label"] == "unclear")
+    share = unclear["macro_f1_contribution"] / result["macro_f1_delta"]
+    parts = ["", "## Exploratory diagnostics added after the primary results", "",
+             "The following questions were added after inspecting the primary held-out results. They are descriptive, "
+             "not prespecified hypotheses, new model choices or tuned discard rules. The original primary comparison "
+             "and its conclusion remain unchanged. Intervals condition on one trained seed and have no multiplicity adjustment.",
+             f"Approximately {100 * share:.1f}% of the observed macro-F1 point difference comes from the unclear class. "
+             "Each class contributes its F1 difference divided by three; source-family F1 scores cannot be added this way. "
+             "The contribution intervals all include zero. This decomposition is not a causal attribution or a resolved class-specific gain.",
+             table(["Class", "Class F1 difference", "Contribution to macro-F1 difference", "Contribution 95% CI"],
+                   [[r['label'], number(r['primary_f1'] - r['reference_f1'], 4), number(r['macro_f1_contribution'], 4), ci(r['interval'])]
+                    for r in result['class_decomposition']]),
+             "Both review-worthy and unclear predictions route to an analyst. The derived two-class view below collapses "
+             "those existing actions, without changing a prediction. Its numerical scale and meaning differ from the original "
+             "three-class endpoint; it does not replace it.",
+             table(["Model", "Routing macro F1", "95% CI", "Review misses", "Review support", "Unclear discarded", "Workload removed"],
+                   [[labels[n], number(routing[n]['macro_f1']), ci(routing[n]['intervals']['macro_f1']),
+                     routing[n]['review_required_misses'], routing[n]['review_required_support'], routing[n]['unclear_to_routine'],
+                     number(routing[n]['workload_reduction'])] for n in (primary, reference)]),
+             f"Paired routing-F1 difference interval: {ci(result['paired_routing_intervals']['macro_f1'])}. "
+             f"Laya routes {round((routing[reference]['workload_reduction'] - routing[primary]['workload_reduction']) * result['documents'])} "
+             "additional documents for review in this cohort. Its lower point count of required-review misses therefore "
+             "comes with additional workload; neither a routing-F1 nor a miss-rate advantage is resolved by these intervals.",
+             "### Shared and model-specific critical misses",
+             table(["Critical-miss pattern", "Documents"], [["Both models", overlap['both']],
+                   ["Laya only", overlap['primary_only']], ["TF-IDF only", overlap['reference_only']],
+                   ["Neither model", overlap['neither']]]),
+             f"These four cells partition {overlap['review_worthy_support']} teacher review-worthy documents. Overall "
+             f"three-class prediction agreement is {100 * overlap['prediction_agreement']:.2f}%. Complementary errors "
+             "motivate a future ensemble/cascade study, but these counts omit its false-positive, workload and compute "
+             "tradeoffs. They do not measure a new deployed policy. Any such policy needs validation selection and fresh test data. "
+             "Common misses cannot distinguish student errors from questionable teacher references without independent review.",
+             "### Source and document-length differences",
+             "![Primary-model differences within source and length slices](diagnostic-slices.png)",
+             "Dots are Laya minus TF-IDF point differences; bars are paired 95% intervals from 2,000 whole-group "
+             "resamples within each slice. Length bands use character-count quartiles from the 837-document selection "
+             "cohort, chosen mechanically for this post-hoc analysis. Their cutpoints are " +
+             ", ".join(f"{v:,.0f}" for v in result['methods']['length_cutpoints_characters']) + " characters. "
+             "Test bands need not have equal counts. Character lengths are not model token counts. Source and length "
+             "overlap, so these slices do not isolate a causal effect of context or architecture.",
+             table(["Family", "Documents", "Routine", "Review-worthy", "Unclear", "Fixed-label F1 ceiling"],
+                   [[r['slice'], r['count'], *[r['label_support'].get(k, 0) for k in LABELS], number(r['fixed_three_label_f1_ceiling'])]
+                    for r in result['family_slices']]),
+             "All slice scores retain the three declared labels. A slice without unclear references has a maximum "
+             "possible macro F1 of 2/3 under this definition, not one. Compare models within the same slice; raw scores "
+             "across families have different label support and attainable ceilings. The 6-K slice has the largest positive "
+             "point difference; its nominal interval excludes zero. This exploratory, uncorrected comparison does not "
+             "establish universal source superiority. All four length-band intervals include zero, including the longest band.",
+             "### Uncertainty around the frozen discard rules",
+             "![Workload and critical misses for the existing frozen policies](diagnostic-policies.png)",
+             "Circles/squares identify the original 1%/5% calibration targets. Dashed lines show those targets, not "
+             "deployment guarantees. Horizontal and vertical bars are separate marginal 95% group intervals, not joint "
+             "confidence regions. These points and intervals reuse the original frozen policies and statistics; no "
+             "threshold sweep, ensemble or model selection was performed."]
+    paired = statistics['models'][primary]['paired_delta_vs_reference']
+    def percent_ci(value):
+        return f"[{100 * value['lower']:.2f}, {100 * value['upper']:.2f}]"
+    parts += [table(["Calibration target", "Workload-difference 95% CI (pp)", "Critical-miss-rate difference 95% CI (pp)"],
+                    [[key, percent_ci(paired['workload_' + key]), percent_ci(paired['dangerous_miss_rate_' + key])]
+                     for key in ('0.01', '0.05')]),
+              "Differences are Laya minus TF-IDF. More workload removed is favorable; a higher critical-miss rate is "
+              "unfavorable. At the 1% target, Laya removes less workload and the miss-rate difference is unresolved. "
+              "At the 5% target, its nominal interval indicates more teacher review-worthy misses while the workload "
+              "difference remains unresolved. These conditional, uncorrected comparisons help interpret the existing "
+              "systems; they are not permission to choose a new operating rule from this test set."]
+    return parts
+
+
 def build(splits, study, human=None):
     plan = json.loads((study / "plan.json").read_text(encoding="utf-8"))
     freeze = validate_freeze(splits, study)
@@ -674,6 +745,27 @@ def build(splits, study, human=None):
                         [[label(configs[n]), number(audit['models'][n]['overall']['macro_f1']),
                           audit['models'][n]['overall']['default_discard']['dangerous_misses'],
                           audit['models'][n]['overall']['default_discard']['review_worthy_support']] for n in names])]
+    diagnostic_outputs = ()
+    inputs_path = output / "diagnostic-inputs.json"
+    if inputs_path.exists():
+        from diagnostics import analyze, figures as diagnostic_figures
+        inputs = json.loads(inputs_path.read_text(encoding="utf-8"))
+        if inputs['freeze_sha256'] != fingerprint(study / "freeze.json"):
+            raise ValueError("Exploratory inputs belong to another frozen study")
+        if (inputs['primary'], inputs['reference']) != (primary, reference):
+            raise ValueError("Exploratory inputs cannot change the frozen primary comparison")
+        selection_path = study / entries[reference]['directory'] / "selection.json"
+        selection_rows = json.loads(selection_path.read_text(encoding="utf-8"))['predictions']
+        if fingerprint(selection_path) != inputs['selection_sha256'] or [r['characters'] for r in selection_rows] != inputs['selection_characters']:
+            raise ValueError("Exploratory length bands must use the unchanged selection cohort")
+        diagnostic = analyze(predictions, inputs, statistics)
+        save(diagnostic, output / "diagnostics.json")
+        (output / "diagnostics-source.py").write_bytes((HERE / "diagnostics.py").read_bytes())
+        labels = {n: label(configs[n]) for n in inputs['policy_models']}
+        diagnostic_figures(output, diagnostic, labels)
+        parts += exploratory_sections(diagnostic, labels, statistics)
+        diagnostic_outputs = ('diagnostic-inputs.json', 'diagnostics.json', 'diagnostics-source.py',
+                              'diagnostic-slices.png', 'diagnostic-policies.png')
     content = "\n\n".join(parts) + "\n"
     (output / "report.md").write_text(content, encoding="utf-8")
     (output / "report-source.py").write_bytes((HERE / "report.py").read_bytes())
@@ -683,5 +775,5 @@ def build(splits, study, human=None):
           "versions": {n: version(n) for n in ('matplotlib', 'reportlab', 'pypdf')},
           "outputs": {name: fingerprint(output / name) for name in
                       ('report.md', 'report.pdf', 'report-source.py', 'human-audit.json', 'reference-quote.json', 'training-composition.json', 'uncertainty-bands.json',
-                       'learning-curves.png', 'context.png', 'throughput.png', 'confusion.png')}}, output / "manifest.json")
+                       'learning-curves.png', 'context.png', 'throughput.png', 'confusion.png') + diagnostic_outputs}}, output / "manifest.json")
     print(f"Report written to {output}; render and inspect PDF before publication", flush=True)

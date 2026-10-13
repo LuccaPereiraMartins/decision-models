@@ -68,6 +68,13 @@ def main():
     contrasts = {k: (v["left"], v["right"]) for k, v in expected_bootstrap["contrasts"].items()}
     actual = bootstrap(predictions, expected_bootstrap["reference"], contrasts=contrasts)
     check(actual, expected_bootstrap)
+    if (directory / "diagnostics.json").exists():
+        from diagnostics import analyze
+        inputs = json.loads((directory / "diagnostic-inputs.json").read_text())
+        expected = json.loads((directory / "diagnostics.json").read_text())
+        assert inputs['freeze_sha256'] == manifest['freeze_sha256']
+        check(analyze(predictions, inputs, expected_bootstrap), expected)
+        print("Verified post-hoc class, routing, overlap, source/length and frozen-policy diagnostics.")
     print("Verified all package hashes, 64 raw/calibrated evaluations and 2000 paired group-bootstrap draws.")
 
 

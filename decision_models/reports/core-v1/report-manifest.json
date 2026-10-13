@@ -1,16 +1,16 @@
 {
   "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
   "results_sha256": "330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0",
-  "report_source_sha256": "0a95fcd66a3e157e0c9526698138b87e40646d156a0564a2b7a194de04b19c07",
+  "report_source_sha256": "e552987cc511ff60f09995cf5641ccfd12bc8bae53e4d41ad8435d10961ab0eb",
   "versions": {
     "matplotlib": "3.11.2",
     "reportlab": "5.0.1",
     "pypdf": "6.19.0"
   },
   "outputs": {
-    "report.md": "9d3e6d7c8b9b7c9a1a4adfa82285be4912323475867f00ae4d15b2668244bbe6",
-    "report.pdf": "fcb521cbeb20e0f7afb38ea3a3fa4b3084b8aae598d67d7145e02626550086ef",
-    "report-source.py": "0a95fcd66a3e157e0c9526698138b87e40646d156a0564a2b7a194de04b19c07",
+    "report.md": "bbcb44717dc4a9860a7d46b1c9821db82973dd143a348d9e1b23dcb52a2a1a0f",
+    "report.pdf": "039b9c0e79d5c17b06a5e47a98bb4917e2eb5d73b5cbc63f05b03e5a52197fbe",
+    "report-source.py": "e552987cc511ff60f09995cf5641ccfd12bc8bae53e4d41ad8435d10961ab0eb",
     "human-audit.json": "2889c7edea1e1dd8da866100c6c9702ec4e31d6c4771b42376aadc35ed534a47",
     "reference-quote.json": "31b3ae0cba8f90e29b55541f61944beb99d3183bfcf0dd5aa688f08f0117f9de",
     "training-composition.json": "40e06c4c902c46aa154c5fd8d7e5e0ea8f31422e42c8ab8e1a70c9114fa62870",
@@ -18,6 +18,11 @@
     "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
     "context.png": "9c3862bf1213695c25ff4087efa07432432ded226b89376ed1522a5c1ac65e57",
     "throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70",
-    "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227"
+    "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227",
+    "diagnostic-inputs.json": "b6708a8d68d8cfdd3f55fb0243fde415a70c437492a271ce3cc6990fa64aa084",
+    "diagnostics.json": "e86c43dc92c36fb7255bb9645794fa3aa6346fb01138d91090617ac72917d7d3",
+    "diagnostics-source.py": "541b4e205e22b024b2acc2d42dbe978170dec9b95a84249c9efcc44f1fbb912e",
+    "diagnostic-slices.png": "5a5bd843815c2134600fed9f505eda6afdc856458029bd94ef2170638fbdaf7a",
+    "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa"
   }
 }

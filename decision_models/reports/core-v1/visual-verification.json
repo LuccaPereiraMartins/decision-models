@@ -1,9 +1,10 @@
 {
   "status": "passed",
-  "utc": "2026-10-13T09:34:37.180708+00:00",
-  "pdf_sha256": "fcb521cbeb20e0f7afb38ea3a3fa4b3084b8aae598d67d7145e02626550086ef",
-  "report_source_sha256": "0a95fcd66a3e157e0c9526698138b87e40646d156a0564a2b7a194de04b19c07",
-  "pages": 15,
+  "utc": "2026-10-13T10:41:02.684834+00:00",
+  "pdf_sha256": "039b9c0e79d5c17b06a5e47a98bb4917e2eb5d73b5cbc63f05b03e5a52197fbe",
+  "report_source_sha256": "e552987cc511ff60f09995cf5641ccfd12bc8bae53e4d41ad8435d10961ab0eb",
+  "diagnostics_source_sha256": "541b4e205e22b024b2acc2d42dbe978170dec9b95a84249c9efcc44f1fbb912e",
+  "pages": 17,
   "inspected_pages": [
     1,
     2,
@@ -19,7 +20,9 @@
     12,
     13,
     14,
-    15
+    15,
+    16,
+    17
   ],
   "page_png_sha256": {
     "1": "4e749da98c534502fbb7aa6457fbf0de29fa4549f39c2d347df5f6e395259db9",
@@ -36,15 +39,21 @@
     "12": "60a08787f1ee56f4565f26d360a61f56da7ece3a36b46020b1ef486fbc96e3b3",
     "13": "cfd559ad9412851cda1fbfbfe5d1f7f98d2a2edd88c0f34131da3ce41ca8c08c",
     "14": "b2341387e3fe829a686a1c716145f76b0ab8c17e5a9144e6da0224b8ea3877e7",
-    "15": "cd51b747beb8cd8d0999f4a8835e012f352b6bf235f236cefadf578bf4a4574d"
+    "15": "9c82742fe84f2857675a5a2a14d4140fb0136e096bc6d4f40f50eda44ed09a95",
+    "16": "990285d862edfc5f3517ea329f5ba2631452be79710579fd2bf477c81ce9d01e",
+    "17": "dbd8d26d7d4bf17c1bd44115b9fc27d5cb1fc4abdc68a073c5e713079ded0294"
   },
   "figures": {
     "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
     "context.png": "9c3862bf1213695c25ff4087efa07432432ded226b89376ed1522a5c1ac65e57",
     "throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70",
-    "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227"
+    "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227",
+    "diagnostic-slices.png": "5a5bd843815c2134600fed9f505eda6afdc856458029bd94ef2170638fbdaf7a",
+    "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa"
   },
-  "method": "Poppler PNG render at 120 dpi, each final page inspected; page-12 table header additionally checked at 240 dpi",
+  "method": "Poppler PNG render at 120 dpi. Pages 1-14 are pixel-identical to the previously inspected release; final pages 15-17 and both added figures were visually inspected. The prior page-12 table header was also checked at 240 dpi.",
+  "prior_release_commit": "ac87e0b7b39d97c5fc1a0e0ce5e871818ca4052b",
+  "prior_visual_receipt_sha256": "e4ab8223468a94fafe32aea5ba44ed37f1eff497562fad90174bba883d84ad6f",
   "findings": "No clipped content, overlapping labels, missing visible glyphs, illegible figures or orphan section headings observed. Tables repeat headers across pages.",
-  "renderer_notes": "Poppler reported unavailable Symbol/ArialUnicode display fonts; all rendered text was visually checked."
+  "renderer_notes": "Poppler reported unavailable Symbol/ArialUnicode display fonts; rendered visible text was visually checked."
 }

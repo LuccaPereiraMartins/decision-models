@@ -649,3 +649,23 @@ curve colors and add an evidence-based interpretation. Frozen inference/training
 The public package preserves exact logits/references, decisions, warm measurements, metric/statistics evidence,
 source/execution archives and a CPU replay script; body text/checkpoints remain local, with data-access limits explicit.
 Human review, larger/generative adaptation and RL/RLCD remain deferred. Review starts at core-study.md or reports/core-v1/report.md.
+
+## 13 October: exploratory appendix after the primary results
+
+The requested remaining-time extension uses saved predictions only: no fitting, API calls, threshold sweeps or new
+selection. Recorded scope and selection-character quartiles are in reports/core-v1/diagnostic-inputs.json. The original
+freeze/result hashes and primary conclusion are unchanged. diagnostics.py reconstructs class contributions, binary
+review routing, critical-miss overlap, source/length contrasts and the ten original frozen-policy points.
+
+The unclear class contributes 68.3% of the observed 0.010996 macro-F1 difference; all contribution intervals include
+zero. Derived routing F1 is 0.7730 versus 0.7676, paired interval [-0.0176, 0.0281]. Laya discards 191 required-review
+references versus 212 for TF-IDF, while sending 28 additional documents for review. Critical misses overlap in 105
+documents; 72 are Laya-only and 82 TF-IDF-only. This is not measured ensemble performance. All four selection-defined
+length-band intervals include zero. Source contrasts vary; absent unclear references limit four families' fixed-three-label
+macro-F1 ceiling to 2/3. Source/length results are post-hoc, uncorrected for multiplicity and confounded.
+
+Independent sklearn/row-weighted arithmetic verified all 2,000 draws per slice and class/routing intervals; the public
+diagnostics-audit.zip preserves its source and passing receipt. The report now has 17 pages and six figures. Pages 1–14
+are pixel-identical to the previously inspected renders; revised pages 15–17 and both new figures passed visual inspection.
+The appendix interprets frozen evidence and proposes no new operating rule. Human review and fresh evaluation data remain
+necessary for further model/policy development.

@@ -32,7 +32,7 @@ The primary contrast and main trained-model tables use 4000 training documents p
 
 Classify supplied source content as routine, review_worthy or unclear for an analyst inbox. No issuer history, portfolio context, future returns or market reaction is supplied. Unclear routes to review. Macro F1 averages all three declared labels, including absent classes in small slices. The critical error is a review-worthy document predicted routine.
 
-The research question is whether supervised decision-model adaptation and larger contiguous context improve triage agreement, critical misses and throughput relative to lexical and encoder baselines. FinBERT's published sentiment results do not establish triage quality; BGE is an embedding model. ModernBERT supplies a backbone-family system comparison; classifier/decision heads and source-window budgets differ. Primary sources and distinctions are documented in [literature.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/86546299112181d64f7e05635148b2bbc3556689/decision_models/literature.md).
+The research question is whether supervised decision-model adaptation and larger contiguous context improve triage agreement, critical misses and throughput relative to lexical and encoder baselines. FinBERT's published sentiment results do not establish triage quality; BGE is an embedding model. ModernBERT supplies a backbone-family system comparison; classifier/decision heads and source-window budgets differ. Primary sources and distinctions are documented in [literature.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/ac87e0b7b39d97c5fc1a0e0ce5e871818ca4052b/decision_models/literature.md).
 
 Train ends 2026-03-31; selection/calibration use April-June; test uses July-September. Event and verified near-duplicate groups cannot cross boundaries. Old experimental bodies and near duplicates are excluded from fresh validation/test. Candidate retrieval is approximate and can miss duplicates. Every core recipe, checkpoint, calibration and discard threshold was frozen before test inference.
 
@@ -99,7 +99,7 @@ Selection applies the recorded split ceilings and train/validation/test 8-K shar
 | news | 1373 | 38 | 12 | 35 |
 | releases | 7047 | 249 | 105 | 561 |
 
-Source shortfalls are not filled by additional 8-Ks. These institutional/public-news cohorts are not a representative commercial inbox. Publication dates and snapshots cannot establish the exact text available at the historical date; pretraining exposure remains possible. Rights and collection methods are documented in [sources.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/86546299112181d64f7e05635148b2bbc3556689/decision_models/sources.md).
+Source shortfalls are not filled by additional 8-Ks. These institutional/public-news cohorts are not a representative commercial inbox. Publication dates and snapshots cannot establish the exact text available at the historical date; pretraining exposure remains possible. Rights and collection methods are documented in [sources.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/ac87e0b7b39d97c5fc1a0e0ce5e871818ca4052b/decision_models/sources.md).
 
 | Split | Documents | routine | review_worthy | unclear |
 | --- | --- | --- | --- | --- |
@@ -504,3 +504,69 @@ Error examples are selected after testing for inspection, not model tuning. Labe
 The serial runner stores failed/OOM configurations, any window-batch fallback, selected recipes, pinned model revisions, library versions, source snapshots, RNG/optimizer checkpoints, dataset/subset hashes and an immutable pre-test freeze. Reproduce with the locked dependencies and study.py --stage all; existing runs resume with changed-artifact guards. Raw-source rights/attribution travel with the corpus. Old API/container behavior remains separate.
 
 This is source-only inbox triage on constrained public cohorts, not expert materiality assessment or a trading strategy. One seed cannot quantify training instability. Bootstrap intervals quantify cohort sampling only. Teacher labels favor agreement with the labeling approach; independent audit availability is stated above. Missing source/date coverage, approximate duplicate retrieval and pretraining exposure restrict generalization. No paid SOTA comparison or RL/RLCD result is claimed. RL/RLCD remains a possible follow-on after the core study.
+
+
+
+## Exploratory diagnostics added after the primary results
+
+
+
+The following questions were added after inspecting the primary held-out results. They are descriptive, not prespecified hypotheses, new model choices or tuned discard rules. The original primary comparison and its conclusion remain unchanged. Intervals condition on one trained seed and have no multiplicity adjustment.
+
+Approximately 68.3% of the observed macro-F1 point difference comes from the unclear class. Each class contributes its F1 difference divided by three; source-family F1 scores cannot be added this way. The contribution intervals all include zero. This decomposition is not a causal attribution or a resolved class-specific gain.
+
+| Class | Class F1 difference | Contribution to macro-F1 difference | Contribution 95% CI |
+| --- | --- | --- | --- |
+| routine | 0.0051 | 0.0017 | [-0.010, 0.013] |
+| review_worthy | 0.0053 | 0.0018 | [-0.004, 0.007] |
+| unclear | 0.0225 | 0.0075 | [-0.008, 0.022] |
+
+Both review-worthy and unclear predictions route to an analyst. The derived two-class view below collapses those existing actions, without changing a prediction. Its numerical scale and meaning differ from the original three-class endpoint; it does not replace it.
+
+| Model | Routing macro F1 | 95% CI | Review misses | Review support | Unclear discarded | Workload removed |
+| --- | --- | --- | --- | --- | --- | --- |
+| Laya LoRA | 0.773 | [0.748, 0.796] | 191 | 1499 | 14 | 0.234 |
+| Word TF-IDF logistic | 0.768 | [0.742, 0.791] | 212 | 1499 | 25 | 0.249 |
+
+Paired routing-F1 difference interval: [-0.018, 0.028]. Laya routes 28 additional documents for review in this cohort. Its lower point count of required-review misses therefore comes with additional workload; neither a routing-F1 nor a miss-rate advantage is resolved by these intervals.
+
+### Shared and model-specific critical misses
+
+| Critical-miss pattern | Documents |
+| --- | --- |
+| Both models | 105 |
+| Laya only | 72 |
+| TF-IDF only | 82 |
+| Neither model | 1033 |
+
+These four cells partition 1292 teacher review-worthy documents. Overall three-class prediction agreement is 79.56%. Complementary errors motivate a future ensemble/cascade study, but these counts omit its false-positive, workload and compute tradeoffs. They do not measure a new deployed policy. Any such policy needs validation selection and fresh test data. Common misses cannot distinguish student errors from questionable teacher references without independent review.
+
+### Source and document-length differences
+
+![Primary-model differences within source and length slices](diagnostic-slices.png)
+
+Dots are Laya minus TF-IDF point differences; bars are paired 95% intervals from 2,000 whole-group resamples within each slice. Length bands use character-count quartiles from the 837-document selection cohort, chosen mechanically for this post-hoc analysis. Their cutpoints are 2,695, 4,589, 9,835 characters. Test bands need not have equal counts. Character lengths are not model token counts. Source and length overlap, so these slices do not isolate a causal effect of context or architecture.
+
+| Family | Documents | Routine | Review-worthy | Unclear | Fixed-label F1 ceiling |
+| --- | --- | --- | --- | --- | --- |
+| 6k | 561 | 105 | 297 | 159 | 1.000 |
+| 8k | 561 | 100 | 413 | 48 | 1.000 |
+| ecb | 27 | 9 | 18 | 0 | 0.667 |
+| fed | 55 | 15 | 40 | 0 | 0.667 |
+| news | 35 | 10 | 25 | 0 | 0.667 |
+| releases | 561 | 62 | 499 | 0 | 0.667 |
+
+All slice scores retain the three declared labels. A slice without unclear references has a maximum possible macro F1 of 2/3 under this definition, not one. Compare models within the same slice; raw scores across families have different label support and attainable ceilings. The 6-K slice has the largest positive point difference; its nominal interval excludes zero. This exploratory, uncorrected comparison does not establish universal source superiority. All four length-band intervals include zero, including the longest band.
+
+### Uncertainty around the frozen discard rules
+
+![Workload and critical misses for the existing frozen policies](diagnostic-policies.png)
+
+Circles/squares identify the original 1%/5% calibration targets. Dashed lines show those targets, not deployment guarantees. Horizontal and vertical bars are separate marginal 95% group intervals, not joint confidence regions. These points and intervals reuse the original frozen policies and statistics; no threshold sweep, ensemble or model selection was performed.
+
+| Calibration target | Workload-difference 95% CI (pp) | Critical-miss-rate difference 95% CI (pp) |
+| --- | --- | --- |
+| 0.01 | [-2.50, -0.22] | [-0.61, 0.78] |
+| 0.05 | [-0.22, 2.67] | [0.08, 2.90] |
+
+Differences are Laya minus TF-IDF. More workload removed is favorable; a higher critical-miss rate is unfavorable. At the 1% target, Laya removes less workload and the miss-rate difference is unresolved. At the 5% target, its nominal interval indicates more teacher review-worthy misses while the workload difference remains unresolved. These conditional, uncorrected comparisons help interpret the existing systems; they are not permission to choose a new operating rule from this test set.
