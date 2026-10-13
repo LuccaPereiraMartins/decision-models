@@ -1,5 +1,8 @@
 # LoRA improves the head, but lexical triage still leads this pilot
 
+**Historical validation checkpoint.** The bounded continuation has since completed held-out evaluation.
+Start with the [current results checkpoint](core-study.md) and [final report](reports/core-v1/report.md).
+
 Review checkpoint, 12 October 2026. Both jobs agreed for tonight are complete and local research
 compute is stopped. Findings below measure **validation-set agreement with Luna's labels**;
 they are not held-out performance or independent analyst judgments. The five PRs remain draft.

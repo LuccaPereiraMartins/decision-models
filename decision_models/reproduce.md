@@ -2,6 +2,11 @@
 
 This procedure concerns the frozen mixed-source benchmark and the [bounded core study](core-study.md). The older 10k archive and its previously opened test are a separate experiment. Reproduction needs preserved artifacts; a fresh live collection cannot reconstruct the exact historical corpus.
 
+The [published core package](reports/core-v1/README.md) supplies all held-out logits, teacher references, fixed decisions,
+metrics, shared group intervals and execution/source evidence. `python decision_models/reports/core-v1/verify.py`
+replays the metrics/statistics on CPU, without API calls, weights or document bodies. Full training/inference replay
+still needs the inputs below. Published-file byte hashes are preserved across Windows/Linux by the package's attributes.
+
 ## Required inputs
 
 | Artifact | Purpose |

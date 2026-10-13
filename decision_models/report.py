@@ -30,10 +30,13 @@ def table(headers, rows):
 
 
 def label(config):
+    if config.get("kind") == "majority":
+        return "Majority class"
     kind = {"laya": "Laya", "tfidf": "Word TF-IDF", "char": "Char TF-IDF", "combined": "Combined TF-IDF",
             "majority": "Majority", "finbert": "FinBERT", "bge": "BGE-small", "modernbert": "ModernBERT-large",
             "qwen17": "Qwen3-1.7B", "qwen4": "Qwen3-4B"}[config.get("kind", "laya")]
     suffix = config.get("classifier", config.get("adaptation", "SDK"))
+    suffix = "LoRA" if suffix == "lora" else suffix
     if config["family"] == "research_zero":
         suffix += " epoch zero"
     return kind + " " + suffix
@@ -200,11 +203,11 @@ def figures(output, entries, configs, results, intervals, main, primary):
         if entry["role"] == "curve":
             grouped[label(configs[name])].append(name)
     fig, ax = plt.subplots(figsize=(9, 5))
-    for title, names in grouped.items():
+    for index, (title, names) in enumerate(grouped.items()):
         names.sort(key=lambda n: entries[n]["samples"])
         x = [entries[n]["samples"] for n in names]
         y = [results[n]["macro_f1"] for n in names]
-        ax.plot(x, y, "o-", label=title, alpha=.8)
+        ax.plot(x, y, "o-", label=title, alpha=.8, color=plt.get_cmap("tab20")(index % 20))
     ax.set(xscale="log", xlabel="Training documents (validation-selected recipes)", ylabel="Test macro F1",
            ylim=(-.02, 1.05), title="Sample efficiency on the same temporal test cohort")
     ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=8)
@@ -218,7 +221,7 @@ def figures(output, entries, configs, results, intervals, main, primary):
         selected = sorted([n for n in names if configs[n]["adaptation"] == adaptation], key=lambda n: configs[n]["max_len"])
         x, y = [configs[n]["max_len"] for n in selected], [results[n]["macro_f1"] for n in selected]
         if selected:
-            line, = ax.plot(x, y, "o-", label=adaptation)
+            line, = ax.plot(x, y, "o-", label="LoRA" if adaptation == "lora" else adaptation)
             ax.vlines(x, [intervals[n]["macro_f1"]["lower"] for n in selected],
                       [intervals[n]["macro_f1"]["upper"] for n in selected], color=line.get_color())
     ax.set(xlabel="Laya total context tokens", ylabel="Test macro F1", ylim=(-.02, 1.05),
@@ -346,7 +349,8 @@ def build(splits, study, human=None):
     save({"definition": "1 minus maximum calibrated class probability",
           "method": "Fixed descriptive bands; argmax review-to-routine misses divided by review-worthy support within each band",
           "models": bands}, output / "uncertainty-bands.json")
-    intervals = json.loads((study / "bootstrap.json").read_text())["models"]
+    statistics = json.loads((study / "bootstrap.json").read_text())
+    intervals = statistics["models"]
     main = {}
     for name, entry in entries.items():
         if entry["role"] in ("curve", "reference"):
@@ -358,7 +362,7 @@ def build(splits, study, human=None):
     primary, reference = freeze["primary_decision"], freeze["primary_linear"]
     names = list(dict.fromkeys((primary, reference, *main.values())))
     raw_scores = {name: json.loads((study / "test" / f"{name}.json").read_text())["raw_metrics"]["overall"] for name in names}
-    has_qwen = any(config["kind"].startswith("qwen") for config in configs.values())
+    has_qwen = any(config.get("kind", "").startswith("qwen") for config in configs.values())
     recipe_note = ("The bounded study adds one predeclared 4000-document LoRA recipe each for Laya, ModernBERT and FinBERT, "
                    "without a new hyperparameter sweep. Imported head recipes were previously selected at 1000/4000; "
                    "their tuning labels are additional to the stated training size."
@@ -398,6 +402,48 @@ def build(splits, study, human=None):
                      "Unadapted references use no task training; larger imported curves are supplementary. "
                      "Generative LLM adaptation, larger LoRA runs and independent human review are deferred by the user. "
                      "This is an end-to-end teacher-agreement study, not expert validation of materiality.")
+        primary_perf = json.loads((study / entries[primary]["directory"] / "performance.json").read_text())
+        reference_perf = json.loads((study / entries[reference]["directory"] / "performance.json").read_text())
+        primary_mean, reference_mean = [perf["latency_seconds"]["mean"] for perf in (primary_perf, reference_perf)]
+        policy = scored[primary]["policies"]
+        findings = ["## Findings and engineering implications",
+                    f"The primary systems have {scored[primary]['default_discard']['dangerous_misses']} and "
+                    f"{scored[reference]['default_discard']['dangerous_misses']} default critical misses, respectively, "
+                    f"among {scored[primary]['default_discard']['review_worthy_support']} teacher review-worthy documents. "
+                    f"Their warm mean latencies are {primary_mean * 1000:.1f} and {reference_mean * 1000:.2f} ms "
+                    f"on the common selection sample ({primary_mean / reference_mean:.1f} times the latency for the decision model). "
+                    "The small observed F1 difference and its interval make a strong lexical baseline essential to the comparison."]
+        increment = statistics["contrasts"].get(primary + "-sample-increment")
+        if increment:
+            left, right = increment["left"], increment["right"]
+            findings.append(f"Increasing Laya LoRA from {entries[right]['samples']} to {entries[left]['samples']} training "
+                            f"documents raises observed F1 by {scored[left]['macro_f1'] - scored[right]['macro_f1']:.3f}; "
+                            f"paired 95% interval {ci(increment['metrics']['macro_f1'])}. This supports sample efficiency "
+                            "within this fixed recipe and cohort. Changing subset composition and additional selection/calibration "
+                            "labels prevent interpreting it as a universal minimum-data requirement.")
+        fin_lora = next((n for n in names if configs[n].get("kind") == "finbert" and configs[n].get("adaptation") == "lora"), None)
+        fin_frozen = next((n for n in names if configs[n].get("kind") == "finbert" and configs[n]["family"] == "research_linear"), None)
+        if fin_lora and fin_frozen:
+            findings.append(f"FinBERT LoRA has observed F1 {scored[fin_lora]['macro_f1']:.3f} and "
+                            f"{scored[fin_lora]['default_discard']['dangerous_misses']} critical misses, compared with "
+                            f"{scored[fin_frozen]['macro_f1']:.3f} and {scored[fin_frozen]['default_discard']['dangerous_misses']} "
+                            "for frozen FinBERT/logistic regression. These are point estimates for the declared recipes, "
+                            "not an exhaustive fine-tuning comparison. Gains over a fresh random triage head alone do not "
+                            "establish that adapters outperform a trained frozen-feature classifier.")
+        findings += ["The completed head-context ablation does not show that wider context improves every metric. "
+                     "F1 and critical misses need to be read together under the fixed pooling rule. These supplementary "
+                     "comparisons do not justify selecting a new window size on the test cohort.",
+                     f"The primary model's calibration-selected 1%/5% discard rules remove "
+                     f"{100 * policy['0.01']['workload_reduction']:.2f}%/{100 * policy['0.05']['workload_reduction']:.2f}% "
+                     f"of the test workload while missing {100 * policy['0.01']['dangerous_miss_rate']:.2f}%/"
+                     f"{100 * policy['0.05']['dangerous_miss_rate']:.2f}% of teacher review-worthy documents. "
+                     "Calibration targets are empirical constraints, not deployment bounds. The observed rates and support "
+                     "matter more than the target names; confidence alone cannot certify safe automatic discarding.",
+                     "This bounded study establishes an inspectable end-to-end comparison. Analyst usefulness and commercial-inbox "
+                     "generalization still require independent labels and representative source coverage. Any further recipe or "
+                     "policy selection needs fresh held-out data; the current test is closed to tuning."]
+        index = parts.index("## Task and evaluation")
+        parts[index:index] = findings
     backbones = {config["model"]: config["revision"] for config in configs.values() if config.get("model")}
     parts.insert(parts.index("## Source and label coverage") - 1,
                  table(["Pretrained model", "Pinned Hub revision"], sorted(backbones.items())))
@@ -516,7 +562,7 @@ def build(splits, study, human=None):
               "in Laya/ModernBERT and query/value projections in FinBERT: rank 8, alpha 16, adapter dropout 0.05."]
     if has_qwen:
         parts.append("Qwen uses non-thinking NF4/BF16 A/B/C scoring; QLoRA is conditional discriminative CE, not full-vocabulary SFT.")
-    contrasts = json.loads((study / "bootstrap.json").read_text())["contrasts"]
+    contrasts = statistics["contrasts"]
     parts += [table(["Adapted model", "Train", "Matched-zero F1", "Adapted F1", "Paired gain 95% CI"],
                     [[label(configs[n]), entries[n]['samples'], number(scored[entries[n]['matched_zero']]['macro_f1']),
                       number(scored[n]['macro_f1']), ci(contrasts[n + '-adaptation']['metrics']['macro_f1'])]

@@ -627,3 +627,25 @@ Receipts are `checks/core-controls-verification-20261013.json` and `checks/core-
 Held-out inference began at 04:24 UTC, with a new temporary awake guard. The benchmark ownership and local
 test markers both match the freeze. All choices remain locked; resumable prediction work is serial. Actual
 test/statistics verification, report/PDF every-page review and final reproduction/code review remain pending.
+
+## 13 October: verified held-out results and final report
+
+All 64 frozen comparisons completed the single held-out pass at approximately 09:12 UTC. Independent audit receipt
+checks/core-heldout-verification-20261013.json binds result SHA-256
+330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0 to the existing freeze. It checks identical
+1,800-document/1,770-group cohorts, raw/calibrated probabilities and every source/family/provenance metric, policies,
+confusions/critical misses/support, cache/timing arithmetic, completion hashes and all 2,000-draw intervals/contrasts.
+Freeze/model/data/source/version guards still pass; the GPU worker and its awake guard are terminal.
+
+Primary 4k Laya LoRA F1 is 0.712061 versus word TF-IDF/logistic 0.701065. Paired delta is 0.010996 with interval
+[-0.013308, 0.035814], so this cohort does not resolve an F1 advantage. Critical misses are 177 versus 187 among
+1,292 teacher review-worthy references. Laya's 1%/5% rules discard 5.39%/14.72% with 1.32%/6.58% miss rates.
+ModernBERT-large LoRA F1 is 0.689185/267 misses; FinBERT LoRA is 0.641920/306 versus frozen FinBERT/logistic
+0.666079/236. Laya LoRA's 1k-to-4k gain is 0.071 with paired interval [0.049, 0.093]. No choices were retuned.
+
+The actual 15-page report and all four figures passed every-page visual inspection, including repeated table headers.
+Report-only repairs handle the native SDK's missing kind field, label the majority dummy correctly, distinguish
+curve colors and add an evidence-based interpretation. Frozen inference/training sources and choices are unchanged.
+The public package preserves exact logits/references, decisions, warm measurements, metric/statistics evidence,
+source/execution archives and a CPU replay script; body text/checkpoints remain local, with data-access limits explicit.
+Human review, larger/generative adaptation and RL/RLCD remain deferred. Review starts at core-study.md or reports/core-v1/report.md.

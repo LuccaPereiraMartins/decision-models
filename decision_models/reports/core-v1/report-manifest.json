@@ -1,0 +1,23 @@
+{
+  "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
+  "results_sha256": "330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0",
+  "report_source_sha256": "0a95fcd66a3e157e0c9526698138b87e40646d156a0564a2b7a194de04b19c07",
+  "versions": {
+    "matplotlib": "3.11.2",
+    "reportlab": "5.0.1",
+    "pypdf": "6.19.0"
+  },
+  "outputs": {
+    "report.md": "9d3e6d7c8b9b7c9a1a4adfa82285be4912323475867f00ae4d15b2668244bbe6",
+    "report.pdf": "fcb521cbeb20e0f7afb38ea3a3fa4b3084b8aae598d67d7145e02626550086ef",
+    "report-source.py": "0a95fcd66a3e157e0c9526698138b87e40646d156a0564a2b7a194de04b19c07",
+    "human-audit.json": "2889c7edea1e1dd8da866100c6c9702ec4e31d6c4771b42376aadc35ed534a47",
+    "reference-quote.json": "31b3ae0cba8f90e29b55541f61944beb99d3183bfcf0dd5aa688f08f0117f9de",
+    "training-composition.json": "40e06c4c902c46aa154c5fd8d7e5e0ea8f31422e42c8ab8e1a70c9114fa62870",
+    "uncertainty-bands.json": "007c4fc91a779b9cb9918c8e18aa3c7b19ad1c172ca410c2758ca9aaceb4db2f",
+    "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
+    "context.png": "9c3862bf1213695c25ff4087efa07432432ded226b89376ed1522a5c1ac65e57",
+    "throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70",
+    "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227"
+  }
+}

@@ -315,6 +315,10 @@ No paid LLM reference is executed; its proposed cost will be quoted before any f
 
 ## Bounded core study
 
+The completed [results checkpoint](core-study.md) and [report](reports/core-v1/report.md) are the review entry points.
+The [release package](reports/core-v1/README.md) replays all metrics and intervals on CPU without model weights or source bodies:
+`python decision_models/reports/core-v1/verify.py`. Full training replay additionally needs the preserved local artifacts.
+
 The current [agreed plan](core-study.md) reuses completed runs and adds exactly three 4,000-document
 LoRA recipes: Laya, ModernBERT and FinBERT. It does not launch the full matrix below.
 
