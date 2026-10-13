@@ -387,6 +387,70 @@ def exploratory_sections(result, labels, statistics):
     return parts
 
 
+def development_sections(result):
+    models = result['models']
+    rows = [models[str(n)] for n in (4000, 16000)]
+    parts = ['', '## Development-only FinBERT sample-efficiency extension', '',
+             'After the original held-out results were inspected, the user authorized one additional fixed-recipe '
+             'FinBERT LoRA fit at 16,000 training documents. This section uses train, selection and calibration only. '
+             'It is not a 65th held-out comparison and does not revise the frozen primary result. A new held-out '
+             'comparison requires fresh data. Selection scores choose the checkpoint and are optimistic fitting '
+             'evidence; calibration scores also use fitting data. No significance or generalization claim follows.',
+             'Both sizes start from the same pinned FinBERT weights and identical initial task-head parameters. '
+             'The recipe stays fixed: context 512, rank 8, alpha 16, dropout 0.05, unweighted cross-entropy, '
+             'learning rate 0.0001 for head and adapters, seed 42 and three epochs. Epoch zero remains eligible; '
+             'both sizes select epoch three. Pooling, source coverage and the 837-selection/363-calibration cohorts '
+             'are unchanged. There is no new learning-rate or seed sweep.',
+             table(['Training docs', 'Selection F1', 'Critical misses / 552', 'Unclear discarded / 93', 'Default discards / 837', 'Calibration F1'],
+                   [[r['training_documents'], number(r['selection']['macro_f1'], 4), r['selection']['default_discard']['dangerous_misses'],
+                     r['selection']['default_discard']['unclear_discarded'], r['selection']['default_discard']['discarded'],
+                     number(r['calibration']['macro_f1'], 4)] for r in rows]),
+             f"Selection macro F1 increases by {result['selection_f1_delta']:.4f}; teacher review-worthy misses "
+             'fall from 132 to 67. Default discards fall by 44, adding review workload, while discarded unclear '
+             'references increase from five to seventeen. The joint pattern is more informative than F1 alone. '
+             'These development signals justify a fresh evaluation; they do not establish a new test-set winner.',
+             '### Training composition and measured resources',
+             table(['Training docs', 'Routine', 'Review-worthy', 'Unclear', 'Raw characters'],
+                   [[r['training_documents'], *[r['training_classes'].get(k, 0) for k in LABELS], f"{r['training_characters']:,}"] for r in rows]),
+             table(['Family', '4k documents', '16k documents'],
+                   [[key, *[r['training_families'].get(key, 0) for r in rows]] for key in sorted(rows[1]['training_families'])]),
+             'The 4k subset is an ordered prefix of the 16k subset, but source/class proportions change as '
+             'smaller strata exhaust. Three epochs also mean 1,500 versus 6,000 optimizer steps. More documents, '
+             'more updates and different composition change together; two points cannot establish a minimum '
+             'label requirement or isolate the cause of the gain. Both fits additionally use 1,200 '
+             'selection/calibration labels beyond their stated training size.',
+             table(['Training docs', 'Train/validation min', 'Train peak GiB', 'Warm mean ms', 'Warm P95 ms', 'Inference peak GiB'],
+                   [[r['training_documents'], number(r['training_seconds'] / 60, 1), number(r['training_peak_gib'], 2),
+                     number(r['warm_mean_ms'], 2), number(r['warm_p95_ms'], 2), number(r['inference_peak_gib'], 2)] for r in rows]),
+             f"The recorded train/validation clock grows {result['training_time_ratio']:.2f} times; warm mean latency "
+             'is approximately unchanged on the identical 128-document timing sample. Same-recipe inference cost '
+             'does not scale with the number of training examples. Loading and final calibration/resource work '
+             f"are excluded from the training clock; the extension controller records {result['extension_wall_seconds'] / 3600:.2f} "
+             'hours overall. The controller finished normally and released its temporary awake guard before '
+             'the deadline. No cloud jobs, paid calls or additional fits ran.',
+             '### Calibrated policies on development cohorts',
+             'Thresholds are fitted on the 363-document calibration cohort. The last three columns show '
+             'selection results, including discarded unclear references. Targets concern review-worthy '
+             'misses, rather than all documents requiring review.',
+             table(['Training docs', 'Target', 'Cal. discards / 363', 'Cal. misses / 252', 'Selection discards / 837', 'Selection misses / 552', 'Unclear discarded'],
+                   [[r['training_documents'], key, r['calibration']['policies'][key]['discarded'],
+                     r['calibration']['policies'][key]['dangerous_misses'], r['selection']['policies'][key]['discarded'],
+                     r['selection']['policies'][key]['dangerous_misses'], r['selection']['policies'][key]['unclear_discarded']]
+                    for r in rows for key in ('0.01', '0.05')]),
+             'The 16k 1% policy misses eight of 552 teacher review-worthy selection references (1.45%), '
+             'exceeding its empirical calibration target. Its 5% policy misses 21 (3.80%), while also '
+             'discarding four unclear references. Target satisfaction on a fitting cohort is not a population '
+             'guarantee. Policies were fitted on calibration alone; no rule was chosen using the original test outcomes.',
+             'Independent verification checks ordered cohorts and nested training identities, source/runtime '
+             'fingerprints, finite zero/best/final checkpoints, matched initialization, raw and calibrated '
+             'arithmetic, calibration temperature and maximal feasible policies, selected epoch, timing sample '
+             'and resource clocks. The completed 16k checkpoint was replayed on development cohorts only. '
+             'The original study/result/ownership hashes remain unchanged. Published development probabilities, '
+             'training metadata, decisions, histories and verifier receipts support CPU arithmetic replay '
+             'without corpus bodies or model weights.']
+    return parts
+
+
 def build(splits, study, human=None):
     plan = json.loads((study / "plan.json").read_text(encoding="utf-8"))
     freeze = validate_freeze(splits, study)
@@ -766,6 +830,19 @@ def build(splits, study, human=None):
         parts += exploratory_sections(diagnostic, labels, statistics)
         diagnostic_outputs = ('diagnostic-inputs.json', 'diagnostics.json', 'diagnostics-source.py',
                               'diagnostic-slices.png', 'diagnostic-policies.png')
+    development_outputs = ()
+    evidence_path = output / 'development-evidence.json.gz'
+    if evidence_path.exists():
+        import gzip
+        from development import summarize
+        evidence = json.loads(gzip.decompress(evidence_path.read_bytes()))
+        if evidence['freeze_sha256'] != fingerprint(study / 'freeze.json'):
+            raise ValueError('Development evidence belongs to another original study')
+        development = summarize(evidence)
+        save(development, output / 'development-summary.json')
+        (output / 'development-source.py').write_bytes((HERE / 'development.py').read_bytes())
+        parts += development_sections(development)
+        development_outputs = ('development-evidence.json.gz', 'development-summary.json', 'development-source.py')
     content = "\n\n".join(parts) + "\n"
     (output / "report.md").write_text(content, encoding="utf-8")
     (output / "report-source.py").write_bytes((HERE / "report.py").read_bytes())
@@ -775,5 +852,5 @@ def build(splits, study, human=None):
           "versions": {n: version(n) for n in ('matplotlib', 'reportlab', 'pypdf')},
           "outputs": {name: fingerprint(output / name) for name in
                       ('report.md', 'report.pdf', 'report-source.py', 'human-audit.json', 'reference-quote.json', 'training-composition.json', 'uncertainty-bands.json',
-                       'learning-curves.png', 'context.png', 'throughput.png', 'confusion.png') + diagnostic_outputs}}, output / "manifest.json")
+                       'learning-curves.png', 'context.png', 'throughput.png', 'confusion.png') + diagnostic_outputs + development_outputs}}, output / "manifest.json")
     print(f"Report written to {output}; render and inspect PDF before publication", flush=True)

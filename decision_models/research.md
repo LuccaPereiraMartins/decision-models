@@ -669,3 +669,30 @@ diagnostics-audit.zip preserves its source and passing receipt. The report now h
 are pixel-identical to the previously inspected renders; revised pages 15–17 and both new figures passed visual inspection.
 The appendix interprets frozen evidence and proposes no new operating rule. Human review and fresh evaluation data remain
 necessary for further model/policy development.
+
+## 13 October: fixed-recipe 16k FinBERT development extension completed
+
+The user authorized one additional job from the deferred grid. The standalone controller ran FinBERT LoRA at
+16,000 documents from 11:12 to 13:37 UTC, finishing normally and releasing its awake guard. It used the unchanged
+4k recipe: context 512, rank 8, seed 42, unweighted CE, both learning rates 0.0001 and three epochs. Both sizes
+select epoch three. It did not restart the full study, clear ownership markers or evaluate the original holdout.
+
+Selection macro F1 rises 0.671517 to 0.763617 (+0.092100); review-worthy-to-routine misses fall 132 to 67 among
+552, while unclear-to-routine errors rise five to seventeen among 93. Default discards fall 286 to 242 of 837.
+Calibration F1 is 0.654165 versus 0.805772 on fitting data. The 16k 1%/5% policies discard 63/133 selection
+documents with eight/21 critical misses (1.45%/3.80%) and zero/four unclear references discarded. The 1% target
+still fails on selection. No population bounds or new test-set winner are claimed.
+
+Training/validation clocks are 32.6 versus 143.1 minutes (4.38x); new wall time is 2.41 hours. Warm means are
+33.94 versus 34.02 ms on the same 128 documents. Training peak is 0.78/0.79 GiB; inference peak is 0.52 GiB.
+Nested identities are exact, but raw characters grow 31,526,200 to 146,195,420, class/source proportions change
+and optimizer steps grow 1,500 to 6,000. Two points cannot establish minimum label requirements or isolate data
+quantity from additional optimization and composition. Epoch-selected selection and calibration are fitting
+evidence; this job was chosen after seeing the primary test results and requires fresh held-out evaluation.
+
+Independent verification and a development-only checkpoint replay passed. It checks source/runtime/artifact
+identities, finite zero/best/final weights and matched initialization, ordered cohorts, nested train identities,
+raw/calibrated metrics, calibration optimum/maximal feasible policies, selected epoch and resource clocks/sample.
+Receipts and exact sources are in reports/core-v1/development-audit.zip; exported probabilities, train metadata,
+decisions and histories support CPU replay. The report's separate section spans pages 17–19. Original freeze,
+result, state and ownership hashes remain unchanged; the core still contains exactly 64 held-out comparisons.

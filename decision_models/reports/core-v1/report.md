@@ -32,7 +32,7 @@ The primary contrast and main trained-model tables use 4000 training documents p
 
 Classify supplied source content as routine, review_worthy or unclear for an analyst inbox. No issuer history, portfolio context, future returns or market reaction is supplied. Unclear routes to review. Macro F1 averages all three declared labels, including absent classes in small slices. The critical error is a review-worthy document predicted routine.
 
-The research question is whether supervised decision-model adaptation and larger contiguous context improve triage agreement, critical misses and throughput relative to lexical and encoder baselines. FinBERT's published sentiment results do not establish triage quality; BGE is an embedding model. ModernBERT supplies a backbone-family system comparison; classifier/decision heads and source-window budgets differ. Primary sources and distinctions are documented in [literature.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/ac87e0b7b39d97c5fc1a0e0ce5e871818ca4052b/decision_models/literature.md).
+The research question is whether supervised decision-model adaptation and larger contiguous context improve triage agreement, critical misses and throughput relative to lexical and encoder baselines. FinBERT's published sentiment results do not establish triage quality; BGE is an embedding model. ModernBERT supplies a backbone-family system comparison; classifier/decision heads and source-window budgets differ. Primary sources and distinctions are documented in [literature.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/2afc7e45bbc966313c0d86fd0151353e7a34e73d/decision_models/literature.md).
 
 Train ends 2026-03-31; selection/calibration use April-June; test uses July-September. Event and verified near-duplicate groups cannot cross boundaries. Old experimental bodies and near duplicates are excluded from fresh validation/test. Candidate retrieval is approximate and can miss duplicates. Every core recipe, checkpoint, calibration and discard threshold was frozen before test inference.
 
@@ -99,7 +99,7 @@ Selection applies the recorded split ceilings and train/validation/test 8-K shar
 | news | 1373 | 38 | 12 | 35 |
 | releases | 7047 | 249 | 105 | 561 |
 
-Source shortfalls are not filled by additional 8-Ks. These institutional/public-news cohorts are not a representative commercial inbox. Publication dates and snapshots cannot establish the exact text available at the historical date; pretraining exposure remains possible. Rights and collection methods are documented in [sources.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/ac87e0b7b39d97c5fc1a0e0ce5e871818ca4052b/decision_models/sources.md).
+Source shortfalls are not filled by additional 8-Ks. These institutional/public-news cohorts are not a representative commercial inbox. Publication dates and snapshots cannot establish the exact text available at the historical date; pretraining exposure remains possible. Rights and collection methods are documented in [sources.md](https://github.com/LuccaPereiraMartins/systematic-trading/blob/2afc7e45bbc966313c0d86fd0151353e7a34e73d/decision_models/sources.md).
 
 | Split | Documents | routine | review_worthy | unclear |
 | --- | --- | --- | --- | --- |
@@ -570,3 +570,60 @@ Circles/squares identify the original 1%/5% calibration targets. Dashed lines sh
 | 0.05 | [-0.22, 2.67] | [0.08, 2.90] |
 
 Differences are Laya minus TF-IDF. More workload removed is favorable; a higher critical-miss rate is unfavorable. At the 1% target, Laya removes less workload and the miss-rate difference is unresolved. At the 5% target, its nominal interval indicates more teacher review-worthy misses while the workload difference remains unresolved. These conditional, uncorrected comparisons help interpret the existing systems; they are not permission to choose a new operating rule from this test set.
+
+
+
+## Development-only FinBERT sample-efficiency extension
+
+
+
+After the original held-out results were inspected, the user authorized one additional fixed-recipe FinBERT LoRA fit at 16,000 training documents. This section uses train, selection and calibration only. It is not a 65th held-out comparison and does not revise the frozen primary result. A new held-out comparison requires fresh data. Selection scores choose the checkpoint and are optimistic fitting evidence; calibration scores also use fitting data. No significance or generalization claim follows.
+
+Both sizes start from the same pinned FinBERT weights and identical initial task-head parameters. The recipe stays fixed: context 512, rank 8, alpha 16, dropout 0.05, unweighted cross-entropy, learning rate 0.0001 for head and adapters, seed 42 and three epochs. Epoch zero remains eligible; both sizes select epoch three. Pooling, source coverage and the 837-selection/363-calibration cohorts are unchanged. There is no new learning-rate or seed sweep.
+
+| Training docs | Selection F1 | Critical misses / 552 | Unclear discarded / 93 | Default discards / 837 | Calibration F1 |
+| --- | --- | --- | --- | --- | --- |
+| 4000 | 0.6715 | 132 | 5 | 286 | 0.6542 |
+| 16000 | 0.7636 | 67 | 17 | 242 | 0.8058 |
+
+Selection macro F1 increases by 0.0921; teacher review-worthy misses fall from 132 to 67. Default discards fall by 44, adding review workload, while discarded unclear references increase from five to seventeen. The joint pattern is more informative than F1 alone. These development signals justify a fresh evaluation; they do not establish a new test-set winner.
+
+### Training composition and measured resources
+
+| Training docs | Routine | Review-worthy | Unclear | Raw characters |
+| --- | --- | --- | --- | --- |
+| 4000 | 1648 | 1720 | 632 | 31,526,200 |
+| 16000 | 5535 | 7987 | 2478 | 146,195,420 |
+
+| Family | 4k documents | 16k documents |
+| --- | --- | --- |
+| 6k | 861 | 5463 |
+| 8k | 861 | 4136 |
+| ecb | 502 | 666 |
+| fed | 631 | 1712 |
+| news | 572 | 1373 |
+| releases | 573 | 2650 |
+
+The 4k subset is an ordered prefix of the 16k subset, but source/class proportions change as smaller strata exhaust. Three epochs also mean 1,500 versus 6,000 optimizer steps. More documents, more updates and different composition change together; two points cannot establish a minimum label requirement or isolate the cause of the gain. Both fits additionally use 1,200 selection/calibration labels beyond their stated training size.
+
+| Training docs | Train/validation min | Train peak GiB | Warm mean ms | Warm P95 ms | Inference peak GiB |
+| --- | --- | --- | --- | --- | --- |
+| 4000 | 32.6 | 0.78 | 33.94 | 117.61 | 0.52 |
+| 16000 | 143.1 | 0.79 | 34.02 | 117.07 | 0.52 |
+
+The recorded train/validation clock grows 4.38 times; warm mean latency is approximately unchanged on the identical 128-document timing sample. Same-recipe inference cost does not scale with the number of training examples. Loading and final calibration/resource work are excluded from the training clock; the extension controller records 2.41 hours overall. The controller finished normally and released its temporary awake guard before the deadline. No cloud jobs, paid calls or additional fits ran.
+
+### Calibrated policies on development cohorts
+
+Thresholds are fitted on the 363-document calibration cohort. The last three columns show selection results, including discarded unclear references. Targets concern review-worthy misses, rather than all documents requiring review.
+
+| Training docs | Target | Cal. discards / 363 | Cal. misses / 252 | Selection discards / 837 | Selection misses / 552 | Unclear discarded |
+| --- | --- | --- | --- | --- | --- | --- |
+| 4000 | 0.01 | 10 | 2 | 45 | 12 | 0 |
+| 4000 | 0.05 | 42 | 12 | 120 | 44 | 1 |
+| 16000 | 0.01 | 26 | 2 | 63 | 8 | 0 |
+| 16000 | 0.05 | 52 | 12 | 133 | 21 | 4 |
+
+The 16k 1% policy misses eight of 552 teacher review-worthy selection references (1.45%), exceeding its empirical calibration target. Its 5% policy misses 21 (3.80%), while also discarding four unclear references. Target satisfaction on a fitting cohort is not a population guarantee. Policies were fitted on calibration alone; no rule was chosen using the original test outcomes.
+
+Independent verification checks ordered cohorts and nested training identities, source/runtime fingerprints, finite zero/best/final checkpoints, matched initialization, raw and calibrated arithmetic, calibration temperature and maximal feasible policies, selected epoch, timing sample and resource clocks. The completed 16k checkpoint was replayed on development cohorts only. The original study/result/ownership hashes remain unchanged. Published development probabilities, training metadata, decisions, histories and verifier receipts support CPU arithmetic replay without corpus bodies or model weights.

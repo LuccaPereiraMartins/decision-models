@@ -1,6 +1,6 @@
 # Bounded end-to-end study: results checkpoint
 
-All three new LoRA fits, seven matched pre-update controls and 64 frozen held-out evaluations are complete. Start with [the report](reports/core-v1/report.md) or [the 17-page PDF](reports/core-v1/report.pdf). Its first page explains the findings; later sections give source/class support, critical misses, policies, learning/context comparisons and resources.
+All three new LoRA fits, seven matched pre-update controls and 64 frozen held-out evaluations are complete. Start with [the report](reports/core-v1/report.md) or [the 19-page PDF](reports/core-v1/report.pdf). Its first page explains the findings; later sections give source/class support, critical misses, policies, learning/context comparisons and resources.
 
 The main comparison uses the identical 4,000 training documents and 1,800 held-out documents, with 1,292 teacher review-worthy references. These are agreement results against Luna labels. Independent human review remains deferred.
 
@@ -34,9 +34,11 @@ The study reuses 54 completed baseline/reference/head/context/1k-LoRA comparison
 
 ## Review and reproduction
 
-All 64 results passed independent ordered-cohort, probability, confusion/F1/miss, calibration/policy, timing and hash checks. The independent audit reproduces every paired interval/contrast using 2,000 shared draws over 1,770 event/near-duplicate groups. Every final PDF page and all six figures were inspected; unchanged pages 1–14 match the previously inspected renders exactly.
+All 64 results passed independent ordered-cohort, probability, confusion/F1/miss, calibration/policy, timing and hash checks. The independent audit reproduces every paired interval/contrast using 2,000 shared draws over 1,770 event/near-duplicate groups. Every final PDF page and all six figures were inspected; unchanged pages 1–16 match the previously inspected renders exactly.
 
 Pages 15–17 contain a post-hoc appendix, with separate arithmetic verification. Approximately 68.3% of the small observed F1 difference comes from the unclear class; every class-contribution interval includes zero. Collapsing the existing actions into discard versus review also leaves the F1 difference unresolved. Both models miss 105 teacher review-worthy documents, with 72 additional Laya-only and 82 TF-IDF-only misses. Source differences vary and all four length-band F1 intervals include zero. These exploratory, uncorrected diagnostics and the original policy intervals change no primary conclusion or operating rule.
+
+Pages 17–19 contain the separate [16k FinBERT development extension](development-extension.md), chosen after seeing the primary test results. Selection F1 improves from 0.6715 to 0.7636 against the fixed 4k recipe, with critical misses 132 to 67 among 552 and unclear discards five to seventeen. Training/validation takes 4.38 times longer, while warm latency stays approximately unchanged. This is checkpoint-selected development evidence, not a 65th held-out result; the original comparison and conclusions remain frozen.
 
 [The release package](reports/core-v1/README.md) contains exact logits, references, fixed decisions, metric/statistics evidence, renderer/source archives and a CPU replay command. Metric/statistics replay needs no weights or source bodies. Full training/inference replay needs preserved local corpus/checkpoints and pinned dependencies; [reproduce.md](reproduce.md) explains access and rights limitations.
 

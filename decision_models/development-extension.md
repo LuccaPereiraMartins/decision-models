@@ -27,3 +27,28 @@ Local execution artifacts are in `training_runs/research-extension-20261013/`: t
 receipt, training log and `finbert-lora-n16000-c512/` checkpoint/configuration/source snapshots.
 The controller temporarily prevents idle sleep, runs one GPU job and releases the guard on exit.
 At the cutoff it preserves the latest resumable checkpoint rather than claiming a completed fit.
+
+## Completed development result
+
+The controller completed normally at 13:37 UTC (14:37 London), with its awake guard released.
+Both fits select epoch three. Selection macro F1 rises from **0.6715 to 0.7636**, with teacher
+review-worthy misses falling from **132 to 67 among 552**. Default discards fall from 286 to 242
+of 837, while discarded unclear references rise from five to seventeen among 93. This is
+selection evidence after checkpoint choice; the original held-out conclusion is unchanged.
+
+Recorded training/validation increases from 32.6 to 143.1 minutes, a 4.38-fold increase. The
+new controller's overall wall time is 2.41 hours. Warm mean latency is 33.94 versus 34.02 ms
+on the identical 128-document sample. Training peak is 0.78/0.79 GiB and inference peak is
+0.52 GiB for both. More samples, more optimizer updates and changed source/class proportions
+vary together; two points do not identify a minimum sample requirement or the cause of the gain.
+
+The 16k calibration-selected 1%/5% policies discard 63/133 selection documents, with eight/21
+critical misses (1.45%/3.80%) and zero/four unclear references discarded. The 1% calibration
+target still fails on selection. Calibration fitting scores are not independent evidence.
+
+Independent verification checked source/runtime and artifact hashes, ordered train/selection/
+calibration cohorts, nested training identities, finite zero/best/final checkpoints and matched
+initialization, checkpoint choice, raw/calibrated metrics, temperature and maximal feasible
+policies, and measured resources. The 16k checkpoint was replayed on development cohorts only.
+All original study/benchmark ownership hashes remain unchanged. Audits and exact development
+inputs are published with the report; full training replay still needs local corpus/checkpoints.

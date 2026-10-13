@@ -1,16 +1,16 @@
 {
   "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
   "results_sha256": "330cc6dfb84c0067ffd910cc0f40713d2b8da4ad190b4aca9186303365df23d0",
-  "report_source_sha256": "e552987cc511ff60f09995cf5641ccfd12bc8bae53e4d41ad8435d10961ab0eb",
+  "report_source_sha256": "1acf27e21206a410e1b63b7cae19d1a01baf76f10186325a5d3b2654be0d8728",
   "versions": {
     "matplotlib": "3.11.2",
     "reportlab": "5.0.1",
     "pypdf": "6.19.0"
   },
   "outputs": {
-    "report.md": "bbcb44717dc4a9860a7d46b1c9821db82973dd143a348d9e1b23dcb52a2a1a0f",
-    "report.pdf": "039b9c0e79d5c17b06a5e47a98bb4917e2eb5d73b5cbc63f05b03e5a52197fbe",
-    "report-source.py": "e552987cc511ff60f09995cf5641ccfd12bc8bae53e4d41ad8435d10961ab0eb",
+    "report.md": "34b44ebee95f9f5ede5f17c11ebd6a71b34dc3ce07eb8e1f28aedece4ff4a052",
+    "report.pdf": "aedcedb98e55255a67405423b86a6fa28c709c6955d323de65b16aec0ac38de5",
+    "report-source.py": "1acf27e21206a410e1b63b7cae19d1a01baf76f10186325a5d3b2654be0d8728",
     "human-audit.json": "2889c7edea1e1dd8da866100c6c9702ec4e31d6c4771b42376aadc35ed534a47",
     "reference-quote.json": "31b3ae0cba8f90e29b55541f61944beb99d3183bfcf0dd5aa688f08f0117f9de",
     "training-composition.json": "40e06c4c902c46aa154c5fd8d7e5e0ea8f31422e42c8ab8e1a70c9114fa62870",
@@ -23,6 +23,9 @@
     "diagnostics.json": "e86c43dc92c36fb7255bb9645794fa3aa6346fb01138d91090617ac72917d7d3",
     "diagnostics-source.py": "541b4e205e22b024b2acc2d42dbe978170dec9b95a84249c9efcc44f1fbb912e",
     "diagnostic-slices.png": "5a5bd843815c2134600fed9f505eda6afdc856458029bd94ef2170638fbdaf7a",
-    "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa"
+    "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa",
+    "development-evidence.json.gz": "8f86cc4a6811d6bb0369026a7c4c7b753a22b12cb555cfa2f734736a9edb6e42",
+    "development-summary.json": "e250bf90f66e7a164ea0f0e909f6a6f3513277f1c05df6485e90c7aa6043fa80",
+    "development-source.py": "0859463aef4813128e9714a9638c7688bfe262cdcbf7f4bdb691e46ca1fbe3b9"
   }
 }

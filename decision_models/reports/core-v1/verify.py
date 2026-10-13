@@ -75,6 +75,24 @@ def main():
         assert inputs['freeze_sha256'] == manifest['freeze_sha256']
         check(analyze(predictions, inputs, expected_bootstrap), expected)
         print("Verified post-hoc class, routing, overlap, source/length and frozen-policy diagnostics.")
+    if (directory / 'development-evidence.json.gz').exists():
+        from development import summarize
+        from protocol import fit_policies
+        development = json.loads(gzip.decompress((directory / 'development-evidence.json.gz').read_bytes()))
+        assert development['freeze_sha256'] == manifest['freeze_sha256']
+        for model in development['models'].values():
+            for split in ('selection', 'calibration'):
+                rows = model[split]['predictions']
+                check(breakdown(rows), model[split]['metrics'])
+                raw = np.asarray(model[split]['raw_probabilities'])
+                np.testing.assert_allclose(softmax(np.log(raw) / model['decision']['temperature'], axis=1),
+                                           [r['probabilities'] for r in rows], rtol=1e-10, atol=1e-12)
+                if split == 'calibration':
+                    p = np.array([r['probabilities'] for r in rows])
+                    truth = np.array([LABELS.index(r['reference']) for r in rows])
+                    check(fit_policies(p, truth), model['decision']['policies'])
+        check(summarize(development), json.loads((directory / 'development-summary.json').read_text()))
+        print('Verified separate 4k/16k FinBERT development evidence; no additional test comparison.')
     print("Verified all package hashes, 64 raw/calibrated evaluations and 2000 paired group-bootstrap draws.")
 
 
