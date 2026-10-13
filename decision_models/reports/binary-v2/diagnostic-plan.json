@@ -1,0 +1,13 @@
+{
+  "task_id": "binary-v2",
+  "stage": "Declared before binary fitting and revised-cohort evaluation",
+  "selection_input_sha256": "8001447352a9d17697babed2249888f43bbebe9aa9d2a6e7a23cf952fb43401e",
+  "characters_quartiles": [
+    2896.75,
+    4696.0,
+    9675.5
+  ],
+  "length_bins": "Lower bound inclusive, upper bound exclusive; quartile boundaries belong to the next band",
+  "comparisons": "Descriptive primary-pair/source/length/reference-basis support and shared default misses; no selection, causal claim or corrected significance claim",
+  "utc": "2026-10-13T22:44:11.410545+00:00"
+}

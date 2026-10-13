@@ -108,3 +108,16 @@ resource evidence, replay, PDF inspection and remote publication are verified.
 
 Implementation entrypoints are `prepare_binary.py`, `label.py --task binary-v2`, and
 `study_binary.py`. The bounded runner never calls the old full-grid fit method.
+
+`binary_pipeline.py` continues the existing approved label controller, labels the
+newly selected documents, freezes data and starts this bounded runner. It records
+live process identities and checks source/preparation hashes; do not duplicate it
+or edit its bound runtime sources while it is running.
+
+After `models_complete_report_pending`, run `report_binary.py`. It checks frozen
+artifacts, ordered cohorts, finite zero/best/final checkpoints and selected epochs,
+exports a separate body-free package, and requires `binary_replay.py` to pass before
+generating manuscript results. The draft source is in `paper-binary-v2/`; generated
+LaTeX still needs compilation, every-page visual inspection and clean archive replay.
+The old manuscript and core package remain untouched. The preparation and manuscript
+drafts do not claim completed binary model findings.
