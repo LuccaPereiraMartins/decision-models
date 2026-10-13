@@ -25,6 +25,9 @@ from schemas import HERE, body_hash, read_records, save
 
 FAMILIES = ("8k", "releases", "6k", "fed", "ecb", "news", "govuk")
 EXTRACTION_VERSION = "html-text-v1"
+ECB_STATISTICS = ("md", "bop", "ffi", "mfi", "paysec", "cci", "pension_fund_statistics",
+                  "icb", "fvc", "if", "euro_money_market", "sis")
+ECB_BINARY_EXTRACTION = "ecb-institutional-text-v2"
 RELEASE_QUERY = '"press release" OR "news release" OR "GLOBE NEWSWIRE" OR "PRNewswire"'
 RIGHTS = {
     "govuk": ("Crown copyright; Open Government Licence v3.0 except stated third-party/personal content",
@@ -236,13 +239,14 @@ def fed_candidates(http, start, end):
     return list(items.values())
 
 
-def ecb_candidates(http, start, end):
+def ecb_candidates(http, start, end, statistics=False, audit=None):
     # This is the same versioned archive consumed by the ECB's public foedb website widget.
     root = "https://www.ecb.europa.eu/foedb/dbs/foedb/publications.en/"
     version = http.json(root + "versions.json")[0]
     base = root + version["version"] + "/" + version["hash"] + "/"
     metadata = http.json(base + "metadata.json")
-    items = []
+    items = {}
+    named = set()
     width = len(metadata["header"])
     for chunk in range((metadata["total_records"] + metadata["chunk_size"] - 1) // metadata["chunk_size"]):
         group = chunk // metadata["chunk_group_size"]
@@ -250,15 +254,70 @@ def ecb_candidates(http, start, end):
         for offset in range(0, len(data), width):
             record = dict(zip(metadata["header"], data[offset:offset + width]))
             date = datetime.fromtimestamp(record["pub_timestamp"], timezone.utc).date().isoformat()
-            if not start <= date <= end or record.get("Authors") or record.get("boardmember"):
+            paths = record.get("documentTypes") or []
+            authored = bool(record.get("Authors") or record.get("boardmember"))
+            if authored:
+                named.update(urljoin("https://www.ecb.europa.eu", path) for path in paths)
+            allowed = [p for p in paths if re.match(r"/press/(?:pr|govcdec/mopo|accounts)/", p)
+                       or statistics and any(p.startswith(f"/press/stats/{kind}/") for kind in ECB_STATISTICS)]
+            if audit is not None:
+                reason = ("outside_dates" if not start <= date <= end else "named_author" if authored
+                          else "outside_whitelist" if not any(p.endswith(".en.html") for p in allowed)
+                          else "candidate")
+                audit.append({"provider": "publications", "record_id": record["id"], "date": date,
+                              "urls": paths, "outcome": reason})
+            if not start <= date <= end or authored:
                 continue
-            for path in record.get("documentTypes") or []:
-                if not re.match(r"/press/(?:pr|govcdec/mopo|accounts)/", path) or not path.endswith(".en.html"):
+            for path in allowed:
+                if not path.endswith(".en.html"):
                     continue
                 url = urljoin("https://www.ecb.europa.eu", path)
-                items.append({"document_id": url, "url": url, "date": date, "source": "ecb",
-                              "document_type": "institutional_release", "archive_version": version})
-    return items
+                items[url] = {"document_id": url, "url": url, "date": date, "source": "ecb",
+                              "document_type": "statistical_release" if "/press/stats/" in path else "institutional_release",
+                              "archive_version": version, "discovery_url": base + f"data/{group}/chunk_{chunk}.json"}
+    if statistics:
+        for kind in ECB_STATISTICS:
+            url = f"https://www.ecb.europa.eu/press/stats/{kind}/html/index.en.html"
+            page = BeautifulSoup(http.get(url)[0], "html.parser")
+            pages = [(url, page.select_one("main"))]
+            # These are the public archive's own lazy-loaded snippets, not inferred endpoints.
+            for node in page.select("main [data-snippets]"):
+                snippet = urljoin(url, node["data-snippets"])
+                if urlparse(snippet).netloc != "www.ecb.europa.eu":
+                    raise ValueError("ECB archive snippet left the official host")
+                pages.append((snippet, BeautifulSoup(http.get(snippet)[0], "html.parser")))
+            for discovery, content in pages:
+                if content is None:
+                    raise ValueError(f"Missing ECB statistical archive: {url}")
+                for stamp in content.select("dt[isodate]"):
+                    day = stamp["isodate"]
+                    date_type = stamp.find_next_sibling("dd")
+                    if date_type is None:
+                        raise ValueError("ECB archive date has no release entry")
+                    for link in date_type.select(".title > a[href]"):
+                        target = urljoin(discovery, link["href"])
+                        path = urlparse(target).path
+                        reason = ("outside_dates" if not start <= day <= end else "named_author" if target in named
+                                  else "unsupported_attachment" if not path.endswith(".en.html")
+                                  else "outside_whitelist" if not path.startswith(f"/press/stats/{kind}/")
+                                  or urlparse(target).netloc != "www.ecb.europa.eu" else "candidate")
+                        if audit is not None:
+                            audit.append({"provider": "statistical_archive", "discovery_url": discovery,
+                                          "url": target, "date": day, "outcome": reason})
+                        if reason != "candidate":
+                            continue
+                        row = {"document_id": target, "url": target, "date": day, "source": "ecb",
+                               "document_type": "statistical_release", "title": link.get_text(" ", strip=True),
+                               "discovery_url": discovery}
+                        if target in items and items[target]["date"] != day:
+                            raise ValueError(f"Conflicting ECB discovery dates: {target}")
+                        if target in items:
+                            items[target]["statistical_archive_url"] = discovery
+                        else:
+                            items[target] = row
+        for row in items.values():
+            row["ecb_eligibility"] = "institutional-and-statistical-v2"
+    return list(items.values())
 
 
 def wikinews_candidates(http, start, end):
@@ -328,6 +387,27 @@ def extract(http, candidate):
     if "pdf" in metadata["content_type"].lower() or raw.startswith(b"%PDF"):
         raise ValueError("Unsupported PDF; original bytes retained")
     page = BeautifulSoup(raw, "html.parser")
+    ecb_publication = {}
+    if candidate.get("ecb_eligibility"):
+        final = urlparse(metadata["final_url"])
+        if final.netloc != "www.ecb.europa.eu" or not final.path.endswith(".en.html"):
+            raise ValueError("ECB release redirected outside eligible English HTML")
+        authors = [node.get("content", "") for node in page.select('meta[name="author"], meta[name="citation_author"]')]
+        authors += [node.get_text(" ", strip=True) for node in page.select(".author, .authors, [rel=author]")]
+        if any(author and author.strip() not in ("European Central Bank", "ECB") for author in authors):
+            raise ValueError("Named-author ECB document excluded")
+        stamp = page.select_one('meta[property="article:published_time"]')
+        metadata_day = stamp.get("content", "")[:10] if stamp else ""
+        visible = page.select_one("main .ecb-publicationDate, main .title .date")
+        if visible is None:
+            visible = next((node for node in page.select("main > .title > ul > li")
+                            if re.fullmatch(r"\d{1,2} [A-Z][a-z]+ \d{4}", node.get_text(" ", strip=True))), None)
+        visible_day = datetime.strptime(visible.get_text(" ", strip=True), "%d %B %Y").date().isoformat() if visible else ""
+        if (visible_day or metadata_day) != candidate["date"]:
+            raise ValueError("ECB article publication date disagrees with discovery")
+        ecb_publication = {"publication_date_check": {"visible": visible_day, "metadata": metadata_day,
+                                                     "discovery": candidate["date"]},
+                           "authorship_check": {"declared": authors, "named_author": False}}
     for element in page.select("script,style,noscript,nav,footer,header"):
         element.decompose()
     selectors = {"fed": "#article", "ecb": "main", "voa": ".wsw, .body-container",
@@ -335,6 +415,14 @@ def extract(http, candidate):
     content = page.select_one(selectors[source])
     if content is None:
         raise ValueError(f"Missing article container for {source}")
+    if candidate.get("ecb_eligibility"):
+        if content.select_one("h1") is None:
+            raise ValueError("Missing ECB release title")
+        if any(re.match(r"^(?:by|prepared by)\s+", node.get_text(" ", strip=True), re.I)
+               for node in content.select(".title p, .section > p")[:3]):
+            raise ValueError("Possible named-author ECB byline excluded")
+        for node in content.select("#feedback, #pages-in-section-holder, .ecb-langSelector, img, svg"):
+            node.decompose()
     if source == "voa":
         author = page.select_one(".authors, .author, .byline")
         author_text = author.get_text(" ", strip=True) if author else ""
@@ -372,7 +460,8 @@ def extract(http, candidate):
         rights = "CC BY 4.0" if candidate["date"] >= "2024-12-16" else "CC BY 2.5"
     return {**candidate, "body": body, "llm": {"label": None, "uncertainty": None},
             "human": {"label": None, "uncertainty": None}, "date_precision": "day",
-            "provenance": {**metadata, "extraction_version": EXTRACTION_VERSION,
+            "provenance": {**metadata, **ecb_publication,
+                           "extraction_version": ECB_BINARY_EXTRACTION if candidate.get("ecb_eligibility") else EXTRACTION_VERSION,
                            "rights": rights, "rights_url": RIGHTS[source][1],
                            "attribution": source, "modification": "HTML navigation removed; plain-text extraction"}}
 
@@ -427,7 +516,7 @@ def sec_documents(candidate, family, http=None):
     return rows
 
 
-def collect(family, number, start, end, output):
+def collect(family, number, start, end, output, ecb_statistics=False, exclude_output=None):
     from langid.langid import LanguageIdentifier, model
     identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
     load_dotenv(HERE.parent / ".env")
@@ -450,6 +539,14 @@ def collect(family, number, start, end, output):
     state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {"processed": {}, "errors": []}
     settings = {"family": family, "start": start, "end": end,
                 "extraction": "govuk-json-text-v1" if family == "govuk" else EXTRACTION_VERSION}
+    if ecb_statistics:
+        if family != "ecb":
+            raise ValueError("Statistical archive expansion is ECB-only")
+        settings.update(extraction=ECB_BINARY_EXTRACTION, ecb_statistics=list(ECB_STATISTICS))
+    exclusions = read_records(exclude_output) if exclude_output else []
+    if exclude_output:
+        settings["excluded_output"] = {"path": str(Path(exclude_output).resolve()),
+                                       "sha256": hashlib.sha256(Path(exclude_output).read_bytes()).hexdigest()}
     if family == "releases":
         settings["discovery_query"] = RELEASE_QUERY
     if state.get("settings", settings) != settings:
@@ -469,7 +566,10 @@ def collect(family, number, start, end, output):
         elif family == "fed":
             candidates = fed_candidates(http, start, end)
         elif family == "ecb":
-            candidates = ecb_candidates(http, start, end)
+            discovery_audit = [] if ecb_statistics else None
+            candidates = ecb_candidates(http, start, end, ecb_statistics, discovery_audit)
+            if discovery_audit is not None:
+                save(discovery_audit, output.with_suffix(".discovery.json"))
         elif family == "govuk":
             candidates = govuk_candidates(http, start, end)
         else:
@@ -485,6 +585,8 @@ def collect(family, number, start, end, output):
             state["processed"].setdefault(row["document_id"], "accepted")
     seen = {r.get("document_id") for r in existing}
     hashes = {body_hash(r) for r in existing}
+    excluded_ids = {r["document_id"] for r in exclusions}
+    excluded_hashes = {body_hash(r) for r in exclusions}
     added = len(existing)
     counts = Counter(state["processed"].values())
     with output.open("a", encoding="utf-8") as stream, ThreadPoolExecutor(max_workers=1) as worker:
@@ -494,6 +596,10 @@ def collect(family, number, start, end, output):
                 continue
             if added >= number:
                 break
+            if key in excluded_ids:
+                state["processed"][key] = "existing_corpus"
+                counts["existing_corpus"] += 1
+                continue
             try:
                 documents = sec_documents(candidate, family, http) if candidate["source"] == "sec" and not candidate.get("url") else [candidate]
                 accepted = 0
@@ -507,6 +613,8 @@ def collect(family, number, start, end, output):
                     if language != "en" or probability < 0.9:
                         raise ValueError("Non-English or uncertain language")
                     digest = body_hash(row)
+                    if digest in excluded_hashes:
+                        raise ValueError("Body duplicate of excluded original corpus")
                     if digest in hashes:
                         continue
                     row["provenance"]["language"] = {"label": language, "probability": probability}
@@ -531,7 +639,8 @@ def collect(family, number, start, end, output):
                 state.update(collected=added, outcomes=dict(counts))
                 save(state, state_path)
                 print(f"{family}: {added}/{number} documents; {dict(counts)}", flush=True)
-    state.update(collected=added, outcomes=dict(counts), exhausted=added < number)
+    state.update(collected=added, outcomes=dict(counts), exhausted=len(state["processed"]) == len(candidates),
+                 pending=len(candidates) - len(state["processed"]))
     save(state, state_path)
     print(f"Finished {family}: {added}/{number}; indexed {len(candidates)}", flush=True)
 
@@ -543,6 +652,8 @@ if __name__ == "__main__":
     parser.add_argument("--start", default="2019-01-01")
     parser.add_argument("--end", default="2026-09-30")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--ecb-statistics", action="store_true", help="Add the audited official ECB statistical HTML series")
+    parser.add_argument("--exclude-output", type=Path, help="Read-only original corpus; omit matching IDs and bodies")
     args = vars(parser.parse_args())
     if args["family"] in ("8k", "releases", "6k"):
         lock = HERE / "data/research/sec-collection.lock"

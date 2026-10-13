@@ -1,0 +1,59 @@
+{
+  "status": "Prepared cohorts; binary references not yet frozen; no new model findings",
+  "task_id": "binary-v2",
+  "labels": [
+    "routine",
+    "review_worthy"
+  ],
+  "original_study_commit": "27f4742604db6a9488da644b61b4c1bf2701a3f6",
+  "source_acquisition": {
+    "ecb_additions": 534,
+    "ecb_corpus_sha256": "aeb211bd3f6ff084c8aa698cb1916c2f0c97a673be2e68ec83b002c4639cd538",
+    "ecb_audit_sha256": "3baa93e0d250284ccc14f582db95590af6da0b95e1ec4f5dfee50299e0d7629c"
+  },
+  "prepared_counts": {
+    "train": 25000,
+    "selection": 1000,
+    "calibration": 500,
+    "test": 2000
+  },
+  "prepared_sources": {
+    "train": {
+      "govuk": 1173,
+      "sec": 20740,
+      "wikinews": 200,
+      "fed": 1712,
+      "ecb": 1175
+    },
+    "selection": {
+      "sec": 889,
+      "govuk": 37,
+      "fed": 44,
+      "ecb": 29,
+      "wikinews": 1
+    },
+    "calibration": {
+      "sec": 461,
+      "fed": 15,
+      "ecb": 12,
+      "govuk": 12
+    },
+    "test": {
+      "sec": 1870,
+      "fed": 55,
+      "govuk": 35,
+      "ecb": 40
+    }
+  },
+  "topup_membership_rule": "Original selection/calibration/test body and group identities retained; label-blind whole-group temporal additions",
+  "reference_rule": "Retain definite legacy references; Luna re-decides unclear and labels new selected bodies; 200-row training-only consistency audit",
+  "newly_selected_documents": {
+    "train": 509,
+    "selection": 163,
+    "calibration": 137,
+    "test": 200
+  },
+  "compute_limit_hours": 60,
+  "handoff_limit_hours": 72,
+  "incremental_label_cap_usd": 2
+}

@@ -1,0 +1,157 @@
+{
+  "status": "passed",
+  "task_id": "binary-v2",
+  "labels": [
+    "routine",
+    "review_worthy"
+  ],
+  "stage": "label-blind preparation; references not yet frozen",
+  "cohorts": {
+    "train": {
+      "documents": 25000,
+      "groups": 24696,
+      "new_documents": 509,
+      "sources": {
+        "govuk": 1173,
+        "sec": 20740,
+        "ecb": 1175,
+        "wikinews": 200,
+        "fed": 1712
+      },
+      "families": {
+        "news": 1373,
+        "8k": 6891,
+        "6k": 6955,
+        "releases": 6894,
+        "ecb": 1175,
+        "fed": 1712
+      },
+      "dates": {
+        "first": "2019-01-01",
+        "last": "2026-03-31"
+      },
+      "pending_by_basis": {
+        "binary_redecision": 2695,
+        "new_binary_label": 509
+      }
+    },
+    "selection": {
+      "documents": 1000,
+      "groups": 993,
+      "new_documents": 163,
+      "sources": {
+        "sec": 889,
+        "ecb": 29,
+        "govuk": 37,
+        "fed": 44,
+        "wikinews": 1
+      },
+      "families": {
+        "6k": 294,
+        "releases": 298,
+        "8k": 297,
+        "ecb": 29,
+        "news": 38,
+        "fed": 44
+      },
+      "dates": {
+        "first": "2026-04-01",
+        "last": "2026-06-30"
+      },
+      "pending_by_basis": {
+        "new_binary_label": 163,
+        "binary_redecision": 93
+      }
+    },
+    "calibration": {
+      "documents": 500,
+      "groups": 493,
+      "new_documents": 137,
+      "sources": {
+        "sec": 461,
+        "fed": 15,
+        "ecb": 12,
+        "govuk": 12
+      },
+      "families": {
+        "6k": 157,
+        "8k": 153,
+        "releases": 151,
+        "fed": 15,
+        "ecb": 12,
+        "news": 12
+      },
+      "dates": {
+        "first": "2026-04-01",
+        "last": "2026-06-30"
+      },
+      "pending_by_basis": {
+        "binary_redecision": 36,
+        "new_binary_label": 137
+      }
+    },
+    "test": {
+      "documents": 2000,
+      "groups": 1967,
+      "new_documents": 200,
+      "sources": {
+        "sec": 1870,
+        "fed": 55,
+        "ecb": 40,
+        "govuk": 35
+      },
+      "families": {
+        "8k": 622,
+        "6k": 625,
+        "releases": 623,
+        "fed": 55,
+        "ecb": 40,
+        "news": 35
+      },
+      "dates": {
+        "first": "2026-07-01",
+        "last": "2026-09-30"
+      },
+      "pending_by_basis": {
+        "binary_redecision": 207,
+        "new_binary_label": 200
+      }
+    }
+  },
+  "old_evaluation_body_group_maps_preserved": true,
+  "old_annotations_preserved": true,
+  "body_group_date_disjointness": true,
+  "training_replacement": {
+    "ecb_added": 509,
+    "sec_removed": 509,
+    "removed_whole_groups": 498
+  },
+  "new_labels_required": 1009,
+  "selected_old_unclear_redecisions_required": 3031,
+  "retained_consistency_audit_required": 200,
+  "source_tightening_did_not_change_prepared_input_bytes": true,
+  "prepared_sha256": "75759864d17c451948980b8178474a47a95a14bd9f2cd040e414a37180f701cb",
+  "prepared_input_sha256": {
+    "train": "13d692628a2843267f3a31e49592c46e39004bb3565cb6a4e0b2bf634a58ddf4",
+    "selection": "8001447352a9d17697babed2249888f43bbebe9aa9d2a6e7a23cf952fb43401e",
+    "calibration": "abeb411d8e4aa7a511958cc63d4e0320a7d922f2565aaeef19d03eaa5f700023",
+    "test": "cd6ce380ea495631af9a4d3ab6cf67a07bacf14baaea284e32bb52608ec72d25"
+  },
+  "source_sha256": "8021bc48f9ce26dd7de573daa03d7cb241c10d4f51612331220e6352686b7fd3",
+  "original_manifest_sha256": "336c29fc36c4f7678c6bae4a785d12ee4d6c6985fc8aba8d4a53efe172be6852",
+  "ecb_source_audit_sha256": "3baa93e0d250284ccc14f582db95590af6da0b95e1ec4f5dfee50299e0d7629c",
+  "candidate_audit": {
+    "indexed_unique_existing_or_legacy_bodies": 37643,
+    "new_candidates": 2635,
+    "verified_near_existing_exclusions": 22,
+    "clustered_candidates": 2613,
+    "exclusions": {
+      "existing_body_or_event": 3652,
+      "raw_event_cross_boundary": 0,
+      "verified_near_existing": 22,
+      "new_group_cross_boundary": 30
+    }
+  },
+  "audit_limits": "LSH candidate retrieval is probabilistic. New candidates checked against selected original cohorts and legacy bodies; original group audit inherited. Unselected raw corpora are not fully re-clustered.",
+  "test_reuse_warning": "Original three-class test outcomes were inspected; revised cohort is not fresh independent generalization evidence."
+}
