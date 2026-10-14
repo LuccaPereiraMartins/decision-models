@@ -1,5 +1,7 @@
 # Bounded binary financial-document triage study
 
+Current progress: [first 12-hour checkpoint](binary-checkpoint.md).
+
 This is a new, versioned study following the user-approved binary redesign. The
 three-class benchmark, trained artifacts, frozen results and published packages
 remain historical evidence. The new task has exactly `routine` and `review_worthy`;
