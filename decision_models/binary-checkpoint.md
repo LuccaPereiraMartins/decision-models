@@ -1,5 +1,28 @@
 # Binary study execution checkpoints
 
+## 14 October, 21:44 UTC (22:44 London): second 12-hour review
+
+The seven core development runs, both cheap classifier curves and FinBERT LoRA
+16k are complete: **12 completed runs**. Laya LoRA 16k completed its first epoch
+in **6.91 hours** and has reached **8,200/16,000** documents in its second pass.
+The pipeline, study controller and training process identities are verified;
+bound sources and runtime versions match. Its initial weights and predictions
+exactly match the 4k recipe. The first-epoch selection score is 0.8112, with
+62/717 review-reference misses; this is partial fitting evidence, not a result
+from the completed fit or test cohort.
+
+The current estimate is training completion on **15 October, 09:00–10:30 London**,
+controls and frozen evaluation later that morning, and a verified paper/evidence
+handoff around **16:00–18:00**. These remain estimates, especially the paper review.
+The compute cutoff and final handoff deadline remain 16 October as stated below.
+
+Labelling remains **$0.4430207 of the $2 cap**, with 4,302 completed requests,
+118 uncharged capacity rejections and no unresolved requests. The binary manifest
+still has its frozen identity, and all 77 original artifact hashes match again.
+The global model freeze and revised-cohort evaluation are still pending. Next:
+finish the admitted fit, run the preserved initial-state controls, freeze choices,
+evaluate once, and generate/inspect the concise LaTeX/PDF and CPU replay package.
+
 ## 14 October, 14:50 UTC (15:50 London)
 
 FinBERT LoRA 16k completed in **2.51 hours**, selecting epoch three. Independent
