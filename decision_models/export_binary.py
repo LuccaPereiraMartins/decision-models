@@ -48,6 +48,21 @@ def body_free(value):
             body_free(child)
 
 
+def controller_receipt(state, name):
+    record = {k: state["jobs"][name][k] for k in
+              ("status", "elapsed_seconds", "started_utc", "ended_utc") if k in state["jobs"][name]}
+    attempts = [row for row in state.get("attempts", []) if row["job"] == name]
+    record["attempts"] = attempts
+    completed = [row for row in attempts if row.get("exit_code") == 0]
+    if completed:
+        successful = completed[-1]["elapsed_seconds"]
+        prior = record["elapsed_seconds"] - successful
+        if prior < -1e-6:
+            raise ValueError(f"Attempt exceeds cumulative command time: {name}")
+        record.update(successful_attempt_seconds=successful, prior_attempt_seconds=max(0, prior))
+    return record
+
+
 def checkpoint_audit(directory, config):
     import torch
     receipts = {}
@@ -146,8 +161,7 @@ def export(splits, study, output):
                "complete": read(directory / "complete.json"), "performance": read(directory / "performance.json"),
                "selection": selected, "calibration": calibration, "test": test,
                "test_logits": [r["logits"] for r in scored],
-               "controller": {k: state["jobs"][name][k] for k in
-                              ("status", "elapsed_seconds", "started_utc", "ended_utc") if k in state["jobs"][name]}}
+               "controller": controller_receipt(state, name)}
         for filename in ("history.json", "search.json"):
             if (directory / filename).exists():
                 run[filename.removesuffix(".json")] = read(directory / filename)

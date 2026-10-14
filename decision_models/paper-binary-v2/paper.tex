@@ -81,7 +81,7 @@ we do not claim to introduce financial filtering, decision-model comparison
 or calibration analysis.
 
 Laya's English root checkpoint uses ModernBERT-large and a learned typed-decision
-head \citep{laya,modernbert}. FinBERT's financial sentiment pretraining
+head \citep{laya,modernbert}. FinBERT's adaptation to financial text and sentiment
 \citep{finbert} makes it a relevant industry comparator, but its sentiment head
 does not supply review labels. We use its encoder with a task classifier.
 LoRA \citep{lora} and temperature scaling \citep{guo} are established methods.
@@ -139,9 +139,8 @@ No 25,000-document LoRA run enters this study. Every learning-curve point also
 uses the same 1,500 development labels; training count is not total annotation cost.
 
 TF-IDF learns its vocabulary and transforms from training alone. Logistic
-regularization and class weighting are selected from a bounded grid using
-selection macro F1: $C\in\{0.001,0.01,0.1,1,10,30,100\}$ and either no class
-weighting or balanced weights. Each training size selects from this same grid.
+regularization and class weighting use the same bounded grid at each training
+size, selected by selection macro F1 (Appendix~\ref{sec:supporting}).
 Frozen FinBERT features are computed once and cached with
 body, recipe and source identities; encoding cost is reported separately from
 classifier fitting and cache reuse. Frozen encoder windows are averaged and
@@ -200,8 +199,9 @@ GPU jobs run serially on an NVIDIA RTX 3060 with 12 GiB GPU memory;
 CPU work uses an Intel Core i5-12400F. Warm inference includes tokenization/windowing and
 classification, excludes model loading, and uses the same 128 selection bodies.
 We retain each latency, mean/P95, batch-throughput denominator and peak allocated
-GPU memory. Neural fitting time and full command elapsed time are distinguished;
-frozen feature preparation/cache measurements accompany classifier fitting.
+GPU memory. Neural fitting time and successful command elapsed time are distinguished;
+interrupted attempts are accounted for separately.
+Frozen feature preparation/cache measurements accompany classifier fitting.
 Local timings on the recorded hardware do not estimate cloud prices, energy
 use or deployment service latency.
 
@@ -254,9 +254,12 @@ The earlier three-class study and its scientific bundles remain preserved.
 \clearpage
 \appendix
 \section{Supporting comparisons and provenance}
+\label{sec:supporting}
 The following tables support the main agreement/workload questions: recipes,
-pre-update controls, source support and fitting resources. Full calibration
-policies, descriptive length/reference-basis slices and per-document arithmetic
+pre-update controls and fitting resources. Full calibration policies,
+descriptive source/length/reference-basis slices and per-document arithmetic
 are retained in the public evidence package with their audit receipts.
+The linear grid uses $C\in\{0.001,\allowbreak0.01,\allowbreak0.1,\allowbreak1,\allowbreak10,\allowbreak30,\allowbreak100\}$
+and either no class weighting or balanced weights.
 \input{generated/supporting.tex}
 \end{document}

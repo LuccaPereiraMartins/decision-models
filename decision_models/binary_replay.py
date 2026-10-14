@@ -242,6 +242,15 @@ def verify(directory):
             check(decoded, run[field], f"{name}.{field}.export_identity")
         for filename, digest in run["configuration"]["source_sha256"].items():
             check(hashlib.sha256(source_archive.read(filename)).hexdigest(), digest, f"{name}.source.{filename}")
+        controller = run["controller"]
+        successful = [row for row in controller.get("attempts", []) if row.get("exit_code") == 0]
+        if successful:
+            times = [controller[k] for k in ("elapsed_seconds", "successful_attempt_seconds", "prior_attempt_seconds")]
+            if not np.isfinite(times).all() or min(times) < 0:
+                raise ValueError(f"Invalid command time: {name}")
+            check(successful[-1]["elapsed_seconds"], controller["successful_attempt_seconds"], f"{name}.successful_command_time")
+            check(controller["successful_attempt_seconds"] + controller["prior_attempt_seconds"],
+                  controller["elapsed_seconds"], f"{name}.cumulative_command_time")
         decision = run["decision"]
         if not np.exp(-3) <= decision["temperature"] <= np.exp(3):
             raise ValueError(f"Temperature outside fitting bounds: {name}")

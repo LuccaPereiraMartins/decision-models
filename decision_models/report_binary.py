@@ -131,9 +131,10 @@ def build(splits, study, output, paper):
              "We provide body-free evidence and independent CPU replay.")
     counts = bundle["benchmark_manifest"]["splits"]
     save_tex("data-table.tex", table("Frozen cohort support. The test retains 1,800 earlier bodies; reference labels are revised.",
-             "tab:data", ["Cohort", "Documents", "Routine", "Review", "Groups", "ECB"],
+             "tab:data", ["Cohort", "Documents", "Routine", "Review", "Groups", "SEC", "ECB"],
              [(key.title(), counts[key]["count"], counts[key]["labels"].get("routine",0), counts[key]["labels"].get("review_worthy",0),
-               len({row["group_id"] for row in bundle["cohorts"][key]}), counts[key]["sources"].get("ecb",0)) for key in counts]))
+               len({row["group_id"] for row in bundle["cohorts"][key]}), counts[key]["sources"].get("sec",0),
+               counts[key]["sources"].get("ecb",0)) for key in counts]))
     rows, policy_rows = [], []
     for key in core:
         run, score = runs[key], runs[key]["test"]["metrics"]["overall"]
@@ -214,7 +215,7 @@ def build(splits, study, output, paper):
              "Code and evidence are available in the \\href{https://github.com/LuccaPereiraMartins/systematic-trading}{study repository}. "
              f"The revised freeze identity is \\texttt{{{bundle['freeze_sha256'][:12]}}}; its full hash and source identities accompany the package.")
     supporting = []
-    controls, recipes, resources = [], [], []
+    controls, recipes, resources, prior_attempts = [], [], [], []
     for key, run in runs.items():
         c = run["configuration"]
         if run["entry"]["role"] == "control":
@@ -230,28 +231,25 @@ def build(splits, study, output, paper):
         recipes.append((name(run), size_label, str(context),
                         str(c.get("trainable_parameters","--")), str(run.get("history",{}).get("best_epoch","--"))))
         timing=run["performance"]
-        resources.append((name(run), size_label, number(run.get("controller",{}).get("elapsed_seconds"),1),
+        controller = run.get("controller", {})
+        resources.append((name(run), size_label, number(controller.get("successful_attempt_seconds"),1),
                           number(run.get("history",{}).get("seconds",c.get("fit_seconds")),1),
                           number(timing.get("training_peak_vram_bytes",0)/2**30,2), number(timing.get("peak_vram_bytes",0)/2**30,2)))
+        if controller.get("prior_attempt_seconds", 0) > 0:
+            prior_attempts.append(f"{name(run)} also used {number(controller['prior_attempt_seconds'],1)} seconds in prior interrupted attempts")
     supporting.append(table("Matched pre-update comparisons. The initial adapted pooling/head state is the control; it is distinct from native SDK inference. "
                             "Larger fixed recipes reuse a matched setup's pre-update control. Intervals are supplementary.",
                             "tab:controls", ["System", "Train", "Zero F1", "Fit F1", "$\\Delta$ F1 interval"], controls))
     supporting.append(table("Completed configurations. All neural recipes use seed 42 and at most three epochs; epoch zero is eligible. "
                             "A context limit includes task/model overhead, rather than denote full source coverage. All normalized source tokens are windowed.",
                             "tab:recipes", ["System", "Train", "Context", "Trainable", "Epoch"], recipes))
-    supporting.append(table("Recorded resources. Command time includes preparation, fitting and development evaluation; "
+    supporting.append(table("Recorded resources. Successful command time includes preparation, fitting and development evaluation; "
                             "fit time is the neural history duration or linear fit measurement. GPU columns use peak allocated GiB at each recorded stage; "
                             "resident fitting state/caches can contribute to the inference-stage peak. "
                             "Cached feature computation and optimizer-step details are retained in the public package.",
                             "tab:resources", ["System", "Train", "Command s", "Fit s", "Train GiB", "Infer GiB"], resources))
-    source_rows=[]
-    for source in sorted({row["source"] for row in bundle["cohorts"]["test"]}):
-        slices=[runs[key]["test"]["metrics"]["by_source"][source] for key in (reference,primary)]
-        source_rows.append((source.upper(),slices[0]["count"],slices[0]["per_class"]["review_worthy"]["support"],
-                            number(slices[0]["macro_f1"]),number(slices[1]["macro_f1"]),slices[0]["false_negatives"],slices[1]["false_negatives"]))
-    supporting.append(table("Descriptive source support for the fixed primary pair. Both class labels stay fixed within slices; "
-                            "missing-class support limits attainable macro F1. Source and length are confounded, and small-source results do not establish generalization.",
-                            "tab:sources", ["Source", "$n$", "Review", "TF F1", "Laya F1", "TF FN", "Laya FN"], source_rows))
+    if prior_attempts:
+        supporting.append("; ".join(prior_attempts) + ". These attempts are excluded from the successful-command column; cumulative elapsed time and attempt receipts remain in the evidence package.")
     save_tex("supporting.tex", "\n\n".join(supporting))
     plot(bundle, figures, freeze)
     write(output / "manuscript-inputs.json", {"status": "generated_from_cpu_replayed_results; PDF review pending",
