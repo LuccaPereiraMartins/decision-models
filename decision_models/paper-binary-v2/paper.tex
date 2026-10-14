@@ -161,7 +161,8 @@ change to weight updates.
 Laya adaptation uses a 1,024-token context and FinBERT uses 512. Overlapping
 windows cover all normalized source tokens, and uniform window-logit pooling
 gives one document-level prediction and loss. No window labels are inferred.
-The native Laya SDK uses its own long-document aggregation, so it differs from
+The native Laya SDK limits GPU passes to eight windows, retaining its own
+long-document aggregation, so it differs from
 adapted Laya in pooling as well as fitting. Architectures, parameter counts,
 pretraining objectives and classifier recipes differ across systems; those
 comparisons cannot isolate finance pretraining or LoRA as a sole cause.

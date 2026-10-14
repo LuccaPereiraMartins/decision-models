@@ -1,0 +1,71 @@
+{
+  "reason": "Unbounded native SDK window batches exhausted GPU memory on development content and triggered CPU fallback. That partial attempt was excluded and preserved before model freeze/test.",
+  "setting": "Native predict_long batch_size=8, same full-source windowing/aggregation; reject observed CPU fallback",
+  "validation": {
+    "status": "passed",
+    "test_access": false,
+    "optimizer_updates": 0,
+    "source_sha256": "08700ff1d97b01368a284c6d632cc50921dde89aa306e6b28917ab0a19a58e1a",
+    "pid": 12224,
+    "documents": [
+      {
+        "body_sha256": "cc6e80e41f87814b8ac62d1742fe813a7d3d6bf3a03fb029a7b20a35c45ae167",
+        "characters": 481
+      },
+      {
+        "body_sha256": "adbc9fd4835121dd705ca1128ebce47c558d9292e23e7ae41345dd70c36f2727",
+        "characters": 1063329
+      }
+    ],
+    "results": [
+      {
+        "body_sha256": "cc6e80e41f87814b8ac62d1742fe813a7d3d6bf3a03fb029a7b20a35c45ae167",
+        "variants": {
+          "8": {
+            "logits": [
+              -0.976571662759085,
+              -0.4725669116489004
+            ],
+            "seconds": 0.6386639000847936,
+            "peak_vram_bytes": 2426429952
+          },
+          "1": {
+            "logits": [
+              -0.976571662759085,
+              -0.4725669116489004
+            ],
+            "seconds": 0.03175810002721846,
+            "peak_vram_bytes": 2427818496
+          }
+        },
+        "maximum_probability_gap": 0.0
+      },
+      {
+        "body_sha256": "adbc9fd4835121dd705ca1128ebce47c558d9292e23e7ae41345dd70c36f2727",
+        "variants": {
+          "8": {
+            "logits": [
+              -2.332013903684858,
+              -0.10214347366870352
+            ],
+            "seconds": 38.634427599958144,
+            "peak_vram_bytes": 2522961408
+          },
+          "1": {
+            "logits": [
+              -2.3351082846996056,
+              -0.10181126614668479
+            ],
+            "seconds": 57.795928100007586,
+            "peak_vram_bytes": 2435699200
+          }
+        },
+        "maximum_probability_gap": 0.00029999999999998084
+      }
+    ],
+    "cpu_fallback_count": 0,
+    "all_normalized_source_windows_retained": true
+  },
+  "three_completed_baseline_hashes_unchanged": true,
+  "revised_test_not_evaluated": true
+}

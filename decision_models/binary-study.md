@@ -63,6 +63,13 @@ Run GPU jobs serially by default, with independent CPU work overlapping where us
 Resource timing must not overlap competing workloads. Do not launch the old full matrix,
 25k LoRA, other encoders, generative LLMs, extra seeds/context sweeps or RL/RLCD.
 
+Native SDK inference caps each GPU pass at eight windows while retaining its normal
+whole-document windowing and most-confident aggregation. The uncapped development
+attempt triggered GPU-to-CPU fallback and was preserved/excluded before evaluation.
+Binary SDK calls reject observed CPU fallback, so GPU resource measurements cannot
+silently include it. This batching correction changes memory use, not the selected
+cohorts, source coverage or model-selection rule.
+
 ## Evaluation and paper
 
 Primary endpoint: two-class macro F1. Also report review precision/recall, false negatives

@@ -22,11 +22,22 @@ class BaseLaya:
         if config["questions"] != task_questions(self.labels):
             raise ValueError("SDK questions disagree with the declared task")
         self.device = device
+        self.window_batch = config.get("sdk_window_batch", 8 if self.labels == BINARY_LABELS else None)
+        if self.window_batch is not None and (isinstance(self.window_batch, bool) or not isinstance(self.window_batch, int) or self.window_batch < 1):
+            raise ValueError("SDK window batch must be a positive integer")
         warnings.filterwarnings("ignore", message=r"laya:.*invalid temperatures")
         self.agent = laya.load(config["model"], device=device, revision=config["revision"])
 
     def answers(self, bodies):
-        return [self.agent.predict_long(body, self.config["questions"])["answers"]["triage"] for body in bodies]
+        answers = []
+        options = {"batch_size": self.window_batch} if self.window_batch is not None else {}
+        for body in bodies:
+            before = getattr(self.agent, "cpu_fallback_count", 0)
+            result = self.agent.predict_long(body, self.config["questions"], **options)
+            if self.labels == BINARY_LABELS and self.device == "cuda" and getattr(self.agent, "cpu_fallback_count", 0) != before:
+                raise RuntimeError("Native SDK used CPU fallback; preserve the attempt rather than report GPU measurements")
+            answers.append(result["answers"]["triage"])
+        return answers
 
     def logits(self, bodies):
         vectors = []
@@ -57,6 +68,8 @@ def fit(args):
               "selection": "Unadapted SDK reference, no training", "api_cost_usd": 0.0}
     if labels == BINARY_LABELS:
         config["task_id"] = BINARY_TASK
+        config["sdk_window_batch"] = 8
+        config["fallback_policy"] = "A GPU-to-CPU fallback fails the binary run; it cannot be reported as GPU inference"
     if kind != "laya":
         from causal import MODELS
         files += ("causal.py", "label.py")
@@ -100,6 +113,7 @@ def fit(args):
     base = {key: config[key] for key in ("model", "revision", "questions", "context", "pooling", "source_sha256")}
     if labels == BINARY_LABELS:
         base.update(task_id=BINARY_TASK, labels=list(labels))
+        base.update(sdk_window_batch=config["sdk_window_batch"], fallback_policy=config["fallback_policy"])
     save(base, args.output / "base.json")
     config["artifact_sha256"] = fingerprint(args.output / "base.json")
     save(config, args.output / "config.json")
@@ -142,6 +156,9 @@ def fit(args):
                     peak_vram_bytes=torch.cuda.max_memory_allocated() if args.device == "cuda" else 0,
                     elapsed_seconds=time.perf_counter() - started,
                     cost_note="Local compute; pinned base weights, electricity and hardware are additional")
+    if labels == BINARY_LABELS:
+        measured.update(sdk_window_batch=config["sdk_window_batch"], cpu_fallback_count=runtime.agent.cpu_fallback_count,
+                        batch_definition="Serial documents; native most-confident aggregation; at most eight windows per GPU pass")
     save(measured, args.output / "performance.json")
     save({"config_sha256": fingerprint(args.output / "config.json"), "decision_sha256": fingerprint(args.output / "decision.json"),
           "artifact_sha256": fingerprint(args.output / "base.json")}, args.output / "complete.json")
