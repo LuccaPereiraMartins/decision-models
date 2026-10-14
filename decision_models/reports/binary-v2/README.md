@@ -40,3 +40,10 @@ no completed reference was changed.
 The planned published `verify.py` requires Python and NumPy, with no model runtime,
 GPU, source bodies or API access. Exact rendering/fitting environments and source
 archives will accompany completed results.
+
+The completed package will also retain exact body-free run metadata in
+`metadata.zip`. Replay checks its original bytes against the model freeze, then
+compares decoded configurations, decisions and measurements with the exported
+evidence. Source files are independently checked against each run's hashes.
+This binds the numerical replay to the recorded artifacts, including file-format
+and line-ending identity.

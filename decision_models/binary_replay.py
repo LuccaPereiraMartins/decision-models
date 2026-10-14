@@ -5,6 +5,7 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+import zipfile
 
 import numpy as np
 
@@ -224,8 +225,23 @@ def verify(directory):
     check(subsets["25000"][:16000], subsets["16000"], "nested_16k")
     check(set(bundle["runs"]), set(bundle["results"]["models"]), "complete_models")
     predictions, timing_sample = {}, None
+    metadata_archive = zipfile.ZipFile(directory / "metadata.zip")
+    source_archive = zipfile.ZipFile(directory / "source.zip")
     for name, run in bundle["runs"].items():
         check(run["entry"], freeze["entries"][name], f"{name}.frozen_entry")
+        for filename, field in (("config.json", "configuration"), ("decision.json", "decision"),
+                                ("complete.json", "complete"), ("performance.json", "performance"),
+                                ("selection.json", "selection"), ("calibration.json", "calibration")):
+            raw = metadata_archive.read(f"{name}/{filename}")
+            if filename in run["entry"].get("sha256", {}):
+                check(hashlib.sha256(raw).hexdigest(), run["entry"]["sha256"][filename], f"{name}.{filename}.frozen_bytes")
+            decoded = json.loads(raw)
+            if filename == "config.json":
+                if "split_manifest" in decoded:
+                    check(decoded.pop("split_manifest"), bundle["benchmark_manifest"], f"{name}.benchmark_identity")
+            check(decoded, run[field], f"{name}.{field}.export_identity")
+        for filename, digest in run["configuration"]["source_sha256"].items():
+            check(hashlib.sha256(source_archive.read(filename)).hexdigest(), digest, f"{name}.source.{filename}")
         decision = run["decision"]
         if not np.exp(-3) <= decision["temperature"] <= np.exp(3):
             raise ValueError(f"Temperature outside fitting bounds: {name}")
@@ -265,11 +281,14 @@ def verify(directory):
             raise ValueError(f"Invalid timing measurements: {name}")
         for key, value in (("mean", latencies.mean()), ("p50", np.quantile(latencies, .5)), ("p95", np.quantile(latencies, .95))):
             check(float(value), performance["latency_seconds"][key], f"{name}.latency.{key}")
+        check(len(set(performance["sample"])), performance["documents"], f"{name}.unique_timing_sample")
         if timing_sample is None:
-            timing_sample = set(performance["sample"])
-        check(set(performance["sample"]), timing_sample, f"{name}.timing_sample")
+            timing_sample = performance["sample"]
+        check(performance["sample"], timing_sample, f"{name}.ordered_timing_sample")
         for value in performance["batch_throughput"].values():
             check(performance["documents"] / value["seconds"], value["documents_per_second"], f"{name}.throughput")
+    metadata_archive.close()
+    source_archive.close()
     replay_bootstrap(predictions, bundle["bootstrap"])
     if "descriptive" in bundle:
         diagnostic = bundle["descriptive"]

@@ -181,6 +181,14 @@ def export(splits, study, output):
     (output / "evidence.json.gz").write_bytes(gzip.compress(payload, mtime=0))
     shutil.copyfile(HERE / "binary_replay.py", output / "verify.py")
     shutil.copyfile(study / "freeze.json", output / "freeze.json")
+    with zipfile.ZipFile(output / "metadata.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name, entry in freeze["entries"].items():
+            directory = study / entry["directory"]
+            for filename in ("config.json", "decision.json", "complete.json", "performance.json", "selection.json", "calibration.json"):
+                body_free(read(directory / filename))
+                item = zipfile.ZipInfo(f"{name}/{filename}", date_time=(1980, 1, 1, 0, 0, 0))
+                item.compress_type = zipfile.ZIP_DEFLATED
+                archive.writestr(item, (directory / filename).read_bytes())
     write(output / "export-audit.json", {"status": "local_frozen_identity_checks_passed", "runs": local_audits,
                                           "source_sha256": sources, "exporter_sha256": fingerprint(Path(__file__))})
     with zipfile.ZipFile(output / "source.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -197,7 +205,7 @@ def export(splits, study, output):
                 item.compress_type = zipfile.ZIP_DEFLATED
                 archive.writestr(item, snapshot.read_bytes())
     (output / ".gitattributes").write_bytes(b"* -text\n")
-    files = ("evidence.json.gz", "verify.py", "freeze.json", "export-audit.json", "source.zip")
+    files = ("evidence.json.gz", "verify.py", "freeze.json", "export-audit.json", "source.zip", "metadata.zip")
     write(output / "package-manifest.json", {"task_id": "binary-v2", "freeze_sha256": bundle["freeze_sha256"],
           "files": {name: fingerprint(output / name) for name in files},
           "limits": "CPU arithmetic replay; exact fitting needs the local frozen bodies, checkpoints and pinned pretrained weights"})
