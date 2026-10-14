@@ -6,6 +6,7 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+from urllib.parse import urlsplit
 import zipfile
 
 import numpy as np
@@ -211,6 +212,7 @@ def verify(directory):
     freeze = json.loads((directory / "freeze.json").read_text(encoding="utf-8"))
     check(hashlib.sha256((directory / "freeze.json").read_bytes()).hexdigest(), manifest["freeze_sha256"], "exact_freeze_bytes")
     check(set(freeze["entries"]), set(bundle["runs"]), "frozen_models")
+    check(bundle["benchmark_manifest"], freeze["manifest"], "benchmark_manifest_identity")
     check(bundle["task_id"], "binary-v2")
     check(bundle["labels"], list(LABELS))
     check(bundle["freeze_sha256"], manifest["freeze_sha256"])
@@ -239,6 +241,32 @@ def verify(directory):
     predictions, timing_sample = {}, None
     metadata_archive = zipfile.ZipFile(directory / "metadata.zip")
     source_archive = zipfile.ZipFile(directory / "source.zip")
+    documents = {r["body_sha256"]: (cohort, r) for cohort, rows in bundle["cohorts"].items() for r in rows}
+    check(set(bundle["document_sources"]), set(documents), "source_link_coverage")
+    legacy = None
+    for digest, link in bundle["document_sources"].items():
+        parsed = urlsplit(link["url"])
+        if not link["document_id"] or parsed.scheme not in ("http", "https") or not parsed.netloc:
+            raise ValueError("Invalid public source identifier")
+        if link["scope"] == "legacy_parent_submission":
+            if legacy is None:
+                raw = metadata_archive.read("preparation/legacy-events.json")
+                key = bundle["benchmark_manifest"]["prepared"]["settings"]["legacy_events"]
+                check(hashlib.sha256(raw).hexdigest(), bundle["benchmark_manifest"]["prepared"]["inputs"][key], "legacy_registry_frozen_bytes")
+                legacy = json.loads(raw)
+                check(legacy["status"], "complete", "legacy_registry_status")
+            cohort, row = documents[digest]
+            info = legacy["events"][link["document_id"]]
+            check((cohort, info["legacy_body_sha256"], info["date"]), ("train", digest, row["date"]), "legacy_link_identity")
+            accession = link["document_id"].removeprefix("sec:")
+            parts = parsed.path.split("/")
+            check((parsed.scheme, parsed.netloc, parts[:4], parts[-2:]),
+                  ("https", "www.sec.gov", ["", "Archives", "edgar", "data"], [accession.replace("-", ""), accession + ".txt"]),
+                  "legacy_submission_url")
+            if len(parts) != 7 or not info["cache_file"].startswith(f"Archives-edgar-data-{parts[4]}-{parts[5]}-{parts[6]}-"):
+                raise ValueError("SEC source URL and retained cache path differ")
+        else:
+            check(link["scope"], "captured_source", "source_link_scope")
     for name, run in bundle["runs"].items():
         check(run["entry"], freeze["entries"][name], f"{name}.frozen_entry")
         for filename, field in (("config.json", "configuration"), ("decision.json", "decision"),

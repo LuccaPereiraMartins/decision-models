@@ -53,3 +53,11 @@ provenance receipts, training composition and the replay receipt. Replay rejects
 unlisted files and independently checks nested subset membership, ordered
 training/reference hashes and source/class/character totals at each training size.
 The renderer reseals the package after adding its manuscript-input receipt.
+
+Public document IDs and source URLs will accompany each body hash. The 350
+retained training rows without those fields resolve by exact body hash through
+the frozen legacy filing registry. Their links identify parent SEC submissions;
+the captured training text uses edgartools extraction. Exact registry bytes are
+included in `metadata.zip` and checked against the preparation input hash.
+Live source pages may differ from the captured historical text. Bodies, labels,
+cohort membership and model inputs are unchanged by this metadata export.

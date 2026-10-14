@@ -1,12 +1,14 @@
 """Publish verified binary results without exporting document bodies or model weights."""
 
 import argparse
+import ast
 from collections import Counter
 import gzip
 import hashlib
 import json
 from pathlib import Path
 import random
+import re
 import shutil
 import zipfile
 
@@ -35,6 +37,21 @@ def seal_package(output, freeze_sha256):
           "limits": "CPU arithmetic replay; exact fitting needs the local frozen bodies, checkpoints and pinned pretrained weights"})
 
 
+def local_sources(filenames):
+    found, pending = set(filenames), list(filenames)
+    while pending:
+        tree = ast.parse((HERE / pending.pop()).read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            modules = [alias.name for alias in node.names] if isinstance(node, ast.Import) else (
+                [node.module] if isinstance(node, ast.ImportFrom) and node.module else [])
+            for module in modules:
+                filename = module.split(".")[0] + ".py"
+                if (HERE / filename).is_file() and filename not in found:
+                    found.add(filename)
+                    pending.append(filename)
+    return sorted(found)
+
+
 def metadata(row):
     return {"body_sha256": body_hash(row), "group_id": row["group_id"], "date": row["date"],
             "source": row.get("source", "sec"), "family": family(row),
@@ -43,6 +60,39 @@ def metadata(row):
             "reference_source": "human" if row["human"]["label"] is not None else "teacher",
             "teacher_uncertainty": row["llm"].get("uncertainty"),
             "reference_basis": row["reference_protocol"]["basis"]}
+
+
+def document_sources(records, manifest):
+    registry, path, links = None, None, {}
+    for cohort, rows in records.items():
+        for row in rows:
+            digest = body_hash(row)
+            if row.get("document_id") and row.get("url"):
+                link = {"document_id": row["document_id"], "url": row["url"], "scope": "captured_source"}
+            else:
+                if cohort != "train":
+                    raise ValueError("Evaluation source identifiers are missing")
+                if registry is None:
+                    path = HERE / "data/research/legacy-events/events.json"
+                    key = manifest["prepared"]["settings"]["legacy_events"]
+                    check(fingerprint(path), manifest["prepared"]["inputs"][key], "legacy_registry_identity")
+                    value = read(path)
+                    check(value["status"], "complete", "legacy_registry_status")
+                    registry = {info["legacy_body_sha256"]: (event, info) for event, info in value["events"].items()}
+                    check(len(registry), len(value["events"]), "unique_legacy_links")
+                event, info = registry[digest]
+                match = re.fullmatch(r"Archives-edgar-data-(\d+)-(\d{18})-(\d{10}-\d{2}-\d{6})\.txt-[0-9a-f]+", info["cache_file"])
+                if not match:
+                    raise ValueError(f"Unrecognized retained submission path: {event}")
+                cik, directory, accession = match.groups()
+                check(("sec:" + accession, accession.replace("-", ""), info["date"]),
+                      (event, directory, row["date"]), "legacy_source_identity")
+                link = {"document_id": event, "url": f"https://www.sec.gov/Archives/edgar/data/{cik}/{directory}/{accession}.txt",
+                        "scope": "legacy_parent_submission"}
+            if not link["url"].startswith(("https://", "http://")) or digest in links:
+                raise ValueError("Source URL is invalid or a body occurs in multiple cohorts")
+            links[digest] = link
+    return links, path
 
 
 def body_free(value):
@@ -130,6 +180,7 @@ def export(splits, study, output):
     check({name: len(rows) for name, rows in records.items()},
           {"train": 25000, "selection": 1000, "calibration": 500, "test": 2000}, "counts")
     cohorts = {name: [metadata(r) for r in rows] for name, rows in records.items()}
+    links, legacy_path = document_sources(records, freeze["manifest"])
     subsets = read(splits / "subsets.json")
     by_hash = {r["body_sha256"]: r for r in cohorts["train"]}
     runs, local_audits, sources = {}, {}, {}
@@ -191,6 +242,7 @@ def export(splits, study, output):
                   f"{name}.zero_artifact")
     bundle = {"task_id": "binary-v2", "labels": list(LABELS), "freeze_sha256": fingerprint(study / "freeze.json"),
               "benchmark_manifest": freeze["manifest"], "cohorts": cohorts, "subsets": subsets,
+              "document_sources": links,
               "runs": runs, "bootstrap": statistics, "results": results, "schedule": state.get("laya_16k_gate",{})}
     evidence_receipts = ("cohort-freeze.json", "input-archive.json", "label-source-lineage.json",
                          "audit-membership-correction.json", "sdk-memory-correction.json")
@@ -204,6 +256,11 @@ def export(splits, study, output):
     shutil.copyfile(HERE / "binary_replay.py", output / "verify.py")
     shutil.copyfile(study / "freeze.json", output / "freeze.json")
     with zipfile.ZipFile(output / "metadata.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        if legacy_path is not None:
+            body_free(read(legacy_path))
+            item = zipfile.ZipInfo("preparation/legacy-events.json", date_time=(1980, 1, 1, 0, 0, 0))
+            item.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(item, legacy_path.read_bytes())
         for name, entry in freeze["entries"].items():
             directory = study / entry["directory"]
             for filename in ("config.json", "decision.json", "complete.json", "performance.json", "selection.json", "calibration.json"):
@@ -214,7 +271,8 @@ def export(splits, study, output):
     write(output / "export-audit.json", {"status": "local_frozen_identity_checks_passed", "runs": local_audits,
                                           "source_sha256": sources, "exporter_sha256": fingerprint(Path(__file__))})
     with zipfile.ZipFile(output / "source.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for filename in sorted({*sources, "export_binary.py", "binary_replay.py", "report_binary.py", "study_binary.py", "binary_pipeline.py", "prepare_binary.py", "label.py"}):
+        for filename in local_sources({*sources, "export_binary.py", "binary_replay.py", "report_binary.py", "study_binary.py",
+                                       "binary_pipeline.py", "prepare_binary.py", "label.py", "evaluate_study.py"}):
             item = zipfile.ZipInfo(filename, date_time=(1980, 1, 1, 0, 0, 0))
             item.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(item, (HERE / filename).read_bytes())
