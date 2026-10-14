@@ -47,3 +47,9 @@ compares decoded configurations, decisions and measurements with the exported
 evidence. Source files are independently checked against each run's hashes.
 This binds the numerical replay to the recorded artifacts, including file-format
 and line-ending identity.
+
+The package manifest will cover every published file in this directory, including
+provenance receipts, training composition and the replay receipt. Replay rejects
+unlisted files and independently checks nested subset membership, ordered
+training/reference hashes and source/class/character totals at each training size.
+The renderer reseals the package after adding its manuscript-input receipt.

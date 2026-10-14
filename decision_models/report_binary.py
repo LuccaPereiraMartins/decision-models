@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from export_binary import export, read, write
+from export_binary import export, read, seal_package, write
 from protocol import fingerprint
 from schemas import HERE
 
@@ -257,6 +257,7 @@ def build(splits, study, output, paper):
           "renderer_sha256": fingerprint(Path(__file__)),
           "generated_files": {str(path.relative_to(paper)):fingerprint(path) for path in sorted(paper.rglob("*"))
                               if path.is_file() and path.suffix in (".tex", ".png")}})
+    seal_package(output, bundle["freeze_sha256"])
     return {"core_systems":len(core),"completed_comparisons":len(runs),"status":"manuscript source generated; PDF checks pending"}
 
 

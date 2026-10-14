@@ -1,6 +1,7 @@
 """Independent CPU arithmetic for the body-free binary evidence package."""
 
 import argparse
+from collections import Counter
 import gzip
 import hashlib
 import json
@@ -201,6 +202,8 @@ def replay_bootstrap(predictions, expected):
 
 def verify(directory):
     manifest = json.loads((directory / "package-manifest.json").read_text(encoding="utf-8"))
+    check(set(manifest["files"]), {p.name for p in directory.iterdir() if p.is_file() and p.name != "package-manifest.json"},
+          "package_file_coverage")
     for name, digest in manifest["files"].items():
         if hashlib.sha256((directory / name).read_bytes()).hexdigest() != digest:
             raise ValueError(f"Package file changed: {name}")
@@ -223,6 +226,15 @@ def verify(directory):
     subsets = bundle["subsets"]["subsets"]
     check(subsets["16000"][:4000], subsets["4000"], "nested_4k")
     check(subsets["25000"][:16000], subsets["16000"], "nested_16k")
+    train = {row["body_sha256"]: row for row in bundle["cohorts"]["train"]}
+    composition = json.loads((directory / "training-composition.json").read_text(encoding="utf-8"))
+    for size, identities in subsets.items():
+        check(len(identities), int(size), f"training_size.{size}")
+        check(len(set(identities)), len(identities), f"unique_training_subset.{size}")
+        rows = [train[key] for key in identities]
+        check({"documents": len(rows), "characters": sum(row["characters"] for row in rows),
+               "sources": dict(Counter(row["source"] for row in rows)),
+               "labels": dict(Counter(row["reference"] for row in rows))}, composition[size], f"training_composition.{size}")
     check(set(bundle["runs"]), set(bundle["results"]["models"]), "complete_models")
     predictions, timing_sample = {}, None
     metadata_archive = zipfile.ZipFile(directory / "metadata.zip")
@@ -242,6 +254,11 @@ def verify(directory):
             check(decoded, run[field], f"{name}.{field}.export_identity")
         for filename, digest in run["configuration"]["source_sha256"].items():
             check(hashlib.sha256(source_archive.read(filename)).hexdigest(), digest, f"{name}.source.{filename}")
+        config = run["configuration"]
+        if config["family"] in ("research_linear", "research_neural"):
+            identity = [(key, train[key]["reference"]) for key in subsets[str(config["samples"])]]
+            check(hashlib.sha256(json.dumps(identity).encode()).hexdigest(),
+                  config["train_subset_sha256"], f"{name}.ordered_training_identity")
         controller = run["controller"]
         successful = [row for row in controller.get("attempts", []) if row.get("exit_code") == 0]
         if successful:

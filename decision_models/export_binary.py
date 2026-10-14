@@ -27,6 +27,14 @@ def write(path, value):
     path.write_bytes((json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode())
 
 
+def seal_package(output, freeze_sha256):
+    files = sorted(p for p in output.iterdir() if p.is_file() and p.name != "package-manifest.json")
+    write(output / "package-manifest.json", {
+          "task_id": "binary-v2", "freeze_sha256": freeze_sha256,
+          "files": {p.name: fingerprint(p) for p in files},
+          "limits": "CPU arithmetic replay; exact fitting needs the local frozen bodies, checkpoints and pinned pretrained weights"})
+
+
 def metadata(row):
     return {"body_sha256": body_hash(row), "group_id": row["group_id"], "date": row["date"],
             "source": row.get("source", "sec"), "family": family(row),
@@ -219,12 +227,6 @@ def export(splits, study, output):
                 item.compress_type = zipfile.ZIP_DEFLATED
                 archive.writestr(item, snapshot.read_bytes())
     (output / ".gitattributes").write_bytes(b"* -text\n")
-    files = ("evidence.json.gz", "verify.py", "freeze.json", "export-audit.json", "source.zip", "metadata.zip")
-    write(output / "package-manifest.json", {"task_id": "binary-v2", "freeze_sha256": bundle["freeze_sha256"],
-          "files": {name: fingerprint(output / name) for name in files},
-          "limits": "CPU arithmetic replay; exact fitting needs the local frozen bodies, checkpoints and pinned pretrained weights"})
-    receipt = replay(output)
-    write(output / "cpu-replay.json", receipt)
     composition = {}
     for size, hashes in subsets["subsets"].items():
         rows = [by_hash[h] for h in hashes]
@@ -232,6 +234,10 @@ def export(splits, study, output):
                              "sources": dict(Counter(r["source"] for r in rows)),
                              "labels": dict(Counter(r["reference"] for r in rows))}
     write(output / "training-composition.json", composition)
+    seal_package(output, bundle["freeze_sha256"])
+    receipt = replay(output)
+    write(output / "cpu-replay.json", receipt)
+    seal_package(output, bundle["freeze_sha256"])
     return receipt
 
 
