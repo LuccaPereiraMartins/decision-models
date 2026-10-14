@@ -24,6 +24,11 @@ checkpoints and pinned pretrained weights. The final public package will not
 include source bodies or weights. Source rights and attribution remain in
 [sources.md](../../sources.md).
 
+[The local input-archive receipt](input-archive.json) binds an exact six-file
+archive containing the four labeled cohorts, manifest and nested subsets.
+Every archived member was compared byte-for-byte with its frozen input. The
+archive contains bodies and is deliberately excluded from the public package.
+
 The training-only consistency audit remains balanced at 100 original routine
 and 100 original review-worthy references. Before that queue started, four
 documents removed by the ECB training replacements were substituted from current

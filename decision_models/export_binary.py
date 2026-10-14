@@ -170,6 +170,9 @@ def export(splits, study, output):
     bundle = {"task_id": "binary-v2", "labels": list(LABELS), "freeze_sha256": fingerprint(study / "freeze.json"),
               "benchmark_manifest": freeze["manifest"], "cohorts": cohorts, "subsets": subsets,
               "runs": runs, "bootstrap": statistics, "results": results, "schedule": state.get("laya_16k_gate",{})}
+    evidence_receipts = ("cohort-freeze.json", "input-archive.json", "label-source-lineage.json",
+                         "audit-membership-correction.json", "sdk-memory-correction.json")
+    bundle["provenance_receipts"] = {name: read(output / name) for name in evidence_receipts if (output / name).exists()}
     if (output / "diagnostic-plan.json").exists():
         bundle["descriptive"] = diagnostics(bundle, freeze, read(output / "diagnostic-plan.json"))
     body_free(bundle)
@@ -185,6 +188,14 @@ def export(splits, study, output):
             item = zipfile.ZipInfo(filename, date_time=(1980, 1, 1, 0, 0, 0))
             item.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(item, (HERE / filename).read_bytes())
+        lineage = bundle["provenance_receipts"].get("label-source-lineage.json", {})
+        for versions in (lineage.get("initial_redecision_loaded_sources", {}), lineage.get("later_worker_sources", {})):
+            for filename, digest in versions.items():
+                snapshot = HERE / "data/research/binary-v2-labels" / f"{Path(filename).stem}-source-{digest[:12]}.py"
+                check(fingerprint(snapshot), digest, f"label_source_snapshot.{filename}")
+                item = zipfile.ZipInfo(f"label-history/{snapshot.name}", date_time=(1980, 1, 1, 0, 0, 0))
+                item.compress_type = zipfile.ZIP_DEFLATED
+                archive.writestr(item, snapshot.read_bytes())
     (output / ".gitattributes").write_bytes(b"* -text\n")
     files = ("evidence.json.gz", "verify.py", "freeze.json", "export-audit.json", "source.zip")
     write(output / "package-manifest.json", {"task_id": "binary-v2", "freeze_sha256": bundle["freeze_sha256"],

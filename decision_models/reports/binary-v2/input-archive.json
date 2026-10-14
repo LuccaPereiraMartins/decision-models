@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "private_archive": "decision_models/data/research/binary-v2/benchmark-inputs.zip",
+  "archive_sha256": "0aef51d51cb16b7307c06c88e8e54b93bd72cdff15d4898cc4ad110831319ea1",
+  "archive_bytes": 135517869,
+  "members": {
+    "train.jsonl": "a5371dd3451315fcde502ac81d27e27f4b7136bfdd51157bf927a4618effb78e",
+    "selection.jsonl": "41bf3ace2afb4081b23f6ff92749b66fe9e128c68fd9d1a7be43061fa397456b",
+    "calibration.jsonl": "156eef5cb204ebb1e7e29e8023e5c29b6f4585cb6131385d97089a69e6a53c55",
+    "test.jsonl": "63a333523819d5c907c9a22d70396d69a4b766f05f6c907a3de013a96c291f10",
+    "manifest.json": "65a0fac98bcc8a6e79d53ebfaf8c43d2ef6d49a03ac3ff8a34181c2eba577ed5",
+    "subsets.json": "f372793c48a3dbfa1a37030fdddc2e6345624265847d3850e3fb4bc3eee9b1d1"
+  },
+  "verified_utc": "2026-10-14T00:26:30.914528+00:00",
+  "availability": "Exact labeled inputs retained locally; bodies excluded from Git/public evidence. Preserve source rights and attribution with any transfer.",
+  "scope": "Four frozen cohorts plus their manifest and nested subsets; no collection or relabelling is needed for fitting replay."
+}
