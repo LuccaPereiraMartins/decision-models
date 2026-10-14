@@ -1,0 +1,166 @@
+{
+  "status": "binary references frozen; bounded model study started; revised-cohort results pending",
+  "task_id": "binary-v2",
+  "labels": [
+    "routine",
+    "review_worthy"
+  ],
+  "verified_utc": "2026-10-14T00:09:05.248660+00:00",
+  "manifest_sha256": "65a0fac98bcc8a6e79d53ebfaf8c43d2ef6d49a03ac3ff8a34181c2eba577ed5",
+  "subsets_sha256": "f372793c48a3dbfa1a37030fdddc2e6345624265847d3850e3fb4bc3eee9b1d1",
+  "splits": {
+    "train": {
+      "count": 25000,
+      "sha256": "a5371dd3451315fcde502ac81d27e27f4b7136bfdd51157bf927a4618effb78e",
+      "start": "2019-01-01",
+      "end": "2026-03-31",
+      "sources": {
+        "govuk": 1173,
+        "sec": 20740,
+        "ecb": 1175,
+        "wikinews": 200,
+        "fed": 1712
+      },
+      "families": {
+        "news": 1373,
+        "8k": 6891,
+        "6k": 6955,
+        "releases": 6894,
+        "ecb": 1175,
+        "fed": 1712
+      },
+      "labels": {
+        "routine": 7173,
+        "review_worthy": 17827
+      },
+      "reference_bases": {
+        "retained_three_class": 21796,
+        "binary_redecision": 2695,
+        "new_binary_label": 509
+      }
+    },
+    "selection": {
+      "count": 1000,
+      "sha256": "41bf3ace2afb4081b23f6ff92749b66fe9e128c68fd9d1a7be43061fa397456b",
+      "start": "2026-04-01",
+      "end": "2026-06-30",
+      "sources": {
+        "sec": 889,
+        "ecb": 29,
+        "govuk": 37,
+        "fed": 44,
+        "wikinews": 1
+      },
+      "families": {
+        "6k": 294,
+        "releases": 298,
+        "8k": 297,
+        "ecb": 29,
+        "news": 38,
+        "fed": 44
+      },
+      "labels": {
+        "routine": 283,
+        "review_worthy": 717
+      },
+      "reference_bases": {
+        "retained_three_class": 744,
+        "new_binary_label": 163,
+        "binary_redecision": 93
+      }
+    },
+    "calibration": {
+      "count": 500,
+      "sha256": "156eef5cb204ebb1e7e29e8023e5c29b6f4585cb6131385d97089a69e6a53c55",
+      "start": "2026-04-01",
+      "end": "2026-06-30",
+      "sources": {
+        "sec": 461,
+        "fed": 15,
+        "ecb": 12,
+        "govuk": 12
+      },
+      "families": {
+        "6k": 157,
+        "8k": 153,
+        "releases": 151,
+        "fed": 15,
+        "ecb": 12,
+        "news": 12
+      },
+      "labels": {
+        "routine": 135,
+        "review_worthy": 365
+      },
+      "reference_bases": {
+        "retained_three_class": 327,
+        "binary_redecision": 36,
+        "new_binary_label": 137
+      }
+    },
+    "test": {
+      "count": 2000,
+      "sha256": "63a333523819d5c907c9a22d70396d69a4b766f05f6c907a3de013a96c291f10",
+      "start": "2026-07-01",
+      "end": "2026-09-30",
+      "sources": {
+        "sec": 1870,
+        "fed": 55,
+        "ecb": 40,
+        "govuk": 35
+      },
+      "families": {
+        "8k": 622,
+        "6k": 625,
+        "releases": 623,
+        "fed": 55,
+        "ecb": 40,
+        "news": 35
+      },
+      "labels": {
+        "review_worthy": 1543,
+        "routine": 457
+      },
+      "reference_bases": {
+        "retained_three_class": 1593,
+        "binary_redecision": 207,
+        "new_binary_label": 200
+      }
+    }
+  },
+  "retained_label_consistency": {
+    "documents": 200,
+    "confusion_matrix": {
+      "routine": {
+        "routine": 93,
+        "review_worthy": 7
+      },
+      "review_worthy": {
+        "routine": 7,
+        "review_worthy": 93
+      }
+    },
+    "agreement": 0.93,
+    "sha256": "2c92ed0a92a73b2fed816bc25bfbba550e9543333524586755f762943f6a8500",
+    "used_to_override_references": false
+  },
+  "label_ledger": {
+    "incremental_cap_usd": 2,
+    "requests_by_status": [
+      {
+        "status": "capacity_rejected",
+        "requests": 118,
+        "conservative_charge_usd": 0.0,
+        "unresolved_reserved_usd": 0
+      },
+      {
+        "status": "completed",
+        "requests": 4302,
+        "conservative_charge_usd": 0.44302070000000005,
+        "unresolved_reserved_usd": 0
+      }
+    ]
+  },
+  "limits": "Original three-class test outcomes were previously inspected; revised binary cohort is not a fresh independent confirmation.",
+  "verification": "Independent split checksums/counts/body uniqueness and cross-cohort group disjointness passed. Completed 4k majority, word TF-IDF and frozen FinBERT development metric/temperature/policy arithmetic passed independent CPU replay. No revised-cohort test inference yet."
+}

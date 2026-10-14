@@ -240,7 +240,8 @@ def build(splits, study, output, paper):
                             "A context limit includes task/model overhead, rather than denote full source coverage. All normalized source tokens are windowed.",
                             "tab:recipes", ["System", "Train", "Context", "Trainable", "Epoch"], recipes))
     supporting.append(table("Recorded resources. Command time includes preparation, fitting and development evaluation; "
-                            "fit time is the neural history duration or linear fit measurement. GPU columns use peak allocated GiB. "
+                            "fit time is the neural history duration or linear fit measurement. GPU columns use peak allocated GiB at each recorded stage; "
+                            "resident fitting state/caches can contribute to the inference-stage peak. "
                             "Cached feature computation and optimizer-step details are retained in the public package.",
                             "tab:resources", ["System", "Train", "Command s", "Fit s", "Train GiB", "Infer GiB"], resources))
     source_rows=[]

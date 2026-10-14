@@ -1,0 +1,60 @@
+{
+  "task_id": "binary-v2",
+  "rubric_sha256": "758ce828da144da89687533426b07c09452af098aa44b881f1abf5d12e9f0ec5",
+  "initial_redecision_loaded_sources": {
+    "label.py": "e98b1b91cd1454c167a2e3d516b6905f868bd1500740ea5a8702fc0ae9d43bc5",
+    "schemas.py": "1e397f8ea457eb4f576257002280a83722bbc4d4f9a9f456ebd9f779e78c8284"
+  },
+  "later_worker_sources": {
+    "label.py": "c4fa55bf2472702fb87752663f2fd483f3eedca7ca8adfecbd3626b9b03d5e86",
+    "schemas.py": "aac1d099bfee5d80c436fdba8b546fe1b7629f35edd79dc7e9c8fdee69822e20"
+  },
+  "verified_utc": "2026-10-13T23:38:21.689480+00:00",
+  "difference": "Later label source adds an independent binary-rubric charge ceiling. The binary rubric and output-label schema are unchanged; revised Laya model questions do not enter the teacher labelling request.",
+  "completed_initial_workers": [
+    {
+      "name": "redecision",
+      "pid": 6036,
+      "create_time": 1791927336.9032938,
+      "command": [
+        "C:\\Users\\lucca\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-u",
+        "C:\\Users\\lucca\\OneDrive\\Documents\\programming\\systematic-trading\\decision_models\\label.py",
+        "--dataset",
+        "C:\\Users\\lucca\\OneDrive\\Documents\\programming\\systematic-trading\\decision_models\\data\\research\\binary-v2-labels\\redecision.jsonl",
+        "--task",
+        "binary-v2",
+        "--incremental-budget-usd",
+        "2"
+      ],
+      "exit_code": 0,
+      "completed": 3093,
+      "queued": 3093
+    },
+    {
+      "name": "retained-label-audit",
+      "pid": 1968,
+      "create_time": 1791934217.2259097,
+      "command": [
+        "C:\\Users\\lucca\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-u",
+        "C:\\Users\\lucca\\OneDrive\\Documents\\programming\\systematic-trading\\decision_models\\label.py",
+        "--dataset",
+        "C:\\Users\\lucca\\OneDrive\\Documents\\programming\\systematic-trading\\decision_models\\data\\research\\binary-v2-labels\\retained-label-audit.jsonl",
+        "--task",
+        "binary-v2",
+        "--incremental-budget-usd",
+        "2"
+      ],
+      "exit_code": 0,
+      "completed": 200,
+      "queued": 200
+    }
+  ],
+  "legacy_ledger_preserved": {
+    "rows": 28699,
+    "sha256": "a7b01afb485e4fca0a87291633d4cf26f2d91f70d1c9d3fd8f8a9b86256874f7",
+    "scope": "All existing three-class ledger requests; new binary requests excluded",
+    "verified_utc": "2026-10-14T00:01:23.754036+00:00"
+  }
+}

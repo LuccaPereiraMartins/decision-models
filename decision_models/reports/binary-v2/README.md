@@ -1,8 +1,11 @@
 # Binary triage evidence
 
-The currently published files document label-blind data preparation. Binary
-references and model results are still pending. Exact prepared counts are
-25,000 training, 1,000 selection, 500 calibration and 2,000 test documents.
+Binary references are frozen at 25,000 training, 1,000 selection, 500 calibration
+and 2,000 test documents. [The freeze receipt](cohort-freeze.json) records exact
+hashes, class/source support, the completed consistency audit and conservative
+incremental Luna charges of $0.4430 against the $2 cap. The bounded model study
+has started; revised-cohort model results and the final manuscript are pending.
+Earlier preparation receipts remain historical stage snapshots.
 
 The new benchmark retains earlier evaluation bodies and related-document groups,
 adds eligible source content, and freshly re-decides unclear labels rather than
