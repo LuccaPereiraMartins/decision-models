@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "verified_utc": "2026-10-15T19:53:34.615337+00:00",
+  "protected_files_verified": 128,
+  "finite_initial_best_final_checkpoints": true,
+  "artifact_source_runtime_verified": true,
+  "development_gpu_replay": 88.63469479989726,
+  "test_evaluations": 0,
+  "raw_bodies_or_weights_exported": false
+}

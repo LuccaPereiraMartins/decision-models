@@ -1,0 +1,3 @@
+* -text whitespace=cr-at-eol
+*.zip binary
+*.gz binary

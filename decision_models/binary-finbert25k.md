@@ -1,5 +1,13 @@
 # FinBERT LoRA 25k development extension, 15 October 2026
 
+Completed and independently verified. Read the separate
+[development evidence and CPU replay instructions](reports/binary-finbert25k/README.md).
+The fit took **4h21m**, selecting epoch three after 9,375 optimizer steps. Selection
+macro F1 is **0.8522** versus **0.8464** at 16k, while selection misses increase
+from **86 to 93 of 717** review references and default skipping rises from 32.5%
+to 34.2%. This is a small fitting gain with a changed routing tradeoff. Independent
+GPU replay of all selection/calibration logits and CPU metric/policy replay passed.
+
 The user authorized one 25,000-document FinBERT LoRA fit after reviewing the
 completed binary study. This is a standalone development extension. The completed
 16-comparison freeze, results and publication packages remain unchanged; the new
@@ -18,7 +26,8 @@ checks for competing jobs and uses the shared GPU lock. It records process PID,
 creation time and command, prevents idle sleep, preserves checkpoints at the
 eight-hour cutoff, and verifies protected hashes after exit. Artifacts, logs and
 the receipt are under `training_runs/research-binary-finbert25k-20261015/`.
-Raw completion still requires independent scientific review before publication.
+Raw completion is distinct from the subsequent independent scientific checks
+recorded in the separate evidence package.
 
 Every 15 seconds the controller records worker CPU time/memory and device-wide
 GPU utilisation, memory utilisation, memory use, power, temperature, SM clock and
@@ -45,3 +54,14 @@ they do not establish continuous GPU saturation. There is no continuous
 utilisation series for that run. The document-serial training loop and gradient
 checkpoint recomputation are plausible throughput constraints that would need
 profiling before promising a faster Laya schedule.
+
+## Measured FinBERT GPU activity
+
+The fitting/epoch-validation phase has 1,025 successful device samples: mean GPU
+utilisation **92.83%**, median **97%**, P10 **77%**. Only one sample is at or below
+5%. Mean device power is 147 W, with maximum sampled temperature 75 C. Startup
+and initial selection averaged 25.55% GPU utilisation; final calibration,
+selection rescoring and timing averaged 92.0%. Phase boundaries use preserved
+file modification times. Worker CPU averaged 89.8% of one logical CPU during
+fitting. These sampled device-wide observations establish sustained activity
+for this FinBERT run, and do not recover historical Laya utilisation.
