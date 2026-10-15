@@ -135,17 +135,16 @@ Training subsets of 4,000, 16,000 and 25,000 documents are nested, with stable
 round-robin family/class sampling. All trainable core systems use the same
 4,000 bodies; the majority reference counts the same labels without optimization. Native Laya
 requires no task training. TF-IDF and frozen FinBERT/logistic additionally use
-16,000 and 25,000 training documents. FinBERT LoRA uses 16,000; Laya LoRA at
-that size is admitted only when its measured runtime fits the compute deadline.
-No 25,000-document LoRA run enters this study. Every learning-curve point also
+16,000 and 25,000 training documents. Both LoRA systems additionally use 16,000;
+their curves stop at that size. Every learning-curve point also
 uses the same 1,500 development labels; training count is not total annotation cost.
 
 TF-IDF learns its vocabulary and transforms from training alone. Logistic
 regularization and class weighting use the same bounded grid at each training
 size, selected by selection macro F1 (Appendix~\ref{sec:supporting}).
 Frozen FinBERT features are computed once and cached with
-body, recipe and source identities; encoding cost is reported separately from
-classifier fitting and cache reuse. Frozen encoder windows are averaged and
+body, recipe and source identities. Feature-preparation durations and cache use
+are itemized; command time includes encoding and classifier search. Frozen encoder windows are averaged and
 L2-normalized before classification.
 
 We use pinned \texttt{convaiinnovations/laya} English root and
@@ -162,9 +161,9 @@ change to weight updates.
 Laya adaptation uses a 1,024-token context and FinBERT uses 512. Overlapping
 windows cover all normalized source tokens, and uniform window-logit pooling
 gives one document-level prediction and loss. No window labels are inferred.
-The native Laya SDK limits GPU passes to eight windows, retaining its own
-long-document aggregation, so it differs from
-adapted Laya in pooling as well as fitting. Architectures, parameter counts,
+The native Laya SDK uses 512-token windows and limits GPU passes to eight windows,
+retaining its most-confident long-document aggregation. It therefore differs from
+adapted Laya in context and pooling as well as fitting. Architectures, parameter counts,
 pretraining objectives and classifier recipes differ across systems; those
 comparisons cannot isolate finance pretraining or LoRA as a sole cause.
 
@@ -201,7 +200,7 @@ GPU jobs run serially on an NVIDIA RTX 3060 with 12 GiB GPU memory;
 CPU work uses an Intel Core i5-12400F. Warm inference includes tokenization/windowing and
 classification, excludes model loading, and uses the same 128 selection bodies.
 We retain each latency, mean/P95, batch-throughput denominator and peak allocated
-GPU memory. Neural fitting time and successful command elapsed time are distinguished;
+GPU memory. Recorded fit-phase and successful command elapsed times are distinguished;
 interrupted attempts are accounted for separately.
 Frozen feature preparation/cache measurements accompany classifier fitting.
 Local timings on the recorded hardware do not estimate cloud prices, energy

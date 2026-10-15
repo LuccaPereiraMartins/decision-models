@@ -1,6 +1,10 @@
 # Bounded binary financial-document triage study
 
-Current progress: [execution checkpoints](binary-checkpoint.md).
+The bounded study has completed all 16 frozen comparisons, including both 16k
+LoRA fits. Read [the paper](paper-binary-v2/paper.pdf), especially Section 5 and
+Tables 2–4, and [the replay instructions](reports/binary-v2/README.md).
+[Execution checkpoints](binary-checkpoint.md) retain the progress record.
+The protocol below records the agreed scope and safeguards.
 
 This is a new, versioned study following the user-approved binary redesign. The
 three-class benchmark, trained artifacts, frozen results and published packages
@@ -127,6 +131,8 @@ After `models_complete_report_pending`, run `report_binary.py`. It checks frozen
 artifacts, ordered cohorts, finite zero/best/final checkpoints and selected epochs,
 exports a separate body-free package, and requires `binary_replay.py` to pass before
 generating manuscript results. The draft source is in `paper-binary-v2/`; generated
-LaTeX still needs compilation, every-page visual inspection and clean archive replay.
-The old manuscript and core package remain untouched. The preparation and manuscript
-drafts do not claim completed binary model findings.
+LaTeX has been compiled and every page and figure visually inspected. The public
+package regenerates the source and figures without model runtime or network;
+two fresh archive builds match all nine rendered pages. Exact evidence and paper
+hashes accompany the publication receipts. The old manuscript and core package
+remain separate historical evidence.

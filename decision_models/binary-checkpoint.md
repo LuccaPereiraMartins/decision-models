@@ -1,5 +1,37 @@
 # Binary study execution checkpoints
 
+## 15 October, 11:03 UTC (12:03 London): completed study and paper
+
+All **16 frozen comparisons** are complete: seven shared-4k core systems, the
+cheap 4k/16k/25k classifier curves, both 16k LoRA fits and three matched initial
+controls. FinBERT LoRA 16k took **2.51 hours**; Laya LoRA 16k took **20.66 hours**.
+All training has stopped, ahead of the bounded cutoff. Exact cohorts remain
+25,000/1,000/500/2,000, and all 77 original artifact seals match.
+
+Read [the compiled paper](paper-binary-v2/paper.pdf), especially **Section 5 and
+Tables 2–4**. It has nine pages: main text through page seven, references and one
+supporting appendix page. [LaTeX source](paper-binary-v2/arxiv-source.zip) and
+[CPU replay instructions](reports/binary-v2/README.md) accompany it. Every page
+and both figures were visually inspected; public evidence regenerates all source
+fragments and figures without model runtime or network, and two fresh archive
+compilations produce pixel-identical pages. Independent CPU replay passed all
+16 comparisons, including fitting choices, calibration, policies and bootstrap.
+
+The prespecified 4k Laya LoRA minus TF-IDF macro-F1 difference is **0.0199**, with
+paired 95% interval **[-0.0022, 0.0423]**. Laya skips more reading but misses
+**268/1,543** review references versus **188/1,543**, at **64.9 times** the mean
+warm latency. At 16k, their F1 point estimates are 0.8424 and 0.8245. These are
+teacher-agreement findings on a SEC-dominated cohort that reuses earlier test
+bodies; they do not establish expert materiality or fresh generalization.
+
+Labelling finished at **$0.4430207 of the $2 cap**: 4,302 completed requests,
+118 uncharged capacity rejections and no unresolved requests. Publication hashes
+and closure checks are in [the paper manifest](paper-binary-v2/paper-manifest.json)
+and [the verification receipt](reports/binary-v2/publication-checks.json).
+Draft PR [#11](https://github.com/LuccaPereiraMartins/systematic-trading/pull/11)
+is the paper/evidence review destination; the data and experiment PRs remain
+separate. No further experiments or paid calls are scheduled.
+
 ## 14 October, 21:44 UTC (22:44 London): second 12-hour review
 
 The seven core development runs, both cheap classifier curves and FinBERT LoRA

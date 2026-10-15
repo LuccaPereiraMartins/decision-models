@@ -1,18 +1,35 @@
-# Binary financial-document triage manuscript
+# Binary financial-document triage paper
 
-This is the separate manuscript for the approved binary redesign. The original
-`paper/` and `reports/core-v1/` packages remain historical evidence.
+[Read the compiled paper](paper.pdf). Start with Section 5 and Tables 2-4 for the
+core comparison, missed-reference/workload policies and training-size findings.
+The paper is nine pages: main text through page 7, references, and one supporting
+appendix page. It includes FinBERT and Laya LoRA at both 4k and 16k.
 
-The manuscript source is currently an incomplete methods draft. No new model
-results or submission-ready PDF are claimed. Generated result files will be
-created from the completed frozen binary study only after independent CPU replay
-and artifact checks. The main text targets 6–8 pages excluding references and
-supporting tables; it centers the seven-system 4k comparison, false negatives,
-review workload, adaptation and sample efficiency.
+The fixed 4k comparison gives Laya LoRA macro F1 0.7843 versus word TF-IDF/logistic
+0.7645, with paired difference interval [-0.0022, 0.0423]. Laya skips more reading
+but misses more teacher-review references and has 64.9 times the mean warm latency.
+These conditional findings concern a SEC-dominated teacher-labelled benchmark
+that reuses earlier test bodies, rather than expert materiality or fresh confirmation.
 
-Authors are Lucca Pereira Martins and Matthew Ball. The corresponding address
-is lp573@cantab.ac.uk; Matthew's email and affiliations remain unspecified.
+## Rebuild
 
-Before delivery: compile with standard LaTeX, verify references and float placement,
-render and inspect every final PDF page, and compile the clean source archive
-again. Do not upload to arXiv without separate authorization.
+Extract [arxiv-source.zip](arxiv-source.zip) into a fresh directory and run:
+
+```sh
+tectonic --keep-logs paper.tex
+```
+
+The tested engine is Tectonic 0.17.0. The archive contains only the main source,
+references, generated LaTeX fragments and two figures. It requires standard LaTeX
+packages and no shell escape, executables, document bodies or model weights.
+All nine pages and both figures were visually inspected. Two independent fresh
+archive builds match pixel-for-pixel at 150 dpi, and public evidence regenerates
+all source fragments/figures without model runtime or network access.
+
+[paper-manifest.json](paper-manifest.json) binds the PDF, source members, archive,
+build environment and evidence hashes. [The evidence package](../reports/binary-v2/README.md)
+provides independent CPU replay and table/figure regeneration instructions.
+
+Authors: Lucca Pereira Martins and Matthew Ball. Corresponding email:
+lp573@cantab.ac.uk. No affiliations or second email have been inferred.
+The prior `paper/` and `reports/core-v1/` packages remain preserved.

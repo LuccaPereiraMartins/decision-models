@@ -263,7 +263,10 @@ def export(splits, study, output):
             archive.writestr(item, legacy_path.read_bytes())
         for name, entry in freeze["entries"].items():
             directory = study / entry["directory"]
-            for filename in ("config.json", "decision.json", "complete.json", "performance.json", "selection.json", "calibration.json"):
+            for filename in ("config.json", "decision.json", "complete.json", "performance.json", "selection.json", "calibration.json",
+                             "history.json", "search.json"):
+                if not (directory / filename).exists():
+                    continue
                 body_free(read(directory / filename))
                 item = zipfile.ZipInfo(f"{name}/{filename}", date_time=(1980, 1, 1, 0, 0, 0))
                 item.compress_type = zipfile.ZIP_DEFLATED

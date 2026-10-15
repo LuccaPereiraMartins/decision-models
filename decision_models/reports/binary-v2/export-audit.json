@@ -1,0 +1,179 @@
+{
+  "status": "local_frozen_identity_checks_passed",
+  "runs": {
+    "majority-logistic-n4000": {
+      "exported_json_sha256": {
+        "config.json": "29268fe216bc679978c52531521662c40a4f30cd0b03ac439bcb72acbcff3e46",
+        "decision.json": "7a42f8d2d305e7e3dc9e3480adecfea41cb2bc49a18e030fe15268240cc5f24b",
+        "calibration.json": "788ebd9aa4919dbcd6ef03d7039cc6c87deb232375e09d49a70a979af3edbd0e",
+        "selection.json": "0c3fc2c9570e45d7d234c182ee0649038a93b592779c7cbaee2e217c64f30dc1",
+        "performance.json": "ec67212773b440133a5873b60b7833b2688f21c474e52d85e7f4f4a7dcb2c9d6"
+      },
+      "test_logits_sha256": "95606d8ee1971b1e3bc4fab71f77f2e6736e622b250cfe261836296b58b62396"
+    },
+    "tfidf-logistic-n4000": {
+      "exported_json_sha256": {
+        "config.json": "9b92c7ad06254859bd62fa63874f6868ad56d23a52286abcf75bc6d635ab022f",
+        "decision.json": "5511776738564d844afa8d401c577601bd64170b6c2d3fa709b6d86d89d1c840",
+        "calibration.json": "d562ba02cb96dbefc75e18e67188d0af423439565373675eb8e5d44944a7a85e",
+        "selection.json": "84fedd6182aa1822f49d3a560b3b97b4fbb9e90229dfbc524be423b1a2d6dfa8",
+        "performance.json": "78781f2eef5ebd014c0de43b126091b8fe2c480b9ef81ba5387c63f0c40c3a77"
+      },
+      "test_logits_sha256": "78bbd0fa35250740b981c76af13ec1f8521740bd22d9723e4f148336e9f04f6d"
+    },
+    "finbert-logistic-n4000": {
+      "exported_json_sha256": {
+        "config.json": "d4b38168870ad0a81bea6a5c643f0f80a5834cf6a8512b3fe945706bc4891f78",
+        "decision.json": "0f1e2f0385748512e312123951d007afb3ab50e9ef687f75cd932d9830bfca6b",
+        "calibration.json": "934d55af559d216b1df27a4d1814db36b57f1ccfd24b74f0675cd820244a8bb9",
+        "selection.json": "c4594d110950a402587438d6c6f5a638eaa793371f2970c7f43ab1742a97924b",
+        "performance.json": "bc656df9a062736c58d2bedd5ecc40e602db4798a363f61817e90053f0ba9cbe"
+      },
+      "test_logits_sha256": "608ddc1c48aea63717133871c42938d57f38cac2bca390487a29a9fa7a6a97d9"
+    },
+    "laya-sdk": {
+      "exported_json_sha256": {
+        "config.json": "35117e6ecf63e1ba97d68a1b1f771b262046467ffe59835efb1bbe79e662a362",
+        "decision.json": "21573e2f82d154b3c12465fe5cb49d2db2fdc84fe4f37578f198934b4a9f3878",
+        "calibration.json": "d3c54b77b38ae2586f86e47f65f393fdb5db7eec28c6114feaeddbef1ac68620",
+        "selection.json": "f78e60e4976cf08b5f7d2fe1582d1b34b7fd91043db8295cd5dc0f5412ee718b",
+        "performance.json": "2b6c8e074a2a686d9acbea152a997ae5938ef552010dd856f4eedc9d43d0445c"
+      },
+      "test_logits_sha256": "648cd8ffc30af84ba0b9b83306fc9445f586964127f96c64a8375ed06d708f6e"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c1024": {
+      "exported_json_sha256": {
+        "config.json": "45590ca66f2c8cafda9cdd1db5c6a5e2c783177b6e23daf091420dbd7aa1cd70",
+        "decision.json": "0625955e2cecb3baa9c132f6807638c4a14c038e1d9e2fd2f19e2b4917285fa2",
+        "calibration.json": "1dd1ba5f09480a6b15b5ce88a1f46ec7c8375de160f27831e4b1151a63303a59",
+        "selection.json": "b573bf5fb428b725fde1f7f714a60c685d7abb89a799805e576fce2c795bfa89",
+        "performance.json": "5a54adc56a7e3e8b903f27f791987a3ba929cec0701cd7c81b2015bc499f73ff"
+      },
+      "test_logits_sha256": "6dc3b3a31d5a7713506b2cc4d08449fed242aac76e92a0a6976d35006997604c"
+    },
+    "laya-lora-ce-w0.0-lr0.0001-n4000-c1024": {
+      "exported_json_sha256": {
+        "config.json": "7ae412750fbeffde637bc5be6dae2eed9461623131b4622f65baf81ecd772a46",
+        "decision.json": "ce6d01d91d4a1da754ee1c78b9d3ba1400d6ac26fe9ae1b5451f442e89feee16",
+        "calibration.json": "9fb92430a9932d8dbe6217edb4d3a034c184904dd2ea96cd036dbdb8f28319ff",
+        "selection.json": "0a8e43835ecbfce8b59ca519f34f4e8371e1e04b275ddc6725d65f374e826999",
+        "performance.json": "33a01d7334c9065e0f96ede7b1c72afcc9a822343c6124fd1938243804be62d9"
+      },
+      "test_logits_sha256": "b35cae400677d992396e80359e63ef2a0db135fbb4928924c7443029cc49613f"
+    },
+    "finbert-lora-ce-w0.0-lr0.0001-n4000-c512": {
+      "exported_json_sha256": {
+        "config.json": "4f4340da8a0fcb8a6616bd5de027f8079c8de368f9c6da2b1e2f7d7d3d91b3de",
+        "decision.json": "34da015abaa17ca00bbe5dfa4c9ff4e107d5715c1c1b1fc13c8ad81ba0bcc39f",
+        "calibration.json": "65e344fe8b414a0b7a9716feab6b21e368f54e6f85b17e13c738bab6b911fe24",
+        "selection.json": "97749488a5fbb8dc49e458d75ce09ed5cd7d94801e189677fb5826ad82d08092",
+        "performance.json": "f941ae16b9892e42da8ba67148d59c820f5241ceac1e995d1930a85969881b17"
+      },
+      "test_logits_sha256": "ee8e0aec540b2ccee635dbb8a657fb32549533b1df2e427a7eb2f190e112e57a"
+    },
+    "tfidf-logistic-n16000": {
+      "exported_json_sha256": {
+        "config.json": "71186b86cddce3f97bf5937ee8a99ff147b448bd19649dd8c2e57f2375fb9d48",
+        "decision.json": "91fd74588e95a16f7f9e114f3981af1df3a3c75c220ebcdf873fa1e093387bd4",
+        "calibration.json": "556b4c6ec318462093ab81ce6580d059544fa8e765d1353c697f51fcc48c9e49",
+        "selection.json": "576a8e712d3447253cac0d18b7f691a1c5737179ecead6e0f8518058edac39a6",
+        "performance.json": "98421fb25e68254f56446e8a49d5512c7557e4554a85aa562aab4cf8f3d884bb"
+      },
+      "test_logits_sha256": "af4fcf9b94ff5773762398a37f2a34722446ffbbfc7ae636d217caf9da284e50"
+    },
+    "tfidf-logistic-n25000": {
+      "exported_json_sha256": {
+        "config.json": "cf0ae9ba6cf00b881a8c86c3feae8528c1804eb42a649ab3dcbaf876cc137fee",
+        "decision.json": "eff06ae9210e4816720aa48fd7dc75b3c3060b0bbf4596accac2cb48f6c07d4e",
+        "calibration.json": "80146b24bd845e6aba26f353bb7711f84f5ebf5029ecf3c9c0e3435b64a8aa4c",
+        "selection.json": "15ccb67711ef732fa6da6e0dbb6fbaf02dddf707b7a64c93ed6c1edbba8be99d",
+        "performance.json": "a435afce9586b34b8adeb16c82eac78d3a61e8aafa7ecd5ecf7fa4ef878fcb1f"
+      },
+      "test_logits_sha256": "7d23c62ccc7cafb354139465c0d79b22516343f2c339702ec2d14c31dc5bc13d"
+    },
+    "finbert-logistic-n16000": {
+      "exported_json_sha256": {
+        "config.json": "7b2785d4dd7f20e5e31cfc169deb28201598d74be37c1dd29400326419874b70",
+        "decision.json": "b2103349e945ce8882d59a31bacbf67cc29ce30f413dbc828ceb65d3126a2513",
+        "calibration.json": "b18ceff00329757b933967f67d3442b81c6ad29dc8fe74b04454477682d0f986",
+        "selection.json": "6d96fbeb456ba4f956569ebce1c56d20bd0076914949a07938305efbb54d6de9",
+        "performance.json": "138f0cae3bae74164d029beb0f8324421d921dcd5ead758dd9dfd85b3ed6fb31"
+      },
+      "test_logits_sha256": "d19bdfa372a41abf19a1343c84355844f8c2f2ac9da653c902e146fd6424a693"
+    },
+    "finbert-logistic-n25000": {
+      "exported_json_sha256": {
+        "config.json": "850354606a68bcdf7bb0ec2080f92d71a9852a456a332735ccf7e67ba35ab237",
+        "decision.json": "2ab612a949cc029e725a4b3bd62c4cb67fc1f54ef9ad6970ed8fb0b4d9feb395",
+        "calibration.json": "c345d68a5542c76a1e01eb5f12de94098674418e69598c312d388d18c36693a1",
+        "selection.json": "95365e3b2c6df7660307e209be9b9993eb7cffe3b6627e967fb905fa95d42568",
+        "performance.json": "4cbaf5633385df3f3c46ae52c83f413ac81a8c69352d7769a64581668ecb18ba"
+      },
+      "test_logits_sha256": "34aa56d2c5eb0f875b1bd4b312854b99c9a44ec570c446ae365887c536d5ae6d"
+    },
+    "finbert-lora-ce-w0.0-lr0.0001-n16000-c512": {
+      "exported_json_sha256": {
+        "config.json": "a2ab3094940c9bcc5dc66a33648594fc9a3e3baf2dee6e6a0752ce4b5813a90b",
+        "decision.json": "3083a80124053f4717d44d1eeb0dd009fb8bd83ddcf973f6a7e288ce71e881b9",
+        "calibration.json": "c1bb3ceefbb58f856c0aa99ca9a4d17a6a4df4651a3af9c3aaa43965f6fdda86",
+        "selection.json": "5dbb28a85dbce199672151d934aaeadac2f095199dfb8012acc13ded92df617f",
+        "performance.json": "ea852530d5b7c652cc8612676e9d607b20fa429a69a2a326e78785148f5259d9"
+      },
+      "test_logits_sha256": "e100efa0e2dac6c0d4099be212ae39ce84dcbe672d8e8681ab3b03c7ed36c3f3"
+    },
+    "laya-lora-ce-w0.0-lr0.0001-n16000-c1024": {
+      "exported_json_sha256": {
+        "config.json": "419df4cb68e3d96dc43d4874308c4b2fb1e23c3d214613f5c8b03a0f1985602d",
+        "decision.json": "14a81a312f72338db5a3895e443c3bd763c367993d73575f54dc5b8f941b8eb8",
+        "calibration.json": "2e9d45015abb224356a1a027250e096cf16f3a654866f257cc6901916c696171",
+        "selection.json": "4ba19c8b436e38f917f3c1c2aaaec2e2e3f91d834f773b5c2970ca358175a780",
+        "performance.json": "bb9f5cb8d353a8e72faaff6823d3625def2257f9e70fe8f0fdff810c1c67aa66"
+      },
+      "test_logits_sha256": "dd471fbcba0c440e62157f50e626a6d2a7d70f7a87c3bbe52a2d5c696ea2323a"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c1024-zero": {
+      "exported_json_sha256": {
+        "config.json": "fecebcb92e387d7cb75d61bd3c4156b91acd1f7f7cf60e310cf4a94082b0edd5",
+        "decision.json": "a09292aaca02c3c4343738eb1d9e63fe4029817148aad499558de7ed156c2632",
+        "calibration.json": "022cb085f373d466364a70a93eb734e0f95b78a358c8e67793d72e0b7a7f1f5b",
+        "selection.json": "e8584440ce7769e3237487087359d4dd0f516f2b2162786f5b13c7dcbd4bb24e",
+        "performance.json": "14831a147f51c14d41b26d0cd80bd7a9e784f3eed4c89539e2c8e698af3b244d"
+      },
+      "test_logits_sha256": "3265dbd37888ed4c7de537524af0cc25e2b8427cbf2b169f9c43119356fd4e4f"
+    },
+    "laya-lora-ce-w0.0-lr0.0001-n4000-c1024-zero": {
+      "exported_json_sha256": {
+        "config.json": "f5769d0c045b16ce3287ea55ea00d6acde31bb8b5271329d06ea9a081cdb2fcf",
+        "decision.json": "a09292aaca02c3c4343738eb1d9e63fe4029817148aad499558de7ed156c2632",
+        "calibration.json": "022cb085f373d466364a70a93eb734e0f95b78a358c8e67793d72e0b7a7f1f5b",
+        "selection.json": "e8584440ce7769e3237487087359d4dd0f516f2b2162786f5b13c7dcbd4bb24e",
+        "performance.json": "a78c5f2401dfee1897aa3813bcf7b28de2c227abf0fca04f8b95c6d1358023f9"
+      },
+      "test_logits_sha256": "42a7b7378e496aebf22fe21185ec941854bb2b2c3ad296aae19bd48b148f8453"
+    },
+    "finbert-lora-ce-w0.0-lr0.0001-n4000-c512-zero": {
+      "exported_json_sha256": {
+        "config.json": "68dd5e2c0f343ad9b7bc15fcee45d059153aac127260027b5b62acaf4bd0bd11",
+        "decision.json": "5708268195f888599593a300f3812aae5e3d10235f2e22309fde35e354f0d534",
+        "calibration.json": "f5f1db824ef1039d07a0746b32035d2cd0648669eb697681422a15343dbfd1e2",
+        "selection.json": "e318e040d505155667f4893a0356bbc9515f837fc0154a51845345fcdc12137d",
+        "performance.json": "1faff63bc71a5719a0b9bb939d3d9e6bcce24722dce145a998ee8bd122372005"
+      },
+      "test_logits_sha256": "8888449a6c1ce042c4fa6f1d568b353d270b173a8ed7d46a936f81c76cc0bba9"
+    }
+  },
+  "source_sha256": {
+    "baselines.py": "7d249533405b4e46c6a30a217a5d02156710ca21258d9fda608a173fa9776736",
+    "fit_baselines.py": "f898fc7f5eed820742dbdfb51d4b7da609f9471430120248cfcda96ce5bdedf5",
+    "protocol.py": "42b76a5a1e86f068ae8b2dd189e4913bd8211441fe0afe26b8af3596ea3a93bf",
+    "encoders.py": "d0e8742bdc91f15dd825a7c908a5ba7fd3b86ae716ef5c95c2926d7795e62f98",
+    "schemas.py": "aac1d099bfee5d80c436fdba8b546fe1b7629f35edd79dc7e9c8fdee69822e20",
+    "prepare.py": "35f73176f126a54ae3e9fa381cca2a376d253db16e97f5e890f0f7c2e274ec41",
+    "tune.py": "a6192aa7b4d18f1a273eab7686d9f8a6b9ed5abf860014b842a5638309bfe1b3",
+    "benchmark.py": "6fa0a39905bde4d0ad0b7697e25627363ccd62748b5d9cb9ccf6214b108b01f2",
+    "decision_base.py": "08700ff1d97b01368a284c6d632cc50921dde89aa306e6b28917ab0a19a58e1a",
+    "train.py": "e92d28b6bd8cd420e45e93d0a3798863800dac1d58acfee2e7dac3e748174ecb",
+    "label.py": "c4fa55bf2472702fb87752663f2fd483f3eedca7ca8adfecbd3626b9b03d5e86"
+  },
+  "exporter_sha256": "fbbbc076edbd3e9862db7d17840ee4c37c9849d35cddea23242d27186b90f847"
+}

@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "canonical_build": "fresh source archive",
+  "public_render_without_model_runtime_or_network": true,
+  "source_members_identical": 11,
+  "clean_compile_pages": 9,
+  "pixel_identical_pages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "pdf_sha256": "c09d2052654804cb83e5c58018c26b36e4b6c9360690c86cfba3a1936d5549a2",
+  "source_archive_sha256": "26e3b59995e850270e51c488ad77350eefb2d25236e3a33eba9e70dcf183bb8c",
+  "freeze_sha256": "e6afdaf0858112466933efe87dde2c229ad000986efdabd026c204328f88e247",
+  "reviewed_pages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "reviewed_figures": [
+    "confusion.png",
+    "learning-curves.png"
+  ],
+  "rendered_page_sha256": {
+    "1": "34b5700b19180beaf0ab357a531031917942e124a5702840f73f5dad3a56fc8f",
+    "2": "6b0b4de7ecf7595d505db841959bfcda0769209be1bf4ed19e56e1e5cda7762f",
+    "3": "691b6fa955543f4888e4e9fe6c1cea3fb0acd610f70a1c47e7b466d09eb07dda",
+    "4": "4293b76ec42c0729bd1d52b7dddb1f4d41a2041b6addc3a6724c3cc86249fb45",
+    "5": "db37083b92cc58326494792850e91876833c11a9b28788ce6a61f1ce02873e65",
+    "6": "bdb2c630f5bcc85f110eee0e0e74fe721cf6b51728d1e0afb6ed00d8d91974cb",
+    "7": "8c55f9097acb09f78555012762d19aeed5e16c493ba10ee6bc9f748e9c5d7942",
+    "8": "d20d66fe4b5366a988a9e90400154ec0dde74da8be5dfcc59052f69bc5b2d102",
+    "9": "effe33c8056cfcee18ab9ce78863c8d0d462a6a038bce349eed6c577fe1a3b32"
+  },
+  "verified_utc": "2026-10-15T11:02:34.254049+00:00",
+  "paper_manifest_sha256": "8c334dcc612d0ad90d4176108fa4ce1dd87d1c4c6169136e24c92b0a0f49e56b",
+  "cpu_replay": {
+    "status": "passed",
+    "models": 16,
+    "documents": 2000,
+    "checks": "Independent binary confusion/F1/FN/workload, fitting selection/history, probabilities, policies, timing and paired bootstrap"
+  },
+  "export_audit_sha256": "fe6fb39e9d50320a21f3a5f5c64aecd858eae2b8aeed1dd60280037049e8b325",
+  "original_artifact_seals_verified": 77,
+  "private_input_archive_verified": {
+    "sha256": "0aef51d51cb16b7307c06c88e8e54b93bd72cdff15d4898cc4ad110831319ea1",
+    "members": 6,
+    "members_match_frozen_inputs": true
+  },
+  "completed_jobs": 16,
+  "completed_test_comparisons": 16,
+  "core_systems": 7,
+  "bootstrap_replicates": 2000,
+  "frozen_study_files_sha256": {
+    "plan.json": "8eb041fea9788af3f170439e8de5d694cde8a56bc795fcc703d50a4d2f1de974",
+    "state.json": "79c9e22c7e7d8adc2e21487fba420d6871550af7652170fa2bdee4faf1d36109",
+    "selection.json": "17e6a7a56e5b35cc58f0a66594b39a056c3fa9e92a73da9d199f41e6dc9f475a",
+    "freeze.json": "e6afdaf0858112466933efe87dde2c229ad000986efdabd026c204328f88e247",
+    "results.json": "bc21893bcdd6fda358a8460364f6c51d49ba4bb08e27c836212d49c618d54a92",
+    "bootstrap.json": "6a8967eb487b0b069daf34a505afe6715c5196a6eb9f085264273b1f4b60e91c",
+    "test-started.json": "ae177f4aed30d1f43d6e336041bcac62f670415fbfdd4fc865fb08b05eecf802",
+    "matched-coverage.json": "345957023d41b59d735b777b81e815f9f9765ee1f829aa598bbf0daa30038f49"
+  },
+  "pipeline_terminal_state": "models_complete_report_pending",
+  "active_study_training_processes": [],
+  "labels": {
+    "incremental_cap_usd": 2,
+    "conservative_incremental_charge_usd": 0.4430207,
+    "completed_requests": 4302,
+    "uncharged_capacity_rejections": 118,
+    "unresolved_requests": 0
+  },
+  "fitting_verification": "Exporter verified artifact/source/runtime identities, ordered fitting cohorts, finite initial/selected/final weights and selected epochs. Public CPU replay independently checks the recorded arithmetic and fitting choices.",
+  "source_archive_current": true,
+  "body_and_weight_files_exported": false,
+  "scope": "Publication closure for this binary study; immutable preparation receipts and original study artifacts retain their historical status."
+}

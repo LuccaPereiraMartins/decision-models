@@ -6,6 +6,7 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+import random
 from urllib.parse import urlsplit
 import zipfile
 
@@ -153,6 +154,38 @@ def rows_from_logits(rows, logits, decision=None):
     return rebuilt
 
 
+def verify_fitting(run):
+    config = run["configuration"]
+    if config["family"] == "research_neural":
+        history = run["history"]
+        check([r["epoch"] for r in history["history"]], list(range(config["epochs"] + 1)), "history.epochs")
+        rebuilt = []
+        for entry in history["history"]:
+            value = entry["validation"]
+            cm = np.array([[value["confusion_matrix"][a][b] for b in LABELS] for a in LABELS])
+            if cm.shape != (2, 2) or (cm < 0).any() or not np.isfinite(value["loss"]):
+                raise ValueError("Invalid raw fitting history")
+            support, predicted, correct = cm.sum(1), cm.sum(0), cm.diagonal()
+            f1 = np.divide(2 * correct, support + predicted, out=np.zeros(2), where=support + predicted > 0)
+            score = float(f1.mean())
+            check(score, value["macro_f1"], "history.raw_f1")
+            check(float(correct.sum() / cm.sum()), value["agreement"], "history.accuracy")
+            for i, label in enumerate(LABELS):
+                check(int(support[i]), value["reference_distribution"].get(label, 0), "history.reference_support")
+                check(int(predicted[i]), value["prediction_distribution"].get(label, 0), "history.prediction_support")
+            rebuilt.append((score, entry["epoch"], cm.tolist()))
+        selected = max(rebuilt, key=lambda row: row[0])
+        check(history["best_f1"], selected[0], "history.best_f1")
+        check(history["best_epoch"], selected[1], "history.earliest_best_epoch")
+        check(run["checkpoint_audit"]["best.pt"]["epoch"], selected[1], "history.selected_checkpoint")
+        check(run["selection"]["metrics"]["overall"]["confusion_matrix"], selected[2], "history.selected_confusion")
+        check(history["steps"], config["epochs"] * int(np.ceil(config["samples"] / config["document_batch"])), "history.optimizer_steps")
+    elif config["family"] == "research_linear":
+        selected = max((r for r in run["search"]["trials"] if r["converged"]), key=lambda r: r["macro_f1"])
+        check(selected, config["selected"], "search.earliest_best_converged")
+        check(selected["macro_f1"], run["selection"]["metrics"]["overall"]["macro_f1"], "search.selected_f1")
+
+
 def replay_bootstrap(predictions, expected):
     """Replay paired draws via document multiplicities, rather than grouped confusion cells."""
     first = next(iter(predictions.values()))
@@ -283,6 +316,10 @@ def verify(directory):
         for filename, digest in run["configuration"]["source_sha256"].items():
             check(hashlib.sha256(source_archive.read(filename)).hexdigest(), digest, f"{name}.source.{filename}")
         config = run["configuration"]
+        for filename, field in (("history.json", "history"), ("search.json", "search")):
+            if field in run:
+                check(json.loads(metadata_archive.read(f"{name}/{filename}")), run[field], f"{name}.{field}.export_identity")
+        verify_fitting(run)
         if config["family"] in ("research_linear", "research_neural"):
             identity = [(key, train[key]["reference"]) for key in subsets[str(config["samples"])]]
             check(hashlib.sha256(json.dumps(identity).encode()).hexdigest(),
@@ -302,6 +339,10 @@ def verify(directory):
         for cohort in ("selection", "calibration", "test"):
             evaluation = run[cohort]
             rows = evaluation["predictions"]
+            ordered = [r["body_sha256"] for r in bundle["cohorts"][cohort]]
+            if config["family"] == "research_neural" and cohort != "test":
+                random.Random(42).shuffle(ordered)
+            check([r["body_sha256"] for r in rows], ordered, f"{name}.{cohort}.order")
             ids = {r["body_sha256"] for r in bundle["cohorts"][cohort]}
             check(len(rows), len(ids), f"{name}.{cohort}.count")
             check(set(r["body_sha256"] for r in rows), ids, f"{name}.{cohort}.identity")
@@ -316,6 +357,9 @@ def verify(directory):
                            for k, v in decision["policies"].items()}
                 check(skipped, row["discard"], f"{name}.{cohort}.decisions")
             if cohort == "calibration":
+                identity = [(r["body_sha256"], r["reference"]) for r in rows]
+                check(hashlib.sha256(json.dumps(identity).encode()).hexdigest(),
+                      decision["calibration_sha256"], f"{name}.calibration_order_hash")
                 verify_policies(rows, decision)
                 verify_temperature(rows, decision["temperature"])
             elif cohort == "test":
@@ -361,7 +405,7 @@ def verify(directory):
         check({"both": sorted(left & right), "laya_only": sorted(left - right), "tfidf_only": sorted(right - left)},
               diagnostic["primary_miss_overlap"], "primary_miss_overlap")
     return {"status": "passed", "models": len(predictions), "documents": len(next(iter(predictions.values()))),
-            "checks": "Independent binary confusion/F1/FN/workload, probabilities, policies, timing and paired bootstrap"}
+            "checks": "Independent binary confusion/F1/FN/workload, fitting selection/history, probabilities, policies, timing and paired bootstrap"}
 
 
 if __name__ == "__main__":
