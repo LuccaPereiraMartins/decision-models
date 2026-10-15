@@ -1,8 +1,16 @@
 # Financial document triage
 
-Benchmarks, post-training experiments and a small CPU API for financial-document review. The API accepts a body of text; the current dataset and model evaluations use SEC 8-Ks.
+Research on binary financial-document triage using Laya, FinBERT and TF-IDF,
+with reproducible evidence and a LaTeX paper. The corpus includes filings,
+corporate releases and public announcements, with SEC documents predominant.
+
+Start with the [research guide](decision_models/README.md) or
+[paper](decision_models/paper-binary-revised/paper.pdf).
 
 ## API
+
+The demonstration API serves the original three-class TF-IDF model trained on
+SEC 8-Ks. It is separate from the completed binary research study.
 
 ```bash
 cp env.example .env  # Only if missing; Windows: copy env.example .env
@@ -39,7 +47,9 @@ Set `SEC_USER_AGENT` and `OPENAI_API_KEY` in `.env` for collection and labeling.
 
 ## Research
 
-See [the benchmark guide](decision_models/README.md) for data, commands, comparable results and reproducibility. References remain provisional LLM labels rather than verified investment usefulness.
+See the [study guide](decision_models/README.md) for comparisons and
+[reproduction instructions](decision_models/reproduce.md) for CPU evidence replay.
+References are LLM labels; reported agreement does not establish investment usefulness.
 
 ## Development
 

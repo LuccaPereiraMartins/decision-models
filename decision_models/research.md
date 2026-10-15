@@ -1,5 +1,7 @@
 # Financial-document triage research programme
 
+Historical planning and execution log for the three-class study. For the completed binary study, use [README.md](README.md); dated plans and pending items below retain their original meaning.
+
 Approved scope: source-content-only triage for analyst inboxes, written for AI/ML engineers in finance. Labels remain routine, review_worthy and unclear; unclear routes to review. Macro F1 is primary. Review-worthy -> routine is the critical miss. Trading strategies and historical-context reasoning are outside this study.
 
 The [bounded core study](core-study.md) is the current agreed plan: three 4k LoRA runs including FinBERT,

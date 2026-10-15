@@ -1,5 +1,7 @@
 # Public-source audit
 
+This is the dated acquisition audit for the original corpus. The binary study adds the [ECB extension](binary-ecb-extension.md); final cohort support is in the [binary paper](paper-binary-v2/paper.pdf). Progress statements below describe their recorded stage.
+
 Access and reuse policies checked 2026-10-09; collection census updated 2026-10-10.
 All seven collection passes have completed: 89,006 new documents plus the 10,000-document legacy archive,
 for 99,006 raw candidates. These are acquisition counts, not labeled examples or independent evaluation

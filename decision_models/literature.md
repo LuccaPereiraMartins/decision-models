@@ -1,5 +1,7 @@
 # Research context and primary sources
 
+This reference map spans the original research programme. The binary paper evaluates seven systems; BGE, ModernBERT and Qwen discussions below describe earlier or deferred comparisons, not additional binary results.
+
 The [13 October prior-work audit](prior-work-audit.md) identifies closely related
 financial filtering and decision-model studies, including a financial-complaint
 Laya benchmark and a Laya calibration/escalation preprint. The academic manuscript
