@@ -3,8 +3,8 @@
 The completed study contains seven core systems at shared 4k training data,
 word TF-IDF/logistic and frozen FinBERT/logistic curves at 4k/16k/25k, and both
 FinBERT and Laya LoRA at 4k/16k. The 16 frozen comparisons include three matched
-initial-state controls. See [the paper](../../paper-binary-v2/paper.pdf), especially
-Section 5 and Tables 2-4.
+initial-state controls. See [the paper](../../paper/paper.pdf), especially
+the results and routing-policy tables.
 
 The dataset has exactly 25,000 training, 1,000 selection, 500 calibration and
 2,000 test documents. All references are teacher labels. Previously unclear
@@ -32,19 +32,10 @@ selection, calibration temperature and maximal whole-tie policies, timing,
 composition and paired group-bootstrap arithmetic. It verifies every published
 file against the package manifest. It performs no fitting, inference or API calls.
 
-To regenerate tables and figures from the public package, extract `source.zip`
-to `replay/source`, copy this directory to `replay/evidence`, and extract the
-[LaTeX archive](../../paper-binary-v2/arxiv-source.zip) to `replay/paper`. Then run:
-
-```sh
-python replay/source/report_binary.py --from-package --output replay/evidence --paper replay/paper
-```
-
-Rendering uses Matplotlib and the source helpers' NumPy, SciPy, scikit-learn,
-pydantic and datasketch dependencies. Exact versions accompany the paper manifest.
-A clean reconstruction was tested with model/API runtime imports and network
-access blocked, without document bodies or weights. Compiling the source archive
-in two fresh directories produced the same nine rendered pages.
+To regenerate numerical tables/figures, run `python decision_models/report.py`.
+See the [study guide](../../README.md#reproduce-the-published-evidence) for rendering,
+compilation and exact fitting replay. The canonical paper has eight pages; older
+editions and their original build records remain in Git history.
 
 ## Contents and boundaries
 
@@ -64,7 +55,9 @@ The exporter locally checked artifact/source/runtime identities, finite
 initial/selected/final weights, selected epochs and matched initial states.
 CPU replay validates recorded evidence and arithmetic; it does not rerun models.
 Exact fitting additionally requires the retained local text snapshots and
-checkpoints plus the pinned pretrained weights. The public package excludes
+pinned pretrained weights. Selected models are retained; redundant completed-run
+checkpoints were subsequently removed. The finite-weight audit records the files
+available when that audit was performed. The public package excludes
 source bodies and weights. [The input receipt](input-archive.json) binds the
 private six-file archive, whose members were compared byte-for-byte with frozen
 inputs. Source rights and attribution are recorded in [sources.md](../../sources.md).
@@ -76,5 +69,5 @@ checked against its preparation hash. Live recollection can produce different te
 
 [The audit correction](audit-membership-correction.json) records four training-only
 substitutions made before labelling after ECB replacements, preserving balanced
-100/100 audit cells. No completed reference was overridden. Original study data,
-results, ownership markers and publication bundles remain separate historical evidence.
+100/100 audit cells. No completed reference was overridden. Original study data, results and ownership markers remain local; superseded
+three-class publication bundles are available in Git history.

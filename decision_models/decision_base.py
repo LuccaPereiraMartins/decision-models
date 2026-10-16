@@ -1,4 +1,4 @@
-"""Pinned Laya/Qwen references on selection/calibration only; no training or test access."""
+"""Native Laya reference on selection/calibration only; no training or test access."""
 
 import argparse
 from importlib.metadata import version
@@ -11,19 +11,33 @@ import numpy as np
 import torch
 
 from protocol import breakdown, calibrate, discard, fingerprint, prediction_rows, probabilities, speed
-from schemas import BINARY_LABELS, BINARY_TASK, HERE, LAYA_MODEL, LAYA_REVISION, load_split, save, task_labels, task_questions
+from schemas import (
+    BINARY_LABELS,
+    BINARY_TASK,
+    HERE,
+    LAYA_MODEL,
+    LAYA_REVISION,
+    load_split,
+    save,
+    source_hashes,
+    task_labels,
+    task_questions,
+)
 
 
 class BaseLaya:
     def __init__(self, config, device="cuda"):
         import laya
+
         self.config = config
         self.labels = task_labels(config)
         if config["questions"] != task_questions(self.labels):
             raise ValueError("SDK questions disagree with the declared task")
         self.device = device
-        self.window_batch = config.get("sdk_window_batch", 8 if self.labels == BINARY_LABELS else None)
-        if self.window_batch is not None and (isinstance(self.window_batch, bool) or not isinstance(self.window_batch, int) or self.window_batch < 1):
+        self.window_batch = config.get("sdk_window_batch", 8)
+        if self.window_batch is not None and (
+            isinstance(self.window_batch, bool) or not isinstance(self.window_batch, int) or self.window_batch < 1
+        ):
             raise ValueError("SDK window batch must be a positive integer")
         warnings.filterwarnings("ignore", message=r"laya:.*invalid temperatures")
         self.agent = laya.load(config["model"], device=device, revision=config["revision"])
@@ -34,8 +48,10 @@ class BaseLaya:
         for body in bodies:
             before = getattr(self.agent, "cpu_fallback_count", 0)
             result = self.agent.predict_long(body, self.config["questions"], **options)
-            if self.labels == BINARY_LABELS and self.device == "cuda" and getattr(self.agent, "cpu_fallback_count", 0) != before:
-                raise RuntimeError("Native SDK used CPU fallback; preserve the attempt rather than report GPU measurements")
+            if self.device == "cuda" and getattr(self.agent, "cpu_fallback_count", 0) != before:
+                raise RuntimeError(
+                    "Native SDK used CPU fallback; preserve the attempt rather than report GPU measurements"
+                )
             answers.append(result["answers"]["triage"])
         return answers
 
@@ -45,7 +61,12 @@ class BaseLaya:
             p = answer["probabilities"]
             vector = [p[label] for label in self.labels] if isinstance(p, dict) else p
             vector = np.asarray(vector, dtype=float)
-            if vector.shape != (len(self.labels),) or not np.isfinite(vector).all() or (vector < 0).any() or vector.sum() <= 0:
+            if (
+                vector.shape != (len(self.labels),)
+                or not np.isfinite(vector).all()
+                or (vector < 0).any()
+                or vector.sum() <= 0
+            ):
                 raise ValueError("SDK did not return a valid task distribution")
             vectors.append(np.log(np.maximum(vector / vector.sum(), 1e-12)))
         return np.array(vectors)
@@ -57,29 +78,27 @@ def fit(args):
     if "prepared" not in manifest:
         raise ValueError("Use the fresh research splits")
     labels = task_labels(manifest)
-    kind = getattr(args, "model", "laya")
-    if labels == BINARY_LABELS and kind != "laya":
-        raise ValueError("Binary-v2 excludes generative prompt references")
-    files = ("decision_base.py", "protocol.py", "schemas.py", "prepare.py")
-    config = {"family": "research_sdk", "model": LAYA_MODEL, "revision": LAYA_REVISION,
-              "questions": task_questions(labels), "labels": list(labels), "device": args.device,
-              "split_manifest": manifest, "source_sha256": {name: fingerprint(HERE / name) for name in files},
-              "versions": {name: version(name) for name in ("laya", "torch", "transformers")},
-              "selection": "Unadapted SDK reference, no training", "api_cost_usd": 0.0}
+    kind = "laya"
+    if labels != BINARY_LABELS:
+        raise ValueError("Use the binary benchmark")
+    files = source_hashes("decision_base.py", "research_runtime.py")
+    config = {
+        "family": "research_sdk",
+        "model": LAYA_MODEL,
+        "revision": LAYA_REVISION,
+        "questions": task_questions(labels),
+        "labels": list(labels),
+        "device": args.device,
+        "split_manifest": manifest,
+        "source_sha256": files,
+        "versions": {name: version(name) for name in ("laya", "torch", "transformers")},
+        "selection": "Unadapted SDK reference, no training",
+        "api_cost_usd": 0.0,
+    }
     if labels == BINARY_LABELS:
         config["task_id"] = BINARY_TASK
         config["sdk_window_batch"] = 8
         config["fallback_policy"] = "A GPU-to-CPU fallback fails the binary run; it cannot be reported as GPU inference"
-    if kind != "laya":
-        from causal import MODELS
-        files += ("causal.py", "label.py")
-        config.update(family="research_prompt", kind=kind, model=MODELS[kind][0], revision=MODELS[kind][1],
-                      adaptation="prompt", lora_rank=0, questions={}, max_len=4096,
-                      precision="NF4 double quantization; BF16 compute", thinking=False,
-                      selection="Unadapted single-token prompt reference, no training",
-                      probability_definition="Conditional on emitting A/B/C; not full-vocabulary confidence",
-                      source_sha256={name: fingerprint(HERE / name) for name in files})
-        config["versions"]["bitsandbytes"] = version("bitsandbytes")
     if args.output.exists() and any(args.output.iterdir()):
         previous = json.loads((args.output / "config.json").read_text(encoding="utf-8"))
         if not args.resume or any(previous.get(key) != value for key, value in config.items()):
@@ -98,18 +117,11 @@ def fit(args):
         (snapshot / name).write_bytes((HERE / name).read_bytes())
     save(config, args.output / "config.json")
     started = time.perf_counter()
-    if kind == "laya":
-        runtime = BaseLaya(config, args.device)
-    else:
-        from causal import CausalModel
-        runtime = CausalModel(args.device, kind=kind, adaptation="prompt", config=config).eval()
+    runtime = BaseLaya(config, args.device)
     config["load_seconds"] = time.perf_counter() - started
-    cfg = runtime.agent.cfg if kind == "laya" else runtime.cfg
+    cfg = runtime.agent.cfg
     config["context"] = {key: cfg[key] for key in ("max_len", "head_max_len")}
-    config["pooling"] = "Native SDK predict_long; most-confident window" if kind == "laya" else "Single response position"
-    if kind != "laya":
-        config.update(prompt_sha256=runtime.prompt_sha256, answer_ids=runtime.answer_ids,
-                      source_budget=runtime.source_budget, truncation="First/last source tokens; middle omitted")
+    config["pooling"] = "Native SDK predict_long; most-confident window"
     base = {key: config[key] for key in ("model", "revision", "questions", "context", "pooling", "source_sha256")}
     if labels == BINARY_LABELS:
         base.update(task_id=BINARY_TASK, labels=list(labels))
@@ -118,62 +130,75 @@ def fit(args):
     config["artifact_sha256"] = fingerprint(args.output / "base.json")
     save(config, args.output / "config.json")
     selection, calibration = [load_split(args.splits, name) for name in ("selection", "calibration")]
+
     def score(name, records):
         from schemas import body_hash
+
         path = args.output / f"{name}-logits.jsonl"
         saved = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()] if path.exists() else []
-        if len(saved) > len(records) or any(row["body_sha256"] != body_hash(record)
-                                          for row, record in zip(saved, records)):
+        if len(saved) > len(records) or any(
+            row["body_sha256"] != body_hash(record) for row, record in zip(saved, records)
+        ):
             raise ValueError("Cached SDK predictions differ from frozen records")
         with path.open("a", encoding="utf-8") as stream:
-            for record in records[len(saved):]:
+            for record in records[len(saved) :]:
                 row = {"body_sha256": body_hash(record), "logits": runtime.logits([record["body"]])[0].tolist()}
-                if kind != "laya":
-                    row.update(coverage=runtime.coverage(record["body"]),
-                               answer_probability_mass=runtime.answer_probability_mass)
                 stream.write(json.dumps(row) + "\n")
                 stream.flush()
                 saved.append(row)
                 if len(saved) % 100 == 0:
                     print(f"{kind} {name}: {len(saved)}/{len(records)}", flush=True)
         return np.array([row["logits"] for row in saved])
+
     logits, clogits = score("selection", selection), score("calibration", calibration)
     decision = calibrate(calibration, clogits, args.output, labels=labels)
     rows = prediction_rows(selection, logits, decision, labels=labels)
-    if kind != "laya":
-        cached = [json.loads(line) for line in (args.output / "selection-logits.jsonl").read_text().splitlines()]
-        for row, scored in zip(rows, cached, strict=True):
-            row.update(coverage=scored["coverage"], answer_probability_mass=scored["answer_probability_mass"])
-    save({"metrics": breakdown(rows, labels=labels), "predictions": rows, "evaluation": "Selection data; no training"},
-         args.output / "selection.json")
+    save(
+        {"metrics": breakdown(rows, labels=labels), "predictions": rows, "evaluation": "Selection data; no training"},
+        args.output / "selection.json",
+    )
+
     def predict(bodies):
         p = probabilities(runtime.logits(bodies), decision["temperature"], labels=labels)
         return p, {key: discard(p, value["threshold"], labels=labels) for key, value in decision["policies"].items()}
+
     if args.device == "cuda":
         torch.cuda.reset_peak_memory_stats()
     measured = speed(predict, selection, torch.cuda.synchronize if args.device == "cuda" else lambda: None)
-    measured.update(batch_definition="Serial SDK document calls; native windows" if kind == "laya" else "Serial single-response prompts",
-                    peak_vram_bytes=torch.cuda.max_memory_allocated() if args.device == "cuda" else 0,
-                    elapsed_seconds=time.perf_counter() - started,
-                    cost_note="Local compute; pinned base weights, electricity and hardware are additional")
+    measured.update(
+        batch_definition="Serial SDK document calls; native windows",
+        peak_vram_bytes=torch.cuda.max_memory_allocated() if args.device == "cuda" else 0,
+        elapsed_seconds=time.perf_counter() - started,
+        cost_note="Local compute; pinned base weights, electricity and hardware are additional",
+    )
     if labels == BINARY_LABELS:
-        measured.update(sdk_window_batch=config["sdk_window_batch"], cpu_fallback_count=runtime.agent.cpu_fallback_count,
-                        batch_definition="Serial documents; native most-confident aggregation; at most eight windows per GPU pass")
+        measured.update(
+            sdk_window_batch=config["sdk_window_batch"],
+            cpu_fallback_count=runtime.agent.cpu_fallback_count,
+            batch_definition="Serial documents; native most-confident aggregation; at most eight windows per GPU pass",
+        )
     save(measured, args.output / "performance.json")
-    save({"config_sha256": fingerprint(args.output / "config.json"), "decision_sha256": fingerprint(args.output / "decision.json"),
-          "artifact_sha256": fingerprint(args.output / "base.json")}, args.output / "complete.json")
+    save(
+        {
+            "config_sha256": fingerprint(args.output / "config.json"),
+            "decision_sha256": fingerprint(args.output / "decision.json"),
+            "artifact_sha256": fingerprint(args.output / "base.json"),
+        },
+        args.output / "complete.json",
+    )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--splits", type=Path, required=True)
-    parser.add_argument("--model", choices=("laya", "qwen17", "qwen4"), default="laya")
+    parser.add_argument("--model", choices=("laya",), default="laya")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     if args.device == "cuda":
         from filelock import FileLock
+
         lock = HERE / "data/research/gpu-job.lock"
         lock.parent.mkdir(parents=True, exist_ok=True)
         with FileLock(lock):

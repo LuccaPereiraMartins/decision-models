@@ -1,235 +1,329 @@
-"""Serial validation-only experiment matrix, immutable selection freeze, then test/report."""
+"""Run the bounded binary study, freeze every choice, then evaluate the revised cohort."""
 
 import argparse
+from collections import defaultdict
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
+import time
+
+import psutil
 
 from protocol import fingerprint
 from research_runtime import verify
-from schemas import HERE, load_split, save
+from schemas import BINARY_LABELS, BINARY_TASK, HERE, body_hash, load_split, save, source_hashes, task_labels
 
 
-def nearest(sizes, target):
-    return max((n for n in sizes if n <= target), default=min(sizes))
+@contextmanager
+def keep_awake():
+    """Keep this runner awake on Windows while allowing the display to turn off."""
+    setter, previous = None, None
+    if sys.platform == "win32":
+        import ctypes
+
+        setter = ctypes.windll.kernel32.SetThreadExecutionState
+        setter.argtypes, setter.restype = [ctypes.c_uint], ctypes.c_uint
+        previous = setter(0x80000001)  # ES_CONTINUOUS | ES_SYSTEM_REQUIRED, no display requirement.
+        if not previous:
+            raise OSError("Could not keep the bounded runner awake")
+    try:
+        yield
+    finally:
+        if setter:
+            setter(previous)
 
 
-class Study:
-    def __init__(self, splits, output, preset=None, reuse=None):
+class BinaryStudy:
+    optional_laya = "laya-lora-ce-w0.0-lr0.0001-n16000-c1024"
+
+    def __init__(self, splits, output, session):
         self.splits, self.output = splits.resolve(), output.resolve()
         self.output.mkdir(parents=True, exist_ok=True)
-        self.manifest = json.loads((splits / "manifest.json").read_text(encoding="utf-8"))
-        if "prepared" not in self.manifest:
-            raise ValueError("Use the fresh research benchmark")
-        subsets = json.loads((splits / "subsets.json").read_text(encoding="utf-8"))
-        self.sizes = sorted(map(int, subsets["subsets"]))
-        path = output / "plan.json"
-        previous_plan = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-        self.preset = preset or previous_plan.get("preset", "full")
-        self.reuse = Path(reuse or previous_plan["reuse"]).resolve() if reuse or previous_plan.get("reuse") else None
-        if self.preset == "core" and (self.reuse is None or 4000 not in self.sizes):
-            raise ValueError("The core study needs the completed study and the frozen 4000-document subset")
-        plan = {"manifest_sha256": fingerprint(splits / "manifest.json"),
-                "subsets_sha256": fingerprint(splits / "subsets.json"), "seed": 42,
-                "sizes": self.sizes, "screen_samples": nearest(self.sizes, 1000),
-                "context_samples": nearest(self.sizes, 4000),
-                "epochs": 3, "lora_rank": 8, "context_grid": [512, 1024, 2048, 4096],
-                "policy_targets": [.01, .05], "bootstrap_replicates": 2000,
-                "source_sha256": {name: fingerprint(HERE / name) for name in
-                                  ("study.py", "research_runtime.py", "evaluate_study.py")},
-                "sample_efficiency_note": "Recipes screened at 1000/4000 or nearest attainable sizes; tuning labels are additional",
-                "api_execution": "None; labels use the separate shared Luna ledger"}
-        if self.preset == "core":
-            plan.update(preset="core", reuse=str(self.reuse), primary_samples=4000,
-                        reuse_plan_sha256=fingerprint(self.reuse / "plan.json"),
-                        reuse_state_sha256=fingerprint(self.reuse / "state.json"),
-                        new_recipes=[{"kind": kind, "adaptation": "lora", "samples": 4000,
-                                      "context": context, "learning_rate": 1e-4, "loss": "ce",
-                                      "class_weight_power": 0.0, "lora_rank": 8}
-                                     for kind, context in (("laya", 1024), ("modernbert", 1024), ("finbert", 512))],
-                        human_review="Deferred by the user; teacher-agreement study only",
-                        deferred=["larger LoRA runs", "generative LLM adaptation", "BGE adaptation", "extra recipe/context sweeps", "RL/RLCD"])
+        self.manifest = json.loads((self.splits / "manifest.json").read_text(encoding="utf-8"))
+        if task_labels(self.manifest) != BINARY_LABELS:
+            raise ValueError("The bounded runner requires the frozen binary-v2 benchmark")
+        self.session = json.loads(session.read_text(encoding="utf-8"))
+        self.cutoff = datetime.fromisoformat(self.session["compute_cutoff_utc"]).timestamp()
+        self.sizes = [4000, 16000, 25000]
+        subsets = json.loads((self.splits / "subsets.json").read_text(encoding="utf-8"))
+        if any(str(n) not in subsets["subsets"] for n in self.sizes):
+            raise ValueError("The study requires nested 4k/16k/25k training subsets")
+        plan = {
+            "task_id": BINARY_TASK,
+            "labels": list(BINARY_LABELS),
+            "seed": 42,
+            "manifest_sha256": fingerprint(self.splits / "manifest.json"),
+            "subsets_sha256": fingerprint(self.splits / "subsets.json"),
+            "session_sha256": fingerprint(session),
+            "compute_cutoff_utc": self.session["compute_cutoff_utc"],
+            "primary_samples": 4000,
+            "sizes": self.sizes,
+            "epochs": 3,
+            "primary_comparison": "Laya LoRA versus word TF-IDF/logistic, both at 4k",
+            "neural_recipes": [
+                {"kind": "laya", "adaptation": "head", "sizes": [4000], "context": 1024, "learning_rate": 3e-5},
+                {"kind": "laya", "adaptation": "lora", "sizes": [4000, 16000], "context": 1024, "learning_rate": 1e-4},
+                {
+                    "kind": "finbert",
+                    "adaptation": "lora",
+                    "sizes": [4000, 16000],
+                    "context": 512,
+                    "learning_rate": 1e-4,
+                },
+            ],
+            "linear_models": ["tfidf/logistic", "finbert/logistic"],
+            "references": ["laya-sdk", "training-majority"],
+            "lora_rank": 8,
+            "objective": "Unweighted document-level CE; fixed uniform whole-document pooling",
+            "checkpoint_selection": "Raw binary selection macro F1; epoch zero eligible",
+            "policy_targets": [0.01, 0.05],
+            "calibration_skip_budgets": [0.1, 0.2, 0.3],
+            "bootstrap_replicates": 2000,
+            "test_reuse": "Existing 1800 bodies retained and topped up; references revised; not a fresh confirmation",
+            "laya_16k_gate": "Development/runtime only: forecast x1.3 plus 2h evaluation must fit before cutoff",
+            "deferred": ["25k LoRA", "extra seeds", "context sweeps", "other encoders", "generative LLMs", "RL/RLCD"],
+            "source_sha256": source_hashes("study.py", "train.py"),
+        }
+        path = self.output / "plan.json"
         if path.exists() and json.loads(path.read_text(encoding="utf-8")) != plan:
-            raise ValueError("Study data, matrix or source changed; preserve this study and use a new output")
+            raise ValueError("Bounded study inputs/source changed; preserve this study and use a new output")
         if not path.exists():
             save(plan, path)
-        state = output / "state.json"
-        self.state = json.loads(state.read_text(encoding="utf-8")) if state.exists() else {"jobs": {}, "attempts": []}
+        path = self.output / "state.json"
+        self.state = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"jobs": {}, "attempts": []}
         self.comparisons = {}
 
-    def reuse_run(self, name, record, role):
-        directory = self.reuse / record["directory"]
-        if not directory.resolve().is_relative_to(self.reuse):
-            raise ValueError(f"Imported job escapes the original study: {name}")
-        config, _ = verify(directory, self.manifest)
-        imported = {**record, "directory": os.path.relpath(directory, self.output),
-                    "role": role, "status": "completed", "imported_from": str(self.reuse)}
-        previous = self.state["jobs"].get(name)
-        if previous and previous != imported:
-            raise ValueError(f"Imported job changed: {name}")
-        self.state["jobs"][name] = imported
-        self.comparisons[name] = {"directory": imported["directory"], "role": role, "control_of": None}
-        return config
+    def ensure_idle(self, record):
+        """A stopped controller must not duplicate its still-running child."""
+        if not record or "pid" not in record:
+            return
+        try:
+            process = psutil.Process(record["pid"])
+            if abs(process.create_time() - record["create_time"]) > 0.001 or not process.is_running():
+                return
+            if process.cmdline() != record["command"]:
+                raise ValueError("Recorded live process command differs from its receipt")
+            raise RuntimeError(f"Recorded job is still running: PID {record['pid']}")
+        except psutil.NoSuchProcess:
+            return
 
-    def fit_core(self):
-        if (self.reuse / "test-started.json").exists():
-            raise ValueError("The reused study already opened this holdout; use a fresh benchmark")
-        original_plan = json.loads((self.reuse / "plan.json").read_text(encoding="utf-8"))
-        if original_plan["manifest_sha256"] != fingerprint(self.splits / "manifest.json"):
-            raise ValueError("The reused study has a different frozen benchmark")
-        original = json.loads((self.reuse / "state.json").read_text(encoding="utf-8"))
-        for name, record in original["jobs"].items():
-            if record["status"] != "completed":
-                continue
-            role = record["role"]
-            keep = record["script"] == "fit_baselines.py" or name == "laya-sdk"
-            if record["script"] == "train.py" and name.startswith("laya-"):
-                keep = role in ("curve", "context") or name == "laya-lora-ce-w0-lr0.0001-n1000-c1024"
-                if "-lora-" in name:
-                    role = "curve"
-            if keep:
-                self.reuse_run(name, record, role)
-        save(self.state, self.output / "state.json")
-        choices = {}
-        for kind, context in (("laya", 1024), ("modernbert", 1024), ("finbert", 512)):
-            name = self.neural(kind, "lora", 4000, context, lr=1e-4, role="curve")
-            if name is None:
-                raise RuntimeError(f"The required {kind} recipe is infeasible; preserve its OOM attempts")
-            choices[kind + "-lora"] = {"predeclared_recipe": self.recipe(name)}
-        return choices
-
-    def job(self, name, script, arguments, role="screen", control=None, fallback_of=None):
+    def job(self, name, script, arguments, role="core", control=None, fallback_of=None):
         directory = self.output / "runs" / name
-        command = [sys.executable, str(HERE / script), "--splits", str(self.splits), "--output", str(directory),
-                   *map(str, arguments)]
-        record = {"script": script, "arguments": list(map(str, arguments)), "directory": str(directory.relative_to(self.output)),
-                  "role": role, "control_of": control, "fallback_of": fallback_of}
+        command = [
+            sys.executable,
+            "-u",
+            str(HERE / script),
+            "--splits",
+            str(self.splits),
+            "--output",
+            str(directory),
+            *map(str, arguments),
+        ]
+        record = {
+            "script": script,
+            "arguments": list(map(str, arguments)),
+            "directory": str(directory.relative_to(self.output)),
+            "role": role,
+            "control_of": control,
+            "fallback_of": fallback_of,
+        }
         previous = self.state["jobs"].get(name)
-        if previous and any(previous[key] != record[key] for key in ("script", "arguments", "directory")):
-            raise ValueError(f"Job changed: {name}")
+        self.ensure_idle(previous)
+        if previous and any(previous[key] != record[key] for key in record):
+            raise ValueError(f"Changed job on resume: {name}")
         if (directory / "complete.json").exists():
             verify(directory, self.manifest)
-            record["status"] = "completed"
-        elif previous and previous["status"] == "oom":
-            record["status"] = "oom"
+            record = {**(previous or record), "status": "completed"}
+            record.pop("excluded_from_freeze", None)
         else:
+            deadline = self.cutoff - 7200 if name == self.optional_laya else self.cutoff
+            if time.time() >= deadline:
+                raise TimeoutError("Computation cutoff reached; existing checkpoints retained")
             directory.mkdir(parents=True, exist_ok=True)
-            resumable = directory / ("last.pt" if script == "train.py" else "config.json")
-            if resumable.exists() and script != "research_runtime.py":
+            if script != "research_runtime.py" and any((directory / f).exists() for f in ("last.pt", "config.json")):
                 command.append("--resume")
-            record["status"] = "running"
-            self.state["jobs"][name] = record
-            save(self.state, self.output / "state.json")
-            print(f"START {name}", flush=True)
             logs = self.output / "logs"
             logs.mkdir(exist_ok=True)
-            log = logs / f"{name}.log"
-            with log.open("a", encoding="utf-8") as stream:
-                process = subprocess.Popen(command, cwd=HERE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                           text=True, encoding="utf-8", errors="replace")
-                for line in process.stdout:
-                    stream.write(line)
-                    stream.flush()
-                    print(line, end="", flush=True)
-                code = process.wait()
-            attempt = {"job": name, "exit_code": code, "utc": datetime.now(timezone.utc).isoformat()}
-            self.state["attempts"].append(attempt)
-            oom = "out of memory" in log.read_text(encoding="utf-8").lower()
-            record["status"] = "completed" if code == 0 else "oom" if oom else "failed"
-            self.state["jobs"][name] = record
+            print(f"START {name}", flush=True)
+            started = time.time()
+            with (logs / f"{name}.log").open("a", encoding="utf-8") as log:
+                log_offset = log.tell()
+                process = subprocess.Popen(command, cwd=HERE, stdout=log, stderr=subprocess.STDOUT)
+                record.update(
+                    status="running",
+                    pid=process.pid,
+                    create_time=psutil.Process(process.pid).create_time(),
+                    command=command,
+                    started_utc=datetime.now(timezone.utc).isoformat(),
+                )
+                self.state["jobs"][name] = record
+                save(self.state, self.output / "state.json")
+                try:
+                    code = process.wait(timeout=max(1, deadline - time.time()))
+                except subprocess.TimeoutExpired:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=30)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait(timeout=30)
+                    elapsed = time.time() - started
+                    record.update(
+                        status="stopped",
+                        limitation="Computation cutoff; last resumable checkpoint retained",
+                        elapsed_seconds=(previous or {}).get("elapsed_seconds", 0) + elapsed,
+                    )
+                    self.state["attempts"].append(
+                        {"job": name, "exit_code": None, "elapsed_seconds": elapsed, "limitation": record["limitation"]}
+                    )
+                    save(self.state, self.output / "state.json")
+                    raise TimeoutError(record["limitation"]) from None
+            elapsed = time.time() - started
+            oom = (
+                code
+                and name == self.optional_laya
+                and b"out of memory" in (logs / f"{name}.log").read_bytes()[log_offset:].lower()
+            )
+            record.update(
+                status="completed" if code == 0 else "oom" if oom else "failed",
+                exit_code=code,
+                elapsed_seconds=(previous or {}).get("elapsed_seconds", 0) + elapsed,
+                ended_utc=datetime.now(timezone.utc).isoformat(),
+            )
+            self.state["attempts"].append({"job": name, "exit_code": code, "elapsed_seconds": elapsed})
             save(self.state, self.output / "state.json")
-            if code and not oom:
-                raise RuntimeError(f"Job failed; inspect {log}")
-            if code == 0:
-                verify(directory, self.manifest)
+            if code:
+                raise RuntimeError(f"Job failed: {name}; inspect its retained log/checkpoint")
+            verify(directory, self.manifest)
         self.state["jobs"][name] = record
         save(self.state, self.output / "state.json")
-        if record["status"] == "oom":
-            if "--window-batch" in arguments and str(arguments[arguments.index("--window-batch") + 1]) != "1":
-                smaller = list(arguments)
-                smaller[smaller.index("--window-batch") + 1] = 1
-                return self.job(name + "-wb1", script, smaller, role, control, fallback_of=name)
-            return None
-        if role != "screen":
-            self.comparisons[name] = {"directory": record["directory"], "role": role, "control_of": control}
+        self.comparisons[name] = {"directory": record["directory"], "role": role, "control_of": control}
         return name
 
-    def neural(self, kind, adaptation, n, context, objective="ce", weight=0, lr=1e-4, role="screen"):
+    def fit(self):
+        if (self.output / "freeze.json").exists() or (self.splits / "test-evaluation.json").exists():
+            raise ValueError("Study is frozen/evaluated; no more fitting against this cohort")
+        for record in self.state["jobs"].values():
+            self.ensure_idle(record)
+        for name in ("train", "selection", "calibration"):
+            load_split(self.splits, name)
+        choices = {}
+        for kind in ("majority", "tfidf", "finbert"):
+            name = f"{kind}-logistic-n4000"
+            choices[kind] = self.job(
+                name,
+                "fit_baselines.py",
+                ["--model", kind, "--samples", 4000, "--device", "cuda" if kind == "finbert" else "cpu"],
+            )
+        self.job("laya-sdk", "decision_base.py", ["--model", "laya"], "reference")
+        choices["laya-head"] = self.neural("laya", "head", 4000, 1024, lr=3e-5, role="core")
+        choices["laya-lora"] = self.neural("laya", "lora", 4000, 1024, role="core")
+        choices["finbert-lora"] = self.neural("finbert", "lora", 4000, 512, role="core")
+        for kind in ("tfidf", "finbert"):
+            for n in (16000, 25000):
+                self.job(
+                    f"{kind}-logistic-n{n}",
+                    "fit_baselines.py",
+                    ["--model", kind, "--samples", n, "--device", "cuda" if kind == "finbert" else "cpu"],
+                    "curve",
+                )
+        self.neural("finbert", "lora", 16000, 512, role="curve")
+        # Dataset volume and elapsed fit time inform scheduling; no test data is opened.
+        subsets = json.loads((self.splits / "subsets.json").read_text(encoding="utf-8"))["subsets"]
+        train = {body_hash(r): r for r in load_split(self.splits, "train")}
+        volume = {n: sum(len(train[h]["body"]) for h in subsets[str(n)]) for n in (4000, 16000)}
+        record = self.state["jobs"][choices["laya-lora"]]
+        history = json.loads((self.output / record["directory"] / "history.json").read_text(encoding="utf-8"))
+        elapsed = max(record.get("elapsed_seconds", 0), history["seconds"])
+        if elapsed <= 0:
+            raise ValueError("Missing measured 4k Laya runtime for the larger-fit gate")
+        forecast = elapsed * volume[16000] / volume[4000]
+        gate = {
+            "forecast_seconds": forecast,
+            "margin": 1.3,
+            "evaluation_reserve_seconds": 7200,
+            "remaining_seconds": self.cutoff - time.time(),
+        }
+        name = self.optional_laya
+        completed = (self.output / "runs" / name / "complete.json").exists()
+        previous = self.state["jobs"].get(name, {})
+        if not completed and (previous.get("excluded_from_freeze") or previous.get("status") in ("stopped", "oom")):
+            previous["excluded_from_freeze"] = True
+            status = (
+                "infeasible"
+                if previous["status"] == "oom"
+                else "stopped"
+                if previous["status"] == "stopped"
+                else self.state["laya_16k_gate"]["status"]
+            )
+            self.state["laya_16k_gate"] = {
+                **gate,
+                "status": status,
+                "limitation": previous.get("limitation", "Retained excluded partial fit; no automatic retry"),
+            }
+            save(self.state, self.output / "state.json")
+        elif completed or forecast * 1.3 + 7200 <= gate["remaining_seconds"]:
+            gate["status"] = "admitted"
+            self.state["laya_16k_gate"] = gate
+            save(self.state, self.output / "state.json")
+            try:
+                self.neural("laya", "lora", 16000, 1024, role="curve")
+            except (TimeoutError, RuntimeError) as error:
+                oom = self.state["jobs"].get(name, {}).get("status") == "oom"
+                if not isinstance(error, TimeoutError) and not oom:
+                    raise
+                self.state["laya_16k_gate"].update(status="infeasible" if oom else "stopped", limitation=str(error))
+                if name in self.state["jobs"]:
+                    self.state["jobs"][name].update(excluded_from_freeze=True, limitation=str(error))
+                self.comparisons.pop(name, None)
+                save(self.state, self.output / "state.json")
+        else:
+            self.state["laya_16k_gate"] = {
+                **gate,
+                "status": "deferred",
+                "reason": "Cannot fit guarded runtime before cutoff",
+            }
+            if name in self.state["jobs"]:
+                if self.state["jobs"][name]["status"] not in ("stopped", "oom"):
+                    raise RuntimeError("A failed optional fit needs investigation before freezing")
+                self.state["jobs"][name]["excluded_from_freeze"] = True
+            save(self.state, self.output / "state.json")
+        self.finish_selection(choices)
+
+    def neural(self, kind, adaptation, n, context, objective="ce", weight=0, lr=1e-4, role="core"):
         # Match CLI parsing so integer and float recipes reuse the same job.
         weight = float(weight)
         name = f"{kind}-{adaptation}-{objective}-w{weight}-lr{lr:g}-n{n}-c{context}"
-        arguments = ["--model", kind, "--adaptation", adaptation, "--samples", n, "--context", context,
-                     "--objective", objective, "--class-weight-power", weight, "--learning-rate", lr,
-                     "--epochs", 3, "--window-batch", 1 if kind.startswith("qwen") else 8]
+        arguments = [
+            "--model",
+            kind,
+            "--adaptation",
+            adaptation,
+            "--samples",
+            n,
+            "--context",
+            context,
+            "--objective",
+            objective,
+            "--class-weight-power",
+            weight,
+            "--learning-rate",
+            lr,
+            "--epochs",
+            3,
+            "--window-batch",
+            8,
+        ]
         if adaptation == "lora":
             arguments += ["--lora-rank", 8]
         return self.job(name, "train.py", arguments, role)
 
-    def choose(self, candidates):
-        candidates = [name for name in candidates if name]
-        if not candidates:
-            raise RuntimeError("No feasible recipe; preserve failure logs and resolve before freezing")
-        def score(name):
-            result = self.output / self.state["jobs"][name]["directory"] / "selection.json"
-            return json.loads(result.read_text(encoding="utf-8"))["metrics"]["overall"]["macro_f1"]
-        return max(candidates, key=score)  # Stable input order breaks ties.
-
     def recipe(self, name):
         directory = self.output / self.state["jobs"][name]["directory"]
         return json.loads((directory / "config.json").read_text(encoding="utf-8"))
-
-    def fit(self):
-        if (self.output / "freeze.json").exists() or (self.output / "test-started.json").exists():
-            raise ValueError("Model selection is frozen; resume test/report without fitting")
-        if (self.splits / "test-evaluation.json").exists():
-            raise ValueError("This holdout has been evaluated; do not select new recipes against it")
-        for name in ("train", "selection", "calibration"):
-            load_split(self.splits, name)  # Verify inputs; deliberately never open test.
-        if self.preset == "core":
-            choices = self.fit_core()
-            self.finish_selection(choices)
-            return
-        small, context_n = nearest(self.sizes, 1000), nearest(self.sizes, 4000)
-        for n in self.sizes:
-            for kind in ("majority", "tfidf", "char", "combined", "finbert", "bge"):
-                for classifier in (("logistic", "svm") if kind in ("tfidf", "char", "combined") else ("logistic",)):
-                    self.job(f"{kind}-{classifier}-n{n}", "fit_baselines.py",
-                             ["--model", kind, "--classifier", classifier, "--samples", n,
-                              "--device", "cuda" if kind in ("finbert", "bge") else "cpu"], "curve")
-        self.job("laya-sdk", "decision_base.py", ["--model", "laya"], "reference")
-        for kind in ("qwen17", "qwen4"):
-            self.job(kind + "-prompt", "decision_base.py", ["--model", kind], "reference")
-        choices = {}
-        for adaptation in ("head", "lora"):
-            candidates = [self.neural("laya", adaptation, small, 1024, loss, weight,
-                                      3e-5 if adaptation == "head" else 1e-4)
-                          for loss in ("ce", "brier") for weight in (0, 1)]
-            selected = self.recipe(self.choose(candidates))
-            contexts = [self.neural("laya", adaptation, context_n, context, selected["loss_kind"],
-                                    selected["class_weight_power"], selected["learning_rate"], "context")
-                        for context in (512, 1024, 2048, 4096)]
-            winner = self.choose(contexts)
-            recipe = self.recipe(winner)
-            choices[f"laya-{adaptation}"] = {"screen": selected, "context_winner": winner}
-            for n in self.sizes:
-                self.neural("laya", adaptation, n, recipe["max_len"], recipe["loss_kind"],
-                            recipe["class_weight_power"], recipe["learning_rate"], "curve")
-        for kind in ("finbert", "bge", "modernbert", "qwen17", "qwen4"):
-            for adaptation in (("lora",) if kind.startswith("qwen") else ("head", "lora")):
-                contexts = (512, 4096) if kind == "modernbert" else (4096,) if kind.startswith("qwen") else (512,)
-                rates = (5e-5, 1e-4) if kind.startswith("qwen") else (3e-5, 1e-4)
-                candidates = [self.neural(kind, adaptation, small, context, lr=rate)
-                              for context in contexts for rate in rates]
-                winner = self.choose(candidates)
-                recipe = self.recipe(winner)
-                choices[f"{kind}-{adaptation}"] = {"screen_winner": winner}
-                sizes = [context_n] if kind in ("modernbert", "qwen4") else self.sizes
-                for n in sizes:
-                    self.neural(kind, adaptation, n, recipe["max_len"], lr=recipe["learning_rate"], role="curve")
-        self.finish_selection(choices)
 
     def finish_selection(self, choices):
         # Preserve matched controls for every final neural context/recipe, once per identical setup.
@@ -241,63 +335,103 @@ class Study:
             key = tuple(config[k] for k in ("kind", "adaptation", "max_len", "window_batch"))
             if key not in controls:
                 directory = self.output / comparison["directory"]
-                controls[key] = self.job(name + "-zero", "research_runtime.py", ["--zero", str(directory)], "control", name)
+                controls[key] = self.job(
+                    name + "-zero", "research_runtime.py", ["--zero", str(directory)], "control", name
+                )
             comparison["matched_zero"] = controls[key]
-        save({"choices": choices, "comparisons": self.comparisons,
-              "criterion": "Raw selection macro F1; no test access"}, self.output / "selection.json")
+        save(
+            {
+                "choices": choices,
+                "comparisons": self.comparisons,
+                "criterion": "Raw selection macro F1; no test access",
+            },
+            self.output / "selection.json",
+        )
 
     def freeze(self):
         if (self.output / "freeze.json").exists():
+            from evaluate_study import validate_freeze
+
+            validate_freeze(self.splits, self.output)
             return
-        if (self.output / "test-started.json").exists():
-            raise ValueError("Test was opened before a valid freeze")
         selected = json.loads((self.output / "selection.json").read_text(encoding="utf-8"))
-        if any(job["status"] in ("running", "failed") for job in self.state["jobs"].values()):
-            raise ValueError("Unfinished or failed core jobs remain")
-        entries = {}
+        for record in self.state["jobs"].values():
+            self.ensure_idle(record)
+        if any(
+            j["status"] != "completed"
+            and not (name == self.optional_laya and j["status"] in ("stopped", "oom") and j.get("excluded_from_freeze"))
+            for name, j in self.state["jobs"].items()
+        ):
+            raise ValueError("Unfinished fit cannot enter the freeze")
+        completed = {name for name, record in self.state["jobs"].items() if record["status"] == "completed"}
+        if set(selected["comparisons"]) != completed:
+            raise ValueError("Selected comparisons must include every completed job and no partial fits")
+        if (
+            selected["choices"]["tfidf"] != "tfidf-logistic-n4000"
+            or selected["choices"]["laya-lora"] != "laya-lora-ce-w0.0-lr0.0001-n4000-c1024"
+        ):
+            raise ValueError("The primary comparison must remain the fixed 4k TF-IDF/Laya LoRA pair")
+        entries, curves = {}, defaultdict(list)
         for name, comparison in selected["comparisons"].items():
+            if any(comparison[k] != self.state["jobs"][name][k] for k in ("directory", "role", "control_of")):
+                raise ValueError(f"Selected job identity changed: {name}")
             directory = self.output / comparison["directory"]
             config, artifact = verify(directory, self.manifest)
+            if self.state["jobs"][name].get("excluded_from_freeze"):
+                raise ValueError("An excluded partial fit cannot enter frozen comparisons")
             files = ("config.json", "complete.json", "decision.json", "selection.json", "performance.json", artifact)
-            entries[name] = {**comparison, "sha256": {f: fingerprint(directory / f) for f in files},
-                             "selection_macro_f1": json.loads((directory / "selection.json").read_text())["metrics"]["overall"]["macro_f1"],
-                             "samples": config.get("samples", 0), "kind": config.get("kind", "laya"),
-                             "family": config["family"]}
-        maximum = 4000 if self.preset == "core" else max(self.sizes)
-        linear = [n for n, e in entries.items() if e["family"] == "research_linear" and e["samples"] == maximum]
-        decision = [n for n, e in entries.items() if e["family"] == "research_neural" and
-                    e["kind"] == "laya" and e["samples"] == maximum]
-        def choose(names):
-            return max(names, key=lambda n: entries[n]["selection_macro_f1"])
-        freeze = {"plan_sha256": fingerprint(self.output / "plan.json"),
-                  "selection_sha256": fingerprint(self.output / "selection.json"),
-                  "state_sha256": fingerprint(self.output / "state.json"),
-                  "manifest": self.manifest, "entries": entries,
-                  "primary_linear": choose(linear), "primary_decision": choose(decision),
-                  "primary_samples": maximum,
-                  "criterion": "All selections frozen before test inference", "utc": datetime.now(timezone.utc).isoformat()}
-        save(freeze, self.output / "freeze.json")
+            entries[name] = {
+                **comparison,
+                "sha256": {f: fingerprint(directory / f) for f in files},
+                "samples": config.get("samples", 0),
+                "kind": config.get("kind", "laya"),
+                "family": config["family"],
+                "selection_macro_f1": json.loads((directory / "selection.json").read_text())["metrics"]["overall"][
+                    "macro_f1"
+                ],
+            }
+            if comparison["role"] in ("core", "curve") and config["family"] in ("research_linear", "research_neural"):
+                key = tuple(
+                    config.get(k) for k in ("family", "kind", "adaptation", "classifier", "max_len", "loss_kind")
+                )
+                curves[key].append(name)
+        contrasts = {}
+        for names in curves.values():
+            names.sort(key=lambda n: entries[n]["samples"])
+            for smaller, larger in zip(names, names[1:]):
+                contrasts[larger + "-sample-increment"] = [larger, smaller]
+        save(
+            {
+                "plan_sha256": fingerprint(self.output / "plan.json"),
+                "selection_sha256": fingerprint(self.output / "selection.json"),
+                "state_sha256": fingerprint(self.output / "state.json"),
+                "manifest": self.manifest,
+                "entries": entries,
+                "sample_contrasts": contrasts,
+                "primary_linear": selected["choices"]["tfidf"],
+                "primary_decision": selected["choices"]["laya-lora"],
+                "primary_samples": 4000,
+                "criterion": "All binary choices fixed before revised-cohort evaluation",
+                "utc": datetime.now(timezone.utc).isoformat(),
+            },
+            self.output / "freeze.json",
+        )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--splits", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--stage", choices=("fit", "freeze", "test", "report", "all"), default="all")
-    parser.add_argument("--preset", choices=("full", "core"), help="Core adds only the three agreed 4000-document LoRA recipes")
-    parser.add_argument("--reuse", type=Path, help="Completed study used by the core preset; original artifacts stay unchanged")
-    parser.add_argument("--human", type=Path, help="Optional resolved human-review overlay; report only")
+    parser.add_argument("--session", type=Path, required=True)
+    parser.add_argument("--stage", choices=("fit", "freeze", "test", "all"), default="all")
     args = parser.parse_args()
-    study = Study(args.splits, args.output, args.preset, args.reuse)
-    if args.stage == "fit" and (args.output / "freeze.json").exists():
-        parser.error("The study is frozen; use test/report to resume")
-    if args.stage in ("fit", "all") and not (args.output / "freeze.json").exists():
-        study.fit()
-    if args.stage in ("freeze", "all"):
-        study.freeze()
-    if args.stage in ("test", "all"):
-        from evaluate_study import evaluate
-        evaluate(args.splits, args.output)
-    if args.stage in ("report", "all"):
-        from report import build
-        build(args.splits, args.output, args.human)
+    with keep_awake():
+        study = BinaryStudy(args.splits, args.output, args.session)
+        if args.stage in ("fit", "all") and not (args.output / "freeze.json").exists():
+            study.fit()
+        if args.stage in ("freeze", "all"):
+            study.freeze()
+        if args.stage in ("test", "all"):
+            from evaluate_study import evaluate
+
+            evaluate(args.splits, args.output, deadline=study.cutoff)
