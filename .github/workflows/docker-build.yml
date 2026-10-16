@@ -34,7 +34,7 @@ jobs:
                   with urlopen("http://127.0.0.1:8000/health", timeout=2) as response:
                       health = json.load(response)
                   break
-              except URLError:
+              except (URLError, ConnectionError, TimeoutError):
                   if attempt == 29:
                       raise
                   time.sleep(1)
