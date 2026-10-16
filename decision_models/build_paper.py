@@ -1,4 +1,4 @@
-"""Compile and package an editorial revision without changing the frozen study."""
+"""Compile the canonical paper and bind its source archive to the frozen evidence."""
 
 import argparse
 import hashlib
@@ -19,27 +19,26 @@ def sha(path):
 
 
 def build(engine):
-    original = HERE / "paper-binary-v2"
-    paper = HERE / "paper-binary-revised"
+    paper = HERE / "paper"
+    evidence = HERE / "reports/binary-v2"
     sources = sorted(p for p in paper.rglob("*") if p.suffix in (".tex", ".png"))
-    parent = json.loads((original / "paper-manifest.json").read_text(encoding="utf-8"))
-    for name, expected in {**parent["source_files"], **parent["artifacts"]}.items():
-        if sha(original / name) != expected:
-            raise ValueError(f"Original publication changed: {name}")
-    for path in sources:
-        relative = path.relative_to(paper)
-        if path.suffix == ".png" or relative.as_posix() in {
-            "references.tex", "generated/data-table.tex", "generated/supporting.tex"
+    previous = json.loads((paper / "paper-manifest.json").read_text(encoding="utf-8"))
+    inputs = json.loads((evidence / "manuscript-inputs.json").read_text(encoding="utf-8"))
+    for name, expected in inputs["generated_files"].items():
+        name = name.replace("\\", "/")
+        if name.startswith("figures/") or name in {
+            "references.tex",
+            "generated/data-table.tex",
+            "generated/supporting.tex",
         }:
-            if path.read_bytes() != (original / relative).read_bytes():
-                raise ValueError(f"Editorial revision changed scientific content: {relative}")
-    results = [
-        (directory / "generated/main-results.tex").read_text(encoding="utf-8")
-        for directory in (original, paper)
-    ]
-    for pattern in (r"\d+(?:\.\d+)?", r"\\begin\{table\}.*?\\end\{table\}"):
-        if re.findall(pattern, results[0], re.S) != re.findall(pattern, results[1], re.S):
-            raise ValueError("Editorial revision changed result numbers or tables")
+            if sha(paper / name) != expected:
+                raise ValueError(f"Scientific table, figure or reference changed: {name}")
+    tables = re.findall(
+        r"\\begin\{table\}.*?\\end\{table\}", (paper / "generated/main-results.tex").read_text(encoding="utf-8"), re.S
+    )
+    tables_sha256 = hashlib.sha256("\n".join(tables).encode()).hexdigest()
+    if tables_sha256 != previous["tables_sha256"]:
+        raise ValueError("Published result tables changed")
 
     with tempfile.TemporaryDirectory(prefix="triage-paper-") as temporary:
         clean = Path(temporary)
@@ -59,16 +58,16 @@ def build(engine):
         shutil.copyfile(archive, paper / archive.name)
         shutil.copyfile(clean / "paper.log", paper / "build-log.txt")
     manifest = {
-        "edition": "Editorial revision; unchanged binary-v2 results",
+        "edition": "Binary financial-document triage",
         "status": "compiled; visual review recorded separately in review.json",
-        "parent_manifest_sha256": sha(original / "paper-manifest.json"),
-        "freeze_sha256": parent["evidence_sha256"]["freeze.json"],
-        "evidence_sha256": parent["evidence_sha256"],
+        "freeze_sha256": sha(evidence / "freeze.json"),
+        "evidence_sha256": {name: sha(evidence / name) for name in ("evidence.json.gz", "source.zip", "metadata.zip")},
+        "tables_sha256": tables_sha256,
         "builder_sha256": sha(Path(__file__)),
         "engine": subprocess.check_output([engine, "--version"], text=True).strip(),
         "source_files": {p.relative_to(paper).as_posix(): sha(p) for p in sources},
         "artifacts": {name: sha(paper / name) for name in ("paper.pdf", "arxiv-source.zip", "build-log.txt")},
-        "checks": "Original release hashes, unchanged result numbers/tables, figures and references; fresh archive build",
+        "checks": "Frozen tables/figures/references and fresh source-archive build; earlier editions are in Git history",
     }
     (paper / "paper-manifest.json").write_bytes((json.dumps(manifest, indent=2) + "\n").encode())
 

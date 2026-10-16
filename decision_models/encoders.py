@@ -5,13 +5,11 @@ from torch import nn
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.checkpoint import checkpoint
 from transformers import AutoModel, AutoTokenizer
-from schemas import LABELS, LAYA_MODEL, LAYA_REVISION, task_labels, task_questions
+from schemas import BINARY_LABELS, LAYA_MODEL, LAYA_REVISION, task_labels, task_questions
 
 
 MODELS = {
     "finbert": ("ProsusAI/finbert", "4556d13015211d73dccd3fdd39d39232506f3e43"),
-    "bge": ("BAAI/bge-small-en-v1.5", "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"),
-    "modernbert": ("answerdotai/ModernBERT-large", "45bb4654a4d5aaff24dd11d4781fa46d39bf8c13"),
 }
 
 
@@ -19,6 +17,8 @@ def checkpoint_config(saved, requested=None):
     """Reject a checkpoint from another reference task before loading pretrained weights."""
     config = saved["config"] if saved else (requested or {})
     labels = task_labels(config)
+    if labels != BINARY_LABELS:
+        raise ValueError("Historical three-class models require their archived source snapshot")
     if saved and requested is not None and task_labels(requested) != labels:
         raise ValueError("Checkpoint task differs from the requested task")
     return config
@@ -37,7 +37,7 @@ class EncoderModel(nn.Module):
         saved = torch.load(checkpoint, map_location="cpu", weights_only=True) if checkpoint else None
         config = checkpoint_config(saved, config)
         self.labels = task_labels(config)
-        self.task_id = config.get("task_id", "triage-v1")
+        self.task_id = config.get("task_id", "binary-v2")
         self.training_config = config or None
         self.selected_epoch = saved["state"]["epoch"] if saved else None
         self.device = torch.device(device)
@@ -59,7 +59,7 @@ class EncoderModel(nn.Module):
                     r=self.lora_rank,
                     lora_alpha=2 * self.lora_rank,
                     lora_dropout=0.05,
-                    target_modules=["Wqkv"] if self.kind == "modernbert" else ["query", "value"],
+                    target_modules=["query", "value"],
                     bias="none",
                 ),
             )
@@ -99,7 +99,7 @@ class EncoderModel(nn.Module):
         ]
 
     def features(self, items):
-        """One vector per context window: BGE uses CLS; FinBERT averages unpadded tokens."""
+        """One FinBERT vector per window, averaged over unpadded tokens."""
         vectors = []
         with torch.autocast(self.device.type, dtype=torch.bfloat16, enabled=self.device.type == "cuda"):
             for start in range(0, len(items), self.window_batch):
@@ -107,16 +107,16 @@ class EncoderModel(nn.Module):
                 ids = pad_sequence(rows, batch_first=True, padding_value=self.tokenizer.pad_token_id)
                 mask = ids != self.tokenizer.pad_token_id
                 # Recompute whole window batches so long documents retain inputs, not every hidden activation.
-                pooled = (window_checkpoint(self.window_features, ids, mask)
-                          if self.adaptation == "lora" and torch.is_grad_enabled() else self.window_features(ids, mask))
+                pooled = (
+                    window_checkpoint(self.window_features, ids, mask)
+                    if self.adaptation == "lora" and torch.is_grad_enabled()
+                    else self.window_features(ids, mask)
+                )
                 vectors.append(pooled)
         return torch.cat(vectors)
 
     def window_features(self, ids, mask):
         hidden = self.encoder(input_ids=ids, attention_mask=mask).last_hidden_state
-        if self.kind == "bge":
-            # A CLS view can keep the entire token-state buffer alive across windows.
-            return hidden[:, 0].float().clone()
         return (hidden.float() * mask[:, :, None]).sum(1) / mask.sum(1)[:, None]
 
     def embed(self, body):
@@ -126,7 +126,11 @@ class EncoderModel(nn.Module):
 
     def forward(self, items):
         vectors = items.to(self.device) if isinstance(items, torch.Tensor) else self.features(items)
-        weights = torch.ones((len(vectors), 1), device=self.device) / len(vectors) if self.uniform_pooling else self.pool(vectors).softmax(0)
+        weights = (
+            torch.ones((len(vectors), 1), device=self.device) / len(vectors)
+            if self.uniform_pooling
+            else self.pool(vectors).softmax(0)
+        )
         return self.classifier((weights * vectors).sum(0)), weights[:, 0]
 
 
@@ -139,7 +143,7 @@ class DocumentModel(nn.Module):
         saved = torch.load(checkpoint, map_location="cpu", weights_only=True) if checkpoint else None
         config = checkpoint_config(saved, config)
         self.labels = task_labels(config)
-        self.task_id = config.get("task_id", "triage-v1")
+        self.task_id = config.get("task_id", "binary-v2")
         self.training_config = saved["config"] if saved else None
         self.selected_epoch = saved["state"]["epoch"] if saved else None
         config = {"model": LAYA_MODEL, "revision": LAYA_REVISION, **config}
@@ -229,8 +233,11 @@ class DocumentModel(nn.Module):
                 lengths = torch.tensor([len(seq) for seq in sequences], device=self.device)
                 mask = torch.arange(ids.shape[1], device=self.device)[None, :] < lengths[:, None]
                 markers = torch.tensor([positions for _, positions in chunk], device=self.device)
-                logits = (window_checkpoint(self.window_scores, ids, mask, markers)
-                          if torch.is_grad_enabled() else self.window_scores(ids, mask, markers))
+                logits = (
+                    window_checkpoint(self.window_scores, ids, mask, markers)
+                    if torch.is_grad_enabled()
+                    else self.window_scores(ids, mask, markers)
+                )
                 scores.append(logits)
             scores = torch.cat(scores)
             if self.uniform_pooling:
@@ -240,9 +247,14 @@ class DocumentModel(nn.Module):
             return (attention * scores).sum(0), attention[:, 0]
 
     def window_scores(self, ids, mask, markers):
-        logits, _ = self.base(ids, mask, markers, torch.ones_like(markers, dtype=torch.bool),
-                              torch.zeros(len(ids), dtype=torch.long, device=self.device),
-                              detach_encoder=not self.lora_rank)
+        logits, _ = self.base(
+            ids,
+            mask,
+            markers,
+            torch.ones_like(markers, dtype=torch.bool),
+            torch.zeros(len(ids), dtype=torch.long, device=self.device),
+            detach_encoder=not self.lora_rank,
+        )
         if logits.shape != (len(ids), len(self.labels)):
             raise ValueError("Laya logits do not match the task's ordered labels")
         return logits
@@ -254,9 +266,4 @@ def load_model(device="cuda", checkpoint=None, kind="laya", adaptation="head", l
         kind = config.get("kind", "laya")
     if kind == "laya":
         return DocumentModel(device, checkpoint, lora_rank, config)
-    if kind in ("qwen17", "qwen4"):
-        if task_labels(config) != LABELS:
-            raise ValueError("Qwen adaptation supports only the original three-class task")
-        from causal import CausalModel
-        return CausalModel(device, kind, adaptation, lora_rank, checkpoint, config)
     return EncoderModel(device, kind, adaptation, lora_rank, checkpoint, config)

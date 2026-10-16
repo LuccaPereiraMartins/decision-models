@@ -2,5 +2,3 @@
 *.log
 *.out
 *.synctex.gz
-*.xdv
-build/

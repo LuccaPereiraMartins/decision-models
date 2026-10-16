@@ -4,8 +4,7 @@ This separate package compares the fixed FinBERT LoRA recipe at 4k, 16k and 25k
 training documents on the unchanged 1,000 selection and 500 calibration documents.
 It contains no test evaluation. The 25k experiment was chosen after earlier test
 outcomes were inspected; these are fitting results, not fresh generalization evidence.
-The existing manuscript, original 16-comparison freeze and all earlier packages remain
-unchanged. Fresh held-out data is required for a new generalization comparison.
+The original 16-comparison freeze and scientific results are unchanged. Fresh held-out data is required for a new generalization comparison.
 
 | Training documents | Selection macro F1 | Selection misses / 717 | Default documents skipped |
 | --- | ---: | ---: | ---: |
@@ -54,8 +53,9 @@ identity for all three fitting recipes. Initial weights match exactly. A separat
 GPU inference replay of the completed 25k selected checkpoint on selection/calibration
 checks the saved probabilities and decisions. This replay neither fits a model nor
 accesses test documents. Exact fitting replay additionally needs the retained local
-text snapshots/checkpoints and pinned pretrained weights; their identities accompany
-the evidence and the earlier binary input archive receipt.
+text snapshots and pinned pretrained weights; their identities accompany
+the evidence and the binary input archive receipt. Selected models remain local;
+completed-run intermediate checkpoints were removed after the recorded audits.
 
 ## GPU observations
 

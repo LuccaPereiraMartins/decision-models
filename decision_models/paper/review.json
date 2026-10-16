@@ -1,8 +1,8 @@
 {
   "status": "passed",
-  "verified_utc": "2026-10-15T21:56:56.305957+00:00",
-  "paper_manifest_sha256": "6de51f0602ff478f179a540e20b92ec5977ac1a8a5fbe2540ee6cd1af2b9acfc",
-  "pdf_sha256": "d4b85fb9358005d16dc31c9dedd40ae62602ebf2847415ed8776ca0f6192b10b",
+  "verified_utc": "2026-10-16T12:40:17.583151+00:00",
+  "paper_manifest_sha256": "f1b0892cd1008358980bdd843a998f2a416c1072b5eeece121fbfee9bbc46174",
+  "pdf_sha256": "fc0c901da108dbd3c9377b549cde5cf5700945c0fb3fb7fe0f33d949c79df547",
   "pages": 8,
   "main_pages": 6,
   "reference_pages": 1,
@@ -42,13 +42,10 @@
     "7": "2d24fadc318b862225ccab9b212edf5276475d28f3972bb29866fefefbde27be",
     "8": "f4a3840631ce1bf5b07e96b082e25f36782e93b8e7887e374d1f2064325d00c9"
   },
-  "original_source_and_publication_files_unchanged": 141,
-  "syntax_checked_python_files": 46,
   "replay_checks": {
     "binary_core": "16 comparisons passed",
     "finbert25k": "3 development comparisons passed",
-    "historical_core": "64 comparisons passed"
+    "renderer": "All tables, figures and prose reproduced byte-for-byte"
   },
-  "methods_correction": "Laya averages overlapping-window logits; FinBERT averages non-overlapping-window embeddings before classification. Implementation unchanged.",
-  "limits": "Editorial and source-consistency review plus CPU evidence replay; no new model training, inference, external literature search or expert label validation."
+  "limits": "No new scientific results or test inference; existing evidence and conclusions preserved."
 }

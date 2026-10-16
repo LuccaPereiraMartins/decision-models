@@ -5,7 +5,7 @@ with reproducible evidence and a LaTeX paper. The corpus includes filings,
 corporate releases and public announcements, with SEC documents predominant.
 
 Start with the [research guide](decision_models/README.md) or
-[paper](decision_models/paper-binary-revised/paper.pdf).
+[paper](decision_models/paper/paper.pdf).
 
 ## API
 
@@ -56,14 +56,14 @@ PyTorch. Never commit `.env`. Compose does not load research credentials.
 ## Research
 
 See the [study guide](decision_models/README.md) for comparisons and
-[reproduction instructions](decision_models/reproduce.md) for CPU evidence replay.
+[reproduction instructions](decision_models/README.md#reproduce-the-published-evidence) for CPU evidence replay.
 References are LLM labels; reported agreement does not establish investment usefulness.
 
 ## Development
 
 Both workflows run on every branch push and pull-request update:
 
-- `ci.yml`: check out the repository, install uv, install only the locked lint dependencies, then run Ruff.
+- `ci.yml`: run Ruff and independently replay both published binary evidence packages on CPU.
 - `docker-build.yml`: build the inference image, verify its exact application-file allowlist and lack of neural/API dependencies, then check binary predictions, probabilities and routing.
 
-There is no separate test suite. Update and commit `uv.lock` with dependency changes.
+Update and commit `uv.lock` with dependency changes.

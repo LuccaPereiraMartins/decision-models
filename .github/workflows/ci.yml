@@ -14,3 +14,13 @@ jobs:
         run: uv sync --locked --only-group dev
       - name: Lint
         run: uv run --no-sync ruff check .
+
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Replay binary study
+        run: uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/binary-v2/verify.py
+      - name: Replay FinBERT development extension
+        run: uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/binary-finbert25k/verify.py

@@ -1,20 +1,29 @@
-"""Prepare a fresh temporal benchmark, then freeze labeled splits and nested training subsets."""
+"""Extend the original cohort without moving old evaluation groups; freeze binary references."""
 
 import argparse
 from collections import Counter, defaultdict
-from contextlib import ExitStack, closing
 from datetime import date
-import hashlib
-from importlib.metadata import version
 from itertools import zip_longest
+import hashlib
 import json
 from pathlib import Path
 import re
-import sqlite3
 
 from datasketch import MinHash, MinHashLSH
 
-from schemas import HERE, annotation, body_hash, file_hash, read_records, save, write_records
+from schemas import (
+    BINARY_LABELS,
+    BINARY_TASK,
+    HERE,
+    annotation,
+    body_hash,
+    file_hash,
+    load_split,
+    read_records,
+    save,
+    source_hashes,
+    write_records,
+)
 
 
 PERMUTATIONS = 128
@@ -32,49 +41,7 @@ def family(row):
 
 def shingle_set(body):
     tokens = re.findall(r"\w+", body.casefold())
-    return {" ".join(tokens[i:i + 5]).encode() for i in range(max(1, len(tokens) - 4))}
-
-
-def legacy_links(rows, corpora, legacy_hashes):
-    """Recognise prior 8-Ks in the SDK's text format using retained HTML, without changing model inputs."""
-    from bs4 import UnicodeDammit
-    from edgar._filings import HTMLParser, ParserConfig
-
-    caches = sorted({directory for path in corpora for directory in (path.parent / "raw", path.parent.parent / "pilot/raw")})
-    aliases = defaultdict(set)
-    audit = {"method": "Exact legacy body SHA from offline edgartools primary-HTML reconstruction",
-             "sdk_version": version("edgartools"), "attempted": 0, "matched_documents": 0, "matches": []}
-    with ExitStack() as stack:
-        databases = [stack.enter_context(closing(sqlite3.connect((directory / "responses.sqlite").resolve().as_uri() + "?mode=ro", uri=True)))
-                     for directory in caches if (directory / "responses.sqlite").exists()]
-        for row in rows:
-            provenance = row.get("provenance", {})
-            if family(row) != "8k" or not row.get("document_id") or not provenance.get("raw_sha256"):
-                continue  # Legacy records and minimal fixtures have no retained response to reconstruct.
-            url, expected = provenance["url"], provenance["raw_sha256"]
-            responses = [db.execute("SELECT body,metadata FROM responses WHERE url=?", (url,)).fetchone() for db in databases]
-            key = hashlib.sha256(url.encode()).hexdigest()
-            for directory in caches:
-                raw, metadata = directory / f"{key}.bin", directory / f"{key}.json"
-                if raw.exists() and metadata.exists():
-                    responses.append((raw.read_bytes(), metadata.read_text(encoding="utf-8")))
-            raw = next((value[0] for value in responses if value and
-                        hashlib.sha256(value[0]).hexdigest() == expected == json.loads(value[1])["raw_sha256"]), None)
-            if raw is None:
-                raise ValueError(f"Missing or changed retained HTML for legacy reconstruction: {row['document_id']}")
-            document = HTMLParser(ParserConfig(form="8-K")).parse(UnicodeDammit(raw).unicode_markup)
-            restored = document.text(table_max_col_width=500, include_images=False).strip()
-            previous = body_hash({"body": restored})
-            audit["attempted"] += 1
-            if previous in legacy_hashes:
-                digest = body_hash(row)
-                aliases[digest].add(previous)
-                audit["matched_documents"] += 1
-                audit["matches"].append({"document_id": row["document_id"], "body_sha256": digest,
-                                         "legacy_body_sha256": previous, "raw_sha256": expected})
-            if audit["attempted"] % 1000 == 0:
-                print(f"Legacy extraction check: {audit['attempted']} primary filings", flush=True)
-    return aliases, audit
+    return {" ".join(tokens[i : i + 5]).encode() for i in range(max(1, len(tokens) - 4))}
 
 
 def cluster(rows, legacy_hashes, aliases=None, event_aliases=None):
@@ -102,7 +69,7 @@ def cluster(rows, legacy_hashes, aliases=None, event_aliases=None):
             signature = MinHash(num_perm=PERMUTATIONS, seed=42)
             ordered = sorted(shingles)
             for start in range(0, len(ordered), 4096):
-                signature.update_batch(ordered[start:start + 4096])
+                signature.update_batch(ordered[start : start + 4096])
             for other in index.query(signature):
                 candidate = shingle_set(rows[other]["body"])
                 if len(shingles & candidate) / len(shingles | candidate) >= NEAR_THRESHOLD:
@@ -154,174 +121,453 @@ def sample(rows, number=None, by_label=False):
     return ordered[:number] if number is not None else ordered
 
 
-def cap_primary(rows, by_label=False):
-    others = [row for row in rows if family(row) != "8k"]
-    primary = [row for row in rows if family(row) == "8k"]
-    # At most two primary filings per three other documents gives a 40% share.
-    if len(primary) * 3 <= len(others) * 2:
-        return rows
-    primary = sample(primary, len(others) * 2 // 3, by_label=by_label)
-    return sample(others + primary, by_label=by_label)
+NAMES = ("train", "selection", "calibration", "test")
+COUNTS = {"train": 25000, "selection": 1000, "calibration": 500, "test": 2000}
 
 
-def prepare(corpora, output, legacy=HERE / "data/dataset.json", validation=1200, test=1800, train=25000, legacy_events=None):
-    from label import RUBRIC_HASH
-    if (output / "manifest.json").exists():
-        raise ValueError("Benchmark is frozen; use another output directory")
-    if (output / "prepared.json").exists():
-        raise ValueError("Preparation already exists; label its inputs and use --freeze, or a new directory")
-    legacy_rows = read_records(legacy)
-    rows, census = [], []
-    for path in [*corpora, legacy]:
-        source_rows = legacy_rows if path == legacy else read_records(path)
-        census.append({"input": str(path), "rows": len(source_rows), "legacy": path == legacy,
-                       "families": dict(Counter(family(row) for row in source_rows)),
-                       "providers": dict(Counter(row.get("source", "sec") for row in source_rows)),
-                       "start": min((row["date"] for row in source_rows), default=None),
-                       "end": max((row["date"] for row in source_rows), default=None)})
-        rows.extend(source_rows)
-    # Stable input order also makes the candidate index and union groups deterministic.
-    rows.sort(key=lambda row: (row["date"], body_hash(row), not bool(row.get("document_id")), row.get("document_id") or ""))
+def rows_from(path):
+    if path.suffix == ".json":
+        yield from read_records(path)
+    else:
+        with path.open(encoding="utf-8") as stream:
+            for line in stream:
+                if line.strip():
+                    yield json.loads(line)
+
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+def group_order(groups):
+    """Round-robin family/month; give the additional ECB coverage first priority."""
+    buckets = defaultdict(list)
+    for key, rows in groups.items():
+        buckets[(min(family(r) for r in rows), min(r["date"][:7] for r in rows))].append(key)
+    result = []
+    for ecb_first in (True, False):
+        keys = sorted(k for k in buckets if (k[0] == "ecb") == ecb_first)
+        ordered = [sorted(buckets[bucket]) for bucket in keys]
+        result.extend(key for round_ in zip_longest(*ordered) for key in round_ if key is not None)
+    return result
+
+
+def whole_groups(groups, count):
+    """Exact subset-sum with stable first-solution precedence; never split a group."""
+    if count < 0:
+        raise ValueError("The requested count cannot remove existing evaluation documents")
+    if count == 0:
+        return set()
+    reachable = {0: ()}
+    for key in group_order(groups):
+        size = len(groups[key])
+        for total, chosen in sorted(list(reachable.items()), reverse=True):
+            target = total + size
+            if target <= count and target not in reachable:
+                reachable[target] = (*chosen, key)
+        if count in reachable:
+            return set(reachable[count])
+    raise ValueError(
+        f"Cannot obtain exactly {count} documents from {sum(map(len, groups.values()))} whole-group candidates"
+    )
+
+
+def grouped(rows):
+    groups = defaultdict(list)
     for row in rows:
-        if date.fromisoformat(row["date"]).isoformat() != row["date"]:
-            raise ValueError("Every row needs an ISO publication date")
-    legacy_hashes = {body_hash(row) for row in legacy_rows}
-    event_aliases, event_audit = {}, None
-    evidence = []
-    if legacy_events is not None:
-        from legacy_events import load
-        event_aliases, event_audit = load(legacy_events, legacy)
-        evidence = [legacy_events, legacy_events.parent / "submissions.sqlite"]
-        matched = [row for row in rows if row.get("event_id") in event_aliases]
-        event_audit.update(matched_source_rows=len(matched),
-                           matched_families=dict(Counter(family(row) for row in matched)))
-    aliases, legacy_audit = legacy_links(rows, corpora, legacy_hashes)
-    groups = cluster(rows, legacy_hashes, aliases, event_aliases)
-    group_partitions = defaultdict(set)
-    for i, row in enumerate(rows):
-        group_partitions[groups[i][0]].add(partition(row["date"]))
-    selected, excluded, exclusions_by_family, seen = defaultdict(list), Counter(), defaultdict(Counter), set()
-    for i, row in enumerate(rows):
-        name, digest = partition(row["date"]), body_hash(row)
-        group, previous = groups[i]
-        reason = None
-        if len(group_partitions[group]) > 1:
-            reason = "cross_boundary_group"
-        elif name == "outside":
-            reason = "outside_dates"
-        elif name != "train" and previous:
-            reason = "previously_experimented_group"
-        elif digest in seen:
-            reason = "exact_duplicate"
-        if reason:
-            excluded[reason] += 1
-            exclusions_by_family[family(row)][reason] += 1
+        groups[row["group_id"]].append(row)
+    return dict(groups)
+
+
+def signature(body):
+    result = MinHash(num_perm=PERMUTATIONS, seed=42)
+    shingles = sorted(shingle_set(body))
+    for start in range(0, len(shingles), 4096):
+        result.update_batch(shingles[start : start + 4096])
+    return result
+
+
+def exclude_near(candidates, base):
+    """LSH retrieves candidates; exact five-token Jaccard verifies every exclusion."""
+    by_hash = {body_hash(row): row for row in base}
+    index = MinHashLSH(threshold=SEARCH_THRESHOLD, num_perm=PERMUTATIONS)
+    for number, (key, row) in enumerate(by_hash.items(), 1):
+        index.insert(key, signature(row["body"]))
+        if number % 1000 == 0:
+            print(f"Binary duplicate index: {number}/{len(by_hash)}", flush=True)
+    accepted, matches = [], []
+    for number, row in enumerate(candidates, 1):
+        shingles = shingle_set(row["body"])
+        hits = []
+        for key in index.query(signature(row["body"])):
+            other = shingle_set(by_hash[key]["body"])
+            similarity = len(shingles & other) / len(shingles | other)
+            if similarity >= NEAR_THRESHOLD:
+                hits.append((key, similarity))
+        if hits:
+            key, similarity = sorted(hits)[0]
+            matches.append({"body_sha256": body_hash(row), "base_body_sha256": key, "jaccard": similarity})
         else:
-            seen.add(digest)
-            if row["llm"]["label"] is not None and row["llm"].get("rubric_sha256") != RUBRIC_HASH:
-                row = {**row, "previous_llm_annotation": row["llm"], "llm": {"label": None, "uncertainty": None}}
-            selected[name].append({**row, "group_id": group, "previously_experimented": previous})
-    maximums = {"train": train, "validation": validation, "test": test}
-    details = {}
-    for name in maximums:
-        chosen = cap_primary(sample(selected[name], maximums[name]))
-        write_records(chosen, output / f"{name}-input.jsonl")
-        details[name] = {"available": len(selected[name]), "chosen": len(chosen),
-                         "families": dict(Counter(family(r) for r in chosen)),
-                         "labeled": sum(annotation(r)["label"] is not None for r in chosen)}
-    save({"cutoffs": CUTOFFS, "near_duplicate_threshold": NEAR_THRESHOLD, "candidate_threshold": SEARCH_THRESHOLD,
-          "rubric_sha256": RUBRIC_HASH,
-          "num_perm": PERMUTATIONS, "primary_8k_share_cap": 0.4,
-          "inputs": {str(p): file_hash(p) for p in [*corpora, legacy, *evidence]},
-          "legacy_extraction_check": legacy_audit,
-          "legacy_event_check": event_audit,
-          "census": census, "excluded": dict(excluded),
-          "exclusions_by_family": {name: dict(counts) for name, counts in exclusions_by_family.items()},
-          "partitions": details,
-          "method": "Temporal; event and verified near-duplicate groups; legacy excluded from validation/test"},
-         output / "prepared.json")
-    print(json.dumps(details), flush=True)
+            accepted.append(row)
+        if number % 250 == 0:
+            print(f"Binary candidate near audit: {number}/{len(candidates)}", flush=True)
+    return accepted, matches
 
 
-def freeze(output):
-    prepared = json.loads((output / "prepared.json").read_text(encoding="utf-8"))
-    groups, coverage = {}, {}
-    for name in ("train", "validation", "test"):
-        inputs = read_records(output / f"{name}-input.jsonl")
-        labeled = [row for row in inputs if annotation(row)["label"] is not None]
-        missing = [row for row in inputs if annotation(row)["label"] is None]
-        coverage[name] = {"queued": len(inputs), "labeled": len(labeled), "unlabeled": len(missing),
-                          "unlabeled_by_family": dict(Counter(family(row) for row in missing)),
-                          "unlabeled_errors": dict(Counter(row.get("label_error", {}).get("type", "Not labeled") for row in missing))}
-        if name != "train" and missing:
-            raise ValueError(f"Complete all selected {name} labels before freezing; {len(missing)} remain")
-        if any(row["human"]["label"] is None and prepared.get("rubric_sha256") and
-               row["llm"].get("rubric_sha256") != prepared["rubric_sha256"] for row in labeled):
-            raise ValueError("Teacher labels must use the prepared benchmark's rubric")
-        # Missing training labels can change the source mix; retain the cap after labeling.
-        retained = cap_primary(labeled, by_label=name == "train")
-        coverage[name].update(retained=len(retained), excluded_8k_share=len(labeled) - len(retained))
-        labeled = retained
-        teacher = [row["llm"] for row in labeled if row["llm"]["label"] is not None and
-                   row["llm"].get("rubric_sha256") == prepared.get("rubric_sha256")]
-        known_costs = [label["estimated_cost_usd"] for label in teacher if label.get("estimated_cost_usd") is not None]
-        coverage[name]["successful_teacher_labels"] = len(teacher)
-        coverage[name]["teacher_cost_usd"] = sum(known_costs)
-        coverage[name]["teacher_cost_unavailable"] = len(teacher) - len(known_costs)
-        if not labeled:
-            raise ValueError(f"No labeled {name} documents")
-        groups[name] = sorted(labeled, key=lambda r: (r["date"], body_hash(r)))
-    group_sets = {name: {r["group_id"] for r in rows} for name, rows in groups.items()}
-    if any(group_sets[a] & group_sets[b] for a, b in (("train", "validation"), ("train", "test"), ("validation", "test"))):
-        raise ValueError("Related groups cross partitions")
-    # Partition validation by whole group, without allowing calibration data to enter model selection.
-    group_keys = sorted(group_sets["validation"])
-    selection_keys = set(group_keys[:max(1, int(len(group_keys) * 0.7))])
-    selection = [r for r in groups["validation"] if r["group_id"] in selection_keys]
-    calibration = [r for r in groups["validation"] if r["group_id"] not in selection_keys]
-    if not calibration:
-        raise ValueError("Need at least two independent validation groups")
-    groups["selection"], groups["calibration"] = selection, calibration
-    manifest, files = {"method": prepared["method"], "prepared": prepared, "label_coverage": coverage, "splits": {}}, {}
+def binary_input(row, original_partition=None):
+    old = annotation(row)["label"] if original_partition else None
+    result = {
+        **row,
+        "previous_llm_annotation": row["llm"],
+        "previous_human_annotation": row["human"],
+        "reference_protocol": {
+            "task_id": BINARY_TASK,
+            "original_label": old,
+            "basis": "retained_three_class"
+            if old in BINARY_LABELS
+            else ("binary_redecision" if original_partition else "new_binary_label"),
+        },
+    }
+    if original_partition:
+        result["original_partition"] = original_partition
+    if old not in BINARY_LABELS:
+        result.update(llm={"label": None, "uncertainty": None}, human={"label": None, "uncertainty": None})
+    result.pop("label_error", None)
+    return result
+
+
+def verify_inputs(prepared, output):
+    for path, expected in prepared["inputs"].items():
+        if file_hash(Path(path)) != expected:
+            raise ValueError(f"Prepared source changed: {path}")
+    for name, expected in prepared["prepared_input_sha256"].items():
+        if file_hash(output / f"{name}-input.jsonl") != expected:
+            raise ValueError(f"Prepared cohort changed: {name}")
+
+
+def validate_cohorts(groups, original, counts):
+    body_sets, group_sets = {}, {}
     for name, rows in groups.items():
-        content = "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows).encode()
+        if len(rows) != counts[name]:
+            raise ValueError(f"Expected exactly {counts[name]} {name} documents")
+        body_sets[name], group_sets[name] = {body_hash(r) for r in rows}, {r["group_id"] for r in rows}
+        if len(body_sets[name]) != len(rows):
+            raise ValueError(f"Duplicate body within {name}")
+        expected = "validation" if name in ("selection", "calibration") else name
+        if any(partition(r["date"]) != expected for r in rows):
+            raise ValueError(f"A publication date crosses the {name} boundary")
+        if name != "train":
+            mapping = {body_hash(r): r["group_id"] for r in rows}
+            if any(mapping.get(body_hash(r)) != r["group_id"] for r in original[name]):
+                raise ValueError(f"Original {name} membership or group identity changed")
+    for i, left in enumerate(NAMES):
+        for right in NAMES[i + 1 :]:
+            if body_sets[left] & body_sets[right] or group_sets[left] & group_sets[right]:
+                raise ValueError(f"Body or event group crosses {left}/{right}")
+
+
+def prepare(original, corpora, ecb, ecb_audit, output, legacy, legacy_events, counts=None):
+    counts = counts or COUNTS
+    corpora = sorted(corpora)
+    settings = {
+        "original": str(original.resolve()),
+        "corpora": [str(p.resolve()) for p in corpora],
+        "ecb": str(ecb.resolve()),
+        "ecb_audit": str(ecb_audit.resolve()),
+        "legacy": str(legacy.resolve()),
+        "legacy_events": str(legacy_events.resolve()),
+        "counts": counts,
+    }
+    if (output / "manifest.json").exists():
+        raise ValueError("Binary benchmark is frozen; use another output directory")
+    if (output / "prepared.json").exists():
+        prepared = json.loads((output / "prepared.json").read_text(encoding="utf-8"))
+        verify_inputs(prepared, output)
+        if prepared["settings"] != settings:
+            raise ValueError("Preparation settings changed")
+        print("Existing preparation verified; reuse its labeling queue", flush=True)
+        return prepared
+    audit = json.loads(ecb_audit.read_text(encoding="utf-8"))
+    expected = audit.get("corpus_sha256", audit.get("files", {}).get(ecb.name))
+    if audit.get("status") not in ("pass", "passed", "verified") or expected != file_hash(ecb):
+        raise ValueError("Need a finalized successful ECB audit binding its corpus SHA")
+    old_manifest = json.loads((original / "manifest.json").read_text(encoding="utf-8"))
+    original_rows = {name: load_split(original, name) for name in NAMES}
+    legacy_rows = read_records(legacy)
+    registry = json.loads(legacy_events.read_text(encoding="utf-8"))
+    if registry["legacy_sha256"] != file_hash(legacy) or registry.get("status") != "complete":
+        raise ValueError("Legacy registry is incomplete or references another corpus")
+    inputs = [
+        original / "manifest.json",
+        original / "subsets.json",
+        legacy,
+        legacy_events,
+        ecb,
+        ecb_audit,
+        *[HERE / name for name in source_hashes("prepare.py")],
+        *corpora,
+        *[original / f"{name}.jsonl" for name in NAMES],
+    ]
+    hashes = {str(path.resolve()): file_hash(path) for path in inputs}
+    for path in [*corpora, legacy, legacy_events]:
+        if hashes[str(path.resolve())] != old_manifest["prepared"]["inputs"].get(str(path.resolve())):
+            raise ValueError(f"Original raw corpus changed: {path}")
+    base = [*legacy_rows, *[row for rows in original_rows.values() for row in rows]]
+    blocked_bodies = {body_hash(row) for row in base}
+    blocked_bodies.update(m["body_sha256"] for m in old_manifest["prepared"]["legacy_extraction_check"]["matches"])
+    blocked_events = {row["event_id"] for row in base if row.get("event_id")} | set(registry["events"])
+    candidates, seen, exclusions, event_dates = [], set(), Counter(), defaultdict(set)
+    for path in [*corpora, ecb]:
+        for row in rows_from(path):
+            if date.fromisoformat(row["date"]).isoformat() != row["date"]:
+                raise ValueError("Need ISO publication dates")
+            period, key, event = partition(row["date"]), body_hash(row), row.get("event_id")
+            if event:
+                event_dates[event].add(period)
+            if period == "outside" or (period == "train" and path != ecb):
+                continue
+            if key in blocked_bodies or event in blocked_events:
+                exclusions["existing_body_or_event"] += 1
+            elif key in seen:
+                exclusions["candidate_exact_duplicate"] += 1
+            else:
+                seen.add(key)
+                candidates.append(row)
+    cross_dates = {event for event, periods in event_dates.items() if len(periods) > 1}
+    exclusions["raw_event_cross_boundary"] = sum(r.get("event_id") in cross_dates for r in candidates)
+    candidates = [r for r in candidates if r.get("event_id") not in cross_dates]
+    candidates.sort(key=lambda r: (r["date"], body_hash(r)))
+    candidates, near_matches = exclude_near(candidates, base)
+    exclusions["verified_near_existing"] = len(near_matches)
+    identities = cluster(candidates, set())
+    additions = defaultdict(list)
+    for i, row in enumerate(candidates):
+        additions[identities[i][0]].append({**row, "group_id": identities[i][0], "previously_experimented": False})
+    available = defaultdict(dict)
+    for key, rows in additions.items():
+        periods = {partition(r["date"]) for r in rows}
+        if len(periods) != 1:
+            exclusions["new_group_cross_boundary"] += len(rows)
+        else:
+            available[periods.pop()][key] = rows
+    train_add = [row for rows in available["train"].values() for row in rows]
+    if any(r.get("source") != "ecb" for r in train_add):
+        raise ValueError("Only additional ECB documents may replace old training rows")
+    removable = {
+        key: rows
+        for key, rows in grouped(original_rows["train"]).items()
+        if all(r.get("source", "sec") == "sec" for r in rows)
+    }
+    removed = whole_groups(removable, len(train_add))
+    chosen = {"train": [r for r in original_rows["train"] if r["group_id"] not in removed] + train_add}
+    development = dict(available["validation"])
+    for name in ("selection", "calibration", "test"):
+        pool = available["test"] if name == "test" else development
+        selected = whole_groups(pool, counts[name] - len(original_rows[name]))
+        chosen[name] = original_rows[name] + [r for key in sorted(selected) for r in pool[key]]
+        for key in selected:
+            pool.pop(key)
+    validate_cohorts(chosen, original_rows, counts)
+    output.mkdir(parents=True, exist_ok=True)
+    details = {}
+    for name, rows in chosen.items():
+        old = {body_hash(r) for r in original_rows[name]}
+        converted = [
+            binary_input(r, name if body_hash(r) in old else None)
+            for r in sorted(rows, key=lambda r: (r["date"], body_hash(r)))
+        ]
+        write_records(converted, output / f"{name}-input.jsonl")
+        details[name] = {
+            "count": len(rows),
+            "new_documents": sum(body_hash(r) not in old for r in rows),
+            "sources": dict(Counter(r.get("source", "sec") for r in rows)),
+            "pending": sum(annotation(r)["label"] is None for r in converted),
+        }
+    prepared = {
+        "task_id": BINARY_TASK,
+        "labels": list(BINARY_LABELS),
+        "counts": counts,
+        "original_directory": str(original.resolve()),
+        "settings": settings,
+        "inputs": hashes,
+        "cutoffs": list(CUTOFFS),
+        "prepared_input_sha256": {name: file_hash(output / f"{name}-input.jsonl") for name in NAMES},
+        "partitions": details,
+        "exclusions": dict(exclusions),
+        "near_matches": near_matches,
+        "removed_train_groups": sorted(removed),
+        "ecb_audit_sha256": file_hash(ecb_audit),
+        "original_eval_memberships_sha256": {
+            name: digest([(body_hash(r), r["group_id"]) for r in original_rows[name]]) for name in NAMES[1:]
+        },
+        "near_duplicate_threshold": NEAR_THRESHOLD,
+        "candidate_threshold": SEARCH_THRESHOLD,
+        "method": "Inherited evaluation groups plus label-blind whole-group temporal additions; binary references",
+        "audit_limits": "LSH candidate retrieval is probabilistic. New candidates checked against selected original cohorts and legacy bodies; original group audit inherited. Unselected raw corpora are not fully re-clustered.",
+    }
+    save(prepared, output / "prepared.json")
+    print(json.dumps(details), flush=True)
+    return prepared
+
+
+def reference_metadata(row):
+    return {key: value for key, value in row.items() if key not in ("llm", "human", "label_error")}
+
+
+def freeze(output, label_files, retained_audit=None):
+    from label import BINARY_RUBRIC_HASH
+
+    if (output / "manifest.json").exists():
+        raise ValueError("Binary benchmark already frozen; never replace its references")
+    prepared = json.loads((output / "prepared.json").read_text(encoding="utf-8"))
+    verify_inputs(prepared, output)
+    original = Path(prepared["original_directory"])
+    old_rows = {name: load_split(original, name) for name in NAMES}
+    labels, evidence = {}, {}
+    for path in label_files:
+        rows = read_records(path)
+        evidence[str(path.resolve())] = file_hash(path)
+        for row in rows:
+            value = annotation(row)
+            if value["label"] is None:
+                continue
+            if (
+                value["label"] not in BINARY_LABELS
+                or value.get("rubric_sha256") != BINARY_RUBRIC_HASH
+                or value.get("task_id") != BINARY_TASK
+            ):
+                raise ValueError("New references must use the frozen binary rubric and task")
+            key = body_hash(row)
+            if key in labels and labels[key] != row:
+                raise ValueError("Conflicting binary labels or metadata for the same body")
+            labels[key] = row
+    groups = {}
+    for name in NAMES:
+        rows = list(rows_from(output / f"{name}-input.jsonl"))
+        original_by_hash = {body_hash(r): r for r in old_rows[name]}
+        for row in rows:
+            key = body_hash(row)
+            if key in original_by_hash and row != binary_input(original_by_hash[key], name):
+                raise ValueError("Prepared original references or provenance disagree with the original frozen row")
+            if key not in original_by_hash and row["reference_protocol"]["basis"] != "new_binary_label":
+                raise ValueError("New documents cannot claim retained original references")
+            if row["reference_protocol"]["basis"] != "retained_three_class":
+                if body_hash(row) not in labels:
+                    raise ValueError(f"Missing binary label in {name}: {body_hash(row)}")
+                queued = labels[key]
+                if reference_metadata(row) != reference_metadata(queued) or queued["human"].get("label") is not None:
+                    raise ValueError("Binary label queue changed prepared body/source/date/group/provenance metadata")
+                row["llm"] = queued["llm"]
+            if annotation(row)["label"] not in BINARY_LABELS:
+                raise ValueError("No unclear or unlabeled references may enter the binary benchmark")
+        groups[name] = rows
+    validate_cohorts(groups, old_rows, prepared["counts"])
+    consistency = None
+    if retained_audit:
+        audit_rows = read_records(retained_audit)
+        old_train = {body_hash(r): r for r in old_rows["train"]}
+        matrix = {a: {b: 0 for b in BINARY_LABELS} for a in BINARY_LABELS}
+        if len(audit_rows) != 200:
+            raise ValueError("Need exactly 200 completed blinded consistency audit documents")
+        if len({body_hash(r) for r in audit_rows}) != len(audit_rows):
+            raise ValueError("Consistency audit contains duplicate bodies")
+        for row in audit_rows:
+            key, value = body_hash(row), row["llm"]
+            original_row = old_train.get(key)
+            original_label = annotation(original_row)["label"] if original_row else None
+            if (
+                original_label not in BINARY_LABELS
+                or value["label"] not in BINARY_LABELS
+                or value.get("rubric_sha256") != BINARY_RUBRIC_HASH
+                or value.get("task_id") != BINARY_TASK
+                or row["human"].get("label") is not None
+            ):
+                raise ValueError("Consistency audit needs completed binary re-labels of retained training references")
+            if (
+                row.get("original_partition") != "train"
+                or row.get("previous_llm_annotation") != original_row["llm"]
+                or row.get("previous_human_annotation") != original_row["human"]
+                or row.get("reference_protocol")
+                != {
+                    "task_id": BINARY_TASK,
+                    "basis": "retained_label_consistency_audit",
+                    "original_label": original_label,
+                }
+            ):
+                raise ValueError("Consistency audit changed original reference provenance")
+            if any(row.get(k) != v for k, v in reference_metadata(original_row).items()):
+                raise ValueError("Consistency audit changed original training document metadata")
+            matrix[original_label][value["label"]] += 1
+        consistency = {
+            "documents": len(audit_rows),
+            "confusion_matrix": matrix,
+            "agreement": sum(matrix[k][k] for k in BINARY_LABELS) / len(audit_rows),
+            "sha256": file_hash(retained_audit),
+            "used_to_override_references": False,
+        }
+    if retained_audit is None and prepared["counts"] == COUNTS:
+        raise ValueError("The real binary study freeze requires the completed 200-document consistency audit")
+    manifest = {
+        "task_id": BINARY_TASK,
+        "labels": list(BINARY_LABELS),
+        "method": prepared["method"],
+        "prepared": prepared,
+        "label_sources_sha256": evidence,
+        "retained_label_consistency": consistency,
+        "test_reuse_warning": "Original three-class test outcomes were previously inspected; revised binary cohort is not a fresh independent confirmation.",
+        "splits": {},
+    }
+    files = {}
+    for name, rows in groups.items():
+        content = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows).encode()
         files[f"{name}.jsonl"] = content
-        manifest["splits"][name] = {"count": len(rows), "start": rows[0]["date"], "end": rows[-1]["date"],
-                                     "sha256": hashlib.sha256(content).hexdigest(),
-                                     "families": dict(Counter(family(r) for r in rows)),
-                                     "labels": dict(Counter(annotation(r)["label"] for r in rows))}
+        manifest["splits"][name] = {
+            "count": len(rows),
+            "start": min(r["date"] for r in rows),
+            "end": max(r["date"] for r in rows),
+            "sha256": hashlib.sha256(content).hexdigest(),
+            "families": dict(Counter(family(r) for r in rows)),
+            "sources": dict(Counter(r.get("source", "sec") for r in rows)),
+            "labels": dict(Counter(annotation(r)["label"] for r in rows)),
+            "reference_bases": dict(Counter(r["reference_protocol"]["basis"] for r in rows)),
+        }
     ordered = sample(groups["train"], by_label=True)
-    subsets = {}
-    for number in sorted(set([n for n in (250, 1000, 4000, 16000) if n <= len(ordered)] + [len(ordered)])):
-        subsets[str(number)] = [body_hash(r) for r in ordered[:number]]
-    files["subsets.json"] = (json.dumps({"seed": 42, "order": "Round-robin family/label; stable body-hash ordering",
-                                       "subsets": subsets}, indent=2) + "\n").encode()
+    sizes = sorted({n for n in (4000, 16000, len(ordered)) if n <= len(ordered)})
+    subsets = {
+        "task_id": BINARY_TASK,
+        "labels": list(BINARY_LABELS),
+        "seed": 42,
+        "order": "Round-robin family/binary-label; stable body-hash ordering",
+        "subsets": {str(n): [body_hash(r) for r in ordered[:n]] for n in sizes},
+    }
+    files["subsets.json"] = (json.dumps(subsets, indent=2) + "\n").encode()
     manifest["subsets_sha256"] = hashlib.sha256(files["subsets.json"]).hexdigest()
     files["manifest.json"] = (json.dumps(manifest, indent=2) + "\n").encode()
     for name, content in files.items():
-        path = output / name
-        if path.exists() and path.read_bytes() != content:
-            raise ValueError(f"Frozen benchmark differs: {path}")
+        if (output / name).exists() and (output / name).read_bytes() != content:
+            raise ValueError(f"Refuse to replace a partially frozen artifact: {name}")
     for name, content in files.items():
         (output / name).write_bytes(content)
     print(json.dumps(manifest["splits"]), flush=True)
+    return manifest
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--corpora", type=Path, nargs="*")
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--original", type=Path, default=HERE / "data/research/benchmark")
+    parser.add_argument("--output", type=Path, default=HERE / "data/research/binary-v2")
+    parser.add_argument(
+        "--corpora", type=Path, nargs="+", default=list((HERE / "data/research/corpus").glob("*.jsonl"))
+    )
+    parser.add_argument("--ecb", type=Path, default=HERE / "data/research/binary-v2-corpus/ecb.jsonl")
+    parser.add_argument("--ecb-audit", type=Path, default=HERE / "data/research/binary-v2-corpus/ecb-verification.json")
     parser.add_argument("--legacy", type=Path, default=HERE / "data/dataset.json")
-    parser.add_argument("--legacy-events", type=Path, default=HERE / "data/research/legacy-events/events.json",
-                        help="Verified old filing registry; links release-only candidates to prior experiments")
-    parser.add_argument("--validation", type=int, default=1200)
-    parser.add_argument("--test", type=int, default=1800)
-    parser.add_argument("--train", type=int, default=25000)
+    parser.add_argument("--legacy-events", type=Path, default=HERE / "data/research/legacy-events/events.json")
     parser.add_argument("--freeze", action="store_true")
+    parser.add_argument("--labels", type=Path, nargs="+", default=[])
+    parser.add_argument("--retained-audit", type=Path)
     args = parser.parse_args()
     if args.freeze:
-        freeze(args.output)
-    elif args.corpora:
-        prepare(args.corpora, args.output, args.legacy, args.validation, args.test, args.train, args.legacy_events)
+        freeze(args.output, args.labels, args.retained_audit)
     else:
-        parser.error("Supply --corpora or --freeze")
+        prepare(args.original, args.corpora, args.ecb, args.ecb_audit, args.output, args.legacy, args.legacy_events)
