@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "model_runtime_imports_blocked": true,
+  "network_blocked": true,
+  "raw_bodies_or_weights_present": false,
+  "arithmetic": {
+    "status": "passed",
+    "development_comparisons": 3,
+    "training_samples": [
+      4000,
+      16000,
+      25000
+    ],
+    "selection_documents": 1000,
+    "calibration_documents": 500,
+    "test_evaluations": 0,
+    "checks": "ordered cohorts, fitting/checkpoint selection, metrics/misses/policies, calibration, GPU replay, resources and telemetry"
+  },
+  "tamper_cases_rejected": [
+    "independent_logits",
+    "ordered_training_ids"
+  ]
+}

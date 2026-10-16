@@ -1,6 +1,10 @@
 .env
 .venv/
 __pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+/tmp/
 /decision_models/benchmark_results/
 /decision_models/data/
 /decision_models/training_runs/

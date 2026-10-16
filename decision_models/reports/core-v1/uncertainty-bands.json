@@ -1,0 +1,2438 @@
+{
+  "definition": "1 minus maximum calibrated class probability",
+  "method": "Fixed descriptive bands; argmax review-to-routine misses divided by review-worthy support within each band",
+  "models": {
+    "majority-logistic-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 1800,
+        "accuracy": 0.7177777777777777,
+        "review_worthy_support": 1292,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      }
+    ],
+    "tfidf-logistic-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 307,
+        "accuracy": 0.990228013029316,
+        "review_worthy_support": 290,
+        "dangerous_misses": 2,
+        "dangerous_miss_rate": 0.006896551724137931
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 313,
+        "accuracy": 0.8817891373801917,
+        "review_worthy_support": 244,
+        "dangerous_misses": 20,
+        "dangerous_miss_rate": 0.08196721311475409
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 722,
+        "accuracy": 0.6440443213296398,
+        "review_worthy_support": 440,
+        "dangerous_misses": 74,
+        "dangerous_miss_rate": 0.16818181818181818
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 458,
+        "accuracy": 0.42358078602620086,
+        "review_worthy_support": 318,
+        "dangerous_misses": 131,
+        "dangerous_miss_rate": 0.4119496855345912
+      }
+    ],
+    "tfidf-svm-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 360,
+        "accuracy": 0.9944444444444445,
+        "review_worthy_support": 347,
+        "dangerous_misses": 1,
+        "dangerous_miss_rate": 0.002881844380403458
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 300,
+        "accuracy": 0.86,
+        "review_worthy_support": 222,
+        "dangerous_misses": 16,
+        "dangerous_miss_rate": 0.07207207207207207
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 684,
+        "accuracy": 0.6418128654970761,
+        "review_worthy_support": 411,
+        "dangerous_misses": 58,
+        "dangerous_miss_rate": 0.1411192214111922
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 456,
+        "accuracy": 0.4232456140350877,
+        "review_worthy_support": 312,
+        "dangerous_misses": 117,
+        "dangerous_miss_rate": 0.375
+      }
+    ],
+    "char-logistic-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 226,
+        "accuracy": 0.9911504424778761,
+        "review_worthy_support": 213,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 305,
+        "accuracy": 0.8229508196721311,
+        "review_worthy_support": 248,
+        "dangerous_misses": 37,
+        "dangerous_miss_rate": 0.14919354838709678
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 732,
+        "accuracy": 0.6598360655737705,
+        "review_worthy_support": 458,
+        "dangerous_misses": 76,
+        "dangerous_miss_rate": 0.16593886462882096
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 537,
+        "accuracy": 0.43947858472998136,
+        "review_worthy_support": 373,
+        "dangerous_misses": 135,
+        "dangerous_miss_rate": 0.36193029490616624
+      }
+    ],
+    "char-svm-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 270,
+        "accuracy": 0.9592592592592593,
+        "review_worthy_support": 256,
+        "dangerous_misses": 6,
+        "dangerous_miss_rate": 0.0234375
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 284,
+        "accuracy": 0.8415492957746479,
+        "review_worthy_support": 229,
+        "dangerous_misses": 25,
+        "dangerous_miss_rate": 0.1091703056768559
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 708,
+        "accuracy": 0.653954802259887,
+        "review_worthy_support": 450,
+        "dangerous_misses": 66,
+        "dangerous_miss_rate": 0.14666666666666667
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 538,
+        "accuracy": 0.4851301115241636,
+        "review_worthy_support": 357,
+        "dangerous_misses": 105,
+        "dangerous_miss_rate": 0.29411764705882354
+      }
+    ],
+    "combined-logistic-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 213,
+        "accuracy": 0.9906103286384976,
+        "review_worthy_support": 197,
+        "dangerous_misses": 1,
+        "dangerous_miss_rate": 0.005076142131979695
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 313,
+        "accuracy": 0.8753993610223643,
+        "review_worthy_support": 250,
+        "dangerous_misses": 22,
+        "dangerous_miss_rate": 0.088
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 740,
+        "accuracy": 0.6445945945945946,
+        "review_worthy_support": 476,
+        "dangerous_misses": 85,
+        "dangerous_miss_rate": 0.17857142857142858
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 534,
+        "accuracy": 0.45880149812734083,
+        "review_worthy_support": 369,
+        "dangerous_misses": 132,
+        "dangerous_miss_rate": 0.35772357723577236
+      }
+    ],
+    "combined-svm-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 246,
+        "accuracy": 0.9959349593495935,
+        "review_worthy_support": 233,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 291,
+        "accuracy": 0.8969072164948454,
+        "review_worthy_support": 221,
+        "dangerous_misses": 10,
+        "dangerous_miss_rate": 0.04524886877828054
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 745,
+        "accuracy": 0.6214765100671141,
+        "review_worthy_support": 487,
+        "dangerous_misses": 79,
+        "dangerous_miss_rate": 0.162217659137577
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 518,
+        "accuracy": 0.46525096525096526,
+        "review_worthy_support": 351,
+        "dangerous_misses": 124,
+        "dangerous_miss_rate": 0.35327635327635326
+      }
+    ],
+    "finbert-logistic-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 162,
+        "accuracy": 0.8888888888888888,
+        "review_worthy_support": 138,
+        "dangerous_misses": 13,
+        "dangerous_miss_rate": 0.09420289855072464
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 260,
+        "accuracy": 0.9,
+        "review_worthy_support": 190,
+        "dangerous_misses": 15,
+        "dangerous_miss_rate": 0.07894736842105263
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 667,
+        "accuracy": 0.6776611694152923,
+        "review_worthy_support": 464,
+        "dangerous_misses": 95,
+        "dangerous_miss_rate": 0.20474137931034483
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 711,
+        "accuracy": 0.48523206751054854,
+        "review_worthy_support": 500,
+        "dangerous_misses": 137,
+        "dangerous_miss_rate": 0.274
+      }
+    ],
+    "bge-logistic-n250": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 208,
+        "accuracy": 0.9711538461538461,
+        "review_worthy_support": 195,
+        "dangerous_misses": 2,
+        "dangerous_miss_rate": 0.010256410256410256
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 271,
+        "accuracy": 0.9003690036900369,
+        "review_worthy_support": 234,
+        "dangerous_misses": 14,
+        "dangerous_miss_rate": 0.05982905982905983
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 618,
+        "accuracy": 0.6747572815533981,
+        "review_worthy_support": 421,
+        "dangerous_misses": 105,
+        "dangerous_miss_rate": 0.2494061757719715
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 703,
+        "accuracy": 0.4594594594594595,
+        "review_worthy_support": 442,
+        "dangerous_misses": 186,
+        "dangerous_miss_rate": 0.42081447963800905
+      }
+    ],
+    "majority-logistic-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 1800,
+        "accuracy": 0.7177777777777777,
+        "review_worthy_support": 1292,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      }
+    ],
+    "tfidf-logistic-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 454,
+        "accuracy": 0.9691629955947136,
+        "review_worthy_support": 376,
+        "dangerous_misses": 11,
+        "dangerous_miss_rate": 0.02925531914893617
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 288,
+        "accuracy": 0.8125,
+        "review_worthy_support": 187,
+        "dangerous_misses": 42,
+        "dangerous_miss_rate": 0.22459893048128343
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 616,
+        "accuracy": 0.6444805194805194,
+        "review_worthy_support": 426,
+        "dangerous_misses": 96,
+        "dangerous_miss_rate": 0.22535211267605634
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 442,
+        "accuracy": 0.5203619909502263,
+        "review_worthy_support": 303,
+        "dangerous_misses": 83,
+        "dangerous_miss_rate": 0.2739273927392739
+      }
+    ],
+    "tfidf-svm-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 397,
+        "accuracy": 0.9773299748110831,
+        "review_worthy_support": 352,
+        "dangerous_misses": 7,
+        "dangerous_miss_rate": 0.019886363636363636
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 303,
+        "accuracy": 0.8151815181518152,
+        "review_worthy_support": 194,
+        "dangerous_misses": 23,
+        "dangerous_miss_rate": 0.11855670103092783
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 664,
+        "accuracy": 0.608433734939759,
+        "review_worthy_support": 419,
+        "dangerous_misses": 90,
+        "dangerous_miss_rate": 0.21479713603818615
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 436,
+        "accuracy": 0.44036697247706424,
+        "review_worthy_support": 327,
+        "dangerous_misses": 112,
+        "dangerous_miss_rate": 0.3425076452599388
+      }
+    ],
+    "char-logistic-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 283,
+        "accuracy": 0.9752650176678446,
+        "review_worthy_support": 255,
+        "dangerous_misses": 6,
+        "dangerous_miss_rate": 0.023529411764705882
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 300,
+        "accuracy": 0.8566666666666667,
+        "review_worthy_support": 210,
+        "dangerous_misses": 31,
+        "dangerous_miss_rate": 0.14761904761904762
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 695,
+        "accuracy": 0.6014388489208633,
+        "review_worthy_support": 468,
+        "dangerous_misses": 124,
+        "dangerous_miss_rate": 0.26495726495726496
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 522,
+        "accuracy": 0.5172413793103449,
+        "review_worthy_support": 359,
+        "dangerous_misses": 115,
+        "dangerous_miss_rate": 0.3203342618384401
+      }
+    ],
+    "char-svm-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 426,
+        "accuracy": 0.8755868544600939,
+        "review_worthy_support": 394,
+        "dangerous_misses": 37,
+        "dangerous_miss_rate": 0.09390862944162437
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 319,
+        "accuracy": 0.8150470219435737,
+        "review_worthy_support": 250,
+        "dangerous_misses": 34,
+        "dangerous_miss_rate": 0.136
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 466,
+        "accuracy": 0.740343347639485,
+        "review_worthy_support": 289,
+        "dangerous_misses": 67,
+        "dangerous_miss_rate": 0.23183391003460208
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 589,
+        "accuracy": 0.5042444821731749,
+        "review_worthy_support": 359,
+        "dangerous_misses": 127,
+        "dangerous_miss_rate": 0.35376044568245124
+      }
+    ],
+    "combined-logistic-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 306,
+        "accuracy": 0.9705882352941176,
+        "review_worthy_support": 252,
+        "dangerous_misses": 8,
+        "dangerous_miss_rate": 0.031746031746031744
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 316,
+        "accuracy": 0.8607594936708861,
+        "review_worthy_support": 217,
+        "dangerous_misses": 28,
+        "dangerous_miss_rate": 0.12903225806451613
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 674,
+        "accuracy": 0.6483679525222552,
+        "review_worthy_support": 468,
+        "dangerous_misses": 104,
+        "dangerous_miss_rate": 0.2222222222222222
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 504,
+        "accuracy": 0.49404761904761907,
+        "review_worthy_support": 355,
+        "dangerous_misses": 122,
+        "dangerous_miss_rate": 0.3436619718309859
+      }
+    ],
+    "combined-svm-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 335,
+        "accuracy": 0.9731343283582089,
+        "review_worthy_support": 292,
+        "dangerous_misses": 8,
+        "dangerous_miss_rate": 0.0273972602739726
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 272,
+        "accuracy": 0.8602941176470589,
+        "review_worthy_support": 182,
+        "dangerous_misses": 22,
+        "dangerous_miss_rate": 0.12087912087912088
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 715,
+        "accuracy": 0.6125874125874126,
+        "review_worthy_support": 470,
+        "dangerous_misses": 112,
+        "dangerous_miss_rate": 0.23829787234042554
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 478,
+        "accuracy": 0.45397489539748953,
+        "review_worthy_support": 348,
+        "dangerous_misses": 122,
+        "dangerous_miss_rate": 0.3505747126436782
+      }
+    ],
+    "finbert-logistic-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 217,
+        "accuracy": 0.8617511520737328,
+        "review_worthy_support": 165,
+        "dangerous_misses": 23,
+        "dangerous_miss_rate": 0.1393939393939394
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 343,
+        "accuracy": 0.8513119533527697,
+        "review_worthy_support": 254,
+        "dangerous_misses": 31,
+        "dangerous_miss_rate": 0.1220472440944882
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 656,
+        "accuracy": 0.6905487804878049,
+        "review_worthy_support": 488,
+        "dangerous_misses": 108,
+        "dangerous_miss_rate": 0.22131147540983606
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 584,
+        "accuracy": 0.5102739726027398,
+        "review_worthy_support": 385,
+        "dangerous_misses": 101,
+        "dangerous_miss_rate": 0.2623376623376623
+      }
+    ],
+    "bge-logistic-n1000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 311,
+        "accuracy": 0.9453376205787781,
+        "review_worthy_support": 276,
+        "dangerous_misses": 8,
+        "dangerous_miss_rate": 0.028985507246376812
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 340,
+        "accuracy": 0.8735294117647059,
+        "review_worthy_support": 264,
+        "dangerous_misses": 18,
+        "dangerous_miss_rate": 0.06818181818181818
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 602,
+        "accuracy": 0.686046511627907,
+        "review_worthy_support": 404,
+        "dangerous_misses": 77,
+        "dangerous_miss_rate": 0.1905940594059406
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 547,
+        "accuracy": 0.49177330895795246,
+        "review_worthy_support": 348,
+        "dangerous_misses": 108,
+        "dangerous_miss_rate": 0.3103448275862069
+      }
+    ],
+    "majority-logistic-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 1800,
+        "accuracy": 0.7177777777777777,
+        "review_worthy_support": 1292,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      }
+    ],
+    "tfidf-logistic-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 706,
+        "accuracy": 0.9631728045325779,
+        "review_worthy_support": 572,
+        "dangerous_misses": 18,
+        "dangerous_miss_rate": 0.03146853146853147
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 306,
+        "accuracy": 0.7941176470588235,
+        "review_worthy_support": 199,
+        "dangerous_misses": 37,
+        "dangerous_miss_rate": 0.18592964824120603
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 475,
+        "accuracy": 0.6631578947368421,
+        "review_worthy_support": 314,
+        "dangerous_misses": 69,
+        "dangerous_miss_rate": 0.2197452229299363
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 313,
+        "accuracy": 0.4792332268370607,
+        "review_worthy_support": 207,
+        "dangerous_misses": 63,
+        "dangerous_miss_rate": 0.30434782608695654
+      }
+    ],
+    "tfidf-svm-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 723,
+        "accuracy": 0.9571230982019364,
+        "review_worthy_support": 579,
+        "dangerous_misses": 18,
+        "dangerous_miss_rate": 0.031088082901554404
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 301,
+        "accuracy": 0.8073089700996677,
+        "review_worthy_support": 198,
+        "dangerous_misses": 25,
+        "dangerous_miss_rate": 0.12626262626262627
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 449,
+        "accuracy": 0.623608017817372,
+        "review_worthy_support": 292,
+        "dangerous_misses": 70,
+        "dangerous_miss_rate": 0.23972602739726026
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 327,
+        "accuracy": 0.47706422018348627,
+        "review_worthy_support": 223,
+        "dangerous_misses": 63,
+        "dangerous_miss_rate": 0.2825112107623318
+      }
+    ],
+    "char-logistic-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 609,
+        "accuracy": 0.9458128078817734,
+        "review_worthy_support": 506,
+        "dangerous_misses": 30,
+        "dangerous_miss_rate": 0.05928853754940711
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 291,
+        "accuracy": 0.8041237113402062,
+        "review_worthy_support": 203,
+        "dangerous_misses": 36,
+        "dangerous_miss_rate": 0.17733990147783252
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 479,
+        "accuracy": 0.6805845511482255,
+        "review_worthy_support": 320,
+        "dangerous_misses": 79,
+        "dangerous_miss_rate": 0.246875
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 421,
+        "accuracy": 0.5391923990498813,
+        "review_worthy_support": 263,
+        "dangerous_misses": 85,
+        "dangerous_miss_rate": 0.3231939163498099
+      }
+    ],
+    "char-svm-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 608,
+        "accuracy": 0.9539473684210527,
+        "review_worthy_support": 511,
+        "dangerous_misses": 23,
+        "dangerous_miss_rate": 0.04500978473581213
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 308,
+        "accuracy": 0.801948051948052,
+        "review_worthy_support": 214,
+        "dangerous_misses": 36,
+        "dangerous_miss_rate": 0.16822429906542055
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 462,
+        "accuracy": 0.6883116883116883,
+        "review_worthy_support": 298,
+        "dangerous_misses": 76,
+        "dangerous_miss_rate": 0.2550335570469799
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 422,
+        "accuracy": 0.5,
+        "review_worthy_support": 269,
+        "dangerous_misses": 72,
+        "dangerous_miss_rate": 0.26765799256505574
+      }
+    ],
+    "combined-logistic-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 720,
+        "accuracy": 0.9583333333333334,
+        "review_worthy_support": 592,
+        "dangerous_misses": 21,
+        "dangerous_miss_rate": 0.03547297297297297
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 275,
+        "accuracy": 0.8290909090909091,
+        "review_worthy_support": 186,
+        "dangerous_misses": 31,
+        "dangerous_miss_rate": 0.16666666666666666
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 461,
+        "accuracy": 0.6529284164859002,
+        "review_worthy_support": 298,
+        "dangerous_misses": 74,
+        "dangerous_miss_rate": 0.2483221476510067
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 344,
+        "accuracy": 0.5145348837209303,
+        "review_worthy_support": 216,
+        "dangerous_misses": 57,
+        "dangerous_miss_rate": 0.2638888888888889
+      }
+    ],
+    "combined-svm-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 710,
+        "accuracy": 0.9577464788732394,
+        "review_worthy_support": 574,
+        "dangerous_misses": 22,
+        "dangerous_miss_rate": 0.03832752613240418
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 297,
+        "accuracy": 0.8080808080808081,
+        "review_worthy_support": 194,
+        "dangerous_misses": 35,
+        "dangerous_miss_rate": 0.18041237113402062
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 440,
+        "accuracy": 0.6363636363636364,
+        "review_worthy_support": 286,
+        "dangerous_misses": 66,
+        "dangerous_miss_rate": 0.23076923076923078
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 353,
+        "accuracy": 0.5014164305949008,
+        "review_worthy_support": 238,
+        "dangerous_misses": 71,
+        "dangerous_miss_rate": 0.29831932773109243
+      }
+    ],
+    "finbert-logistic-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 392,
+        "accuracy": 0.9566326530612245,
+        "review_worthy_support": 327,
+        "dangerous_misses": 14,
+        "dangerous_miss_rate": 0.04281345565749235
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 320,
+        "accuracy": 0.853125,
+        "review_worthy_support": 220,
+        "dangerous_misses": 29,
+        "dangerous_miss_rate": 0.1318181818181818
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 623,
+        "accuracy": 0.6741573033707865,
+        "review_worthy_support": 432,
+        "dangerous_misses": 92,
+        "dangerous_miss_rate": 0.21296296296296297
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 465,
+        "accuracy": 0.5010752688172043,
+        "review_worthy_support": 313,
+        "dangerous_misses": 101,
+        "dangerous_miss_rate": 0.3226837060702875
+      }
+    ],
+    "bge-logistic-n4000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 346,
+        "accuracy": 0.976878612716763,
+        "review_worthy_support": 312,
+        "dangerous_misses": 4,
+        "dangerous_miss_rate": 0.01282051282051282
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 311,
+        "accuracy": 0.8327974276527331,
+        "review_worthy_support": 237,
+        "dangerous_misses": 25,
+        "dangerous_miss_rate": 0.10548523206751055
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 598,
+        "accuracy": 0.6622073578595318,
+        "review_worthy_support": 388,
+        "dangerous_misses": 88,
+        "dangerous_miss_rate": 0.2268041237113402
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 545,
+        "accuracy": 0.48807339449541287,
+        "review_worthy_support": 355,
+        "dangerous_misses": 121,
+        "dangerous_miss_rate": 0.3408450704225352
+      }
+    ],
+    "majority-logistic-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 1800,
+        "accuracy": 0.7177777777777777,
+        "review_worthy_support": 1292,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      }
+    ],
+    "tfidf-logistic-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1003,
+        "accuracy": 0.9680957128614157,
+        "review_worthy_support": 831,
+        "dangerous_misses": 13,
+        "dangerous_miss_rate": 0.015643802647412757
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 273,
+        "accuracy": 0.8021978021978022,
+        "review_worthy_support": 163,
+        "dangerous_misses": 25,
+        "dangerous_miss_rate": 0.15337423312883436
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 334,
+        "accuracy": 0.7065868263473054,
+        "review_worthy_support": 194,
+        "dangerous_misses": 48,
+        "dangerous_miss_rate": 0.24742268041237114
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 190,
+        "accuracy": 0.5473684210526316,
+        "review_worthy_support": 104,
+        "dangerous_misses": 25,
+        "dangerous_miss_rate": 0.2403846153846154
+      }
+    ],
+    "tfidf-svm-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 982,
+        "accuracy": 0.9725050916496945,
+        "review_worthy_support": 794,
+        "dangerous_misses": 15,
+        "dangerous_miss_rate": 0.018891687657430732
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 286,
+        "accuracy": 0.7587412587412588,
+        "review_worthy_support": 169,
+        "dangerous_misses": 36,
+        "dangerous_miss_rate": 0.21301775147928995
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 322,
+        "accuracy": 0.7049689440993789,
+        "review_worthy_support": 204,
+        "dangerous_misses": 44,
+        "dangerous_miss_rate": 0.21568627450980393
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 210,
+        "accuracy": 0.5666666666666667,
+        "review_worthy_support": 125,
+        "dangerous_misses": 23,
+        "dangerous_miss_rate": 0.184
+      }
+    ],
+    "char-logistic-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 914,
+        "accuracy": 0.9671772428884027,
+        "review_worthy_support": 770,
+        "dangerous_misses": 21,
+        "dangerous_miss_rate": 0.02727272727272727
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 269,
+        "accuracy": 0.8215613382899628,
+        "review_worthy_support": 164,
+        "dangerous_misses": 24,
+        "dangerous_miss_rate": 0.14634146341463414
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 366,
+        "accuracy": 0.6775956284153005,
+        "review_worthy_support": 207,
+        "dangerous_misses": 60,
+        "dangerous_miss_rate": 0.2898550724637681
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 251,
+        "accuracy": 0.6055776892430279,
+        "review_worthy_support": 151,
+        "dangerous_misses": 40,
+        "dangerous_miss_rate": 0.26490066225165565
+      }
+    ],
+    "char-svm-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 878,
+        "accuracy": 0.9703872437357631,
+        "review_worthy_support": 730,
+        "dangerous_misses": 19,
+        "dangerous_miss_rate": 0.026027397260273973
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 275,
+        "accuracy": 0.7927272727272727,
+        "review_worthy_support": 158,
+        "dangerous_misses": 36,
+        "dangerous_miss_rate": 0.22784810126582278
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 374,
+        "accuracy": 0.7032085561497327,
+        "review_worthy_support": 224,
+        "dangerous_misses": 54,
+        "dangerous_miss_rate": 0.24107142857142858
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 273,
+        "accuracy": 0.4981684981684982,
+        "review_worthy_support": 180,
+        "dangerous_misses": 50,
+        "dangerous_miss_rate": 0.2777777777777778
+      }
+    ],
+    "combined-logistic-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 930,
+        "accuracy": 0.9634408602150538,
+        "review_worthy_support": 766,
+        "dangerous_misses": 16,
+        "dangerous_miss_rate": 0.020887728459530026
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 277,
+        "accuracy": 0.8483754512635379,
+        "review_worthy_support": 178,
+        "dangerous_misses": 27,
+        "dangerous_miss_rate": 0.15168539325842698
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 371,
+        "accuracy": 0.6738544474393531,
+        "review_worthy_support": 220,
+        "dangerous_misses": 58,
+        "dangerous_miss_rate": 0.2636363636363636
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 222,
+        "accuracy": 0.5315315315315315,
+        "review_worthy_support": 128,
+        "dangerous_misses": 41,
+        "dangerous_miss_rate": 0.3203125
+      }
+    ],
+    "combined-svm-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1022,
+        "accuracy": 0.9608610567514677,
+        "review_worthy_support": 836,
+        "dangerous_misses": 20,
+        "dangerous_miss_rate": 0.023923444976076555
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 252,
+        "accuracy": 0.7857142857142857,
+        "review_worthy_support": 146,
+        "dangerous_misses": 31,
+        "dangerous_miss_rate": 0.21232876712328766
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 317,
+        "accuracy": 0.7066246056782335,
+        "review_worthy_support": 192,
+        "dangerous_misses": 43,
+        "dangerous_miss_rate": 0.22395833333333334
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 209,
+        "accuracy": 0.5454545454545454,
+        "review_worthy_support": 118,
+        "dangerous_misses": 42,
+        "dangerous_miss_rate": 0.3559322033898305
+      }
+    ],
+    "finbert-logistic-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 664,
+        "accuracy": 0.9518072289156626,
+        "review_worthy_support": 529,
+        "dangerous_misses": 15,
+        "dangerous_miss_rate": 0.02835538752362949
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 316,
+        "accuracy": 0.8322784810126582,
+        "review_worthy_support": 211,
+        "dangerous_misses": 29,
+        "dangerous_miss_rate": 0.13744075829383887
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 490,
+        "accuracy": 0.6755102040816326,
+        "review_worthy_support": 340,
+        "dangerous_misses": 92,
+        "dangerous_miss_rate": 0.27058823529411763
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 330,
+        "accuracy": 0.5363636363636364,
+        "review_worthy_support": 212,
+        "dangerous_misses": 62,
+        "dangerous_miss_rate": 0.29245283018867924
+      }
+    ],
+    "bge-logistic-n16000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 603,
+        "accuracy": 0.9718076285240465,
+        "review_worthy_support": 532,
+        "dangerous_misses": 8,
+        "dangerous_miss_rate": 0.015037593984962405
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 277,
+        "accuracy": 0.8664259927797834,
+        "review_worthy_support": 182,
+        "dangerous_misses": 16,
+        "dangerous_miss_rate": 0.08791208791208792
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 498,
+        "accuracy": 0.6586345381526104,
+        "review_worthy_support": 326,
+        "dangerous_misses": 79,
+        "dangerous_miss_rate": 0.24233128834355827
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 422,
+        "accuracy": 0.5023696682464455,
+        "review_worthy_support": 252,
+        "dangerous_misses": 78,
+        "dangerous_miss_rate": 0.30952380952380953
+      }
+    ],
+    "majority-logistic-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 1800,
+        "accuracy": 0.7177777777777777,
+        "review_worthy_support": 1292,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      }
+    ],
+    "tfidf-logistic-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1025,
+        "accuracy": 0.9648780487804878,
+        "review_worthy_support": 851,
+        "dangerous_misses": 11,
+        "dangerous_miss_rate": 0.012925969447708578
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 260,
+        "accuracy": 0.8576923076923076,
+        "review_worthy_support": 165,
+        "dangerous_misses": 15,
+        "dangerous_miss_rate": 0.09090909090909091
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 334,
+        "accuracy": 0.6976047904191617,
+        "review_worthy_support": 184,
+        "dangerous_misses": 42,
+        "dangerous_miss_rate": 0.22826086956521738
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 181,
+        "accuracy": 0.49171270718232046,
+        "review_worthy_support": 92,
+        "dangerous_misses": 30,
+        "dangerous_miss_rate": 0.32608695652173914
+      }
+    ],
+    "tfidf-svm-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1064,
+        "accuracy": 0.9605263157894737,
+        "review_worthy_support": 866,
+        "dangerous_misses": 17,
+        "dangerous_miss_rate": 0.019630484988452657
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 282,
+        "accuracy": 0.8581560283687943,
+        "review_worthy_support": 166,
+        "dangerous_misses": 16,
+        "dangerous_miss_rate": 0.0963855421686747
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 277,
+        "accuracy": 0.6606498194945848,
+        "review_worthy_support": 167,
+        "dangerous_misses": 41,
+        "dangerous_miss_rate": 0.24550898203592814
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 177,
+        "accuracy": 0.519774011299435,
+        "review_worthy_support": 93,
+        "dangerous_misses": 24,
+        "dangerous_miss_rate": 0.25806451612903225
+      }
+    ],
+    "char-logistic-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1005,
+        "accuracy": 0.9711442786069652,
+        "review_worthy_support": 875,
+        "dangerous_misses": 12,
+        "dangerous_miss_rate": 0.013714285714285714
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 236,
+        "accuracy": 0.7966101694915254,
+        "review_worthy_support": 135,
+        "dangerous_misses": 16,
+        "dangerous_miss_rate": 0.11851851851851852
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 335,
+        "accuracy": 0.7074626865671642,
+        "review_worthy_support": 164,
+        "dangerous_misses": 35,
+        "dangerous_miss_rate": 0.21341463414634146
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 224,
+        "accuracy": 0.5892857142857143,
+        "review_worthy_support": 118,
+        "dangerous_misses": 29,
+        "dangerous_miss_rate": 0.2457627118644068
+      }
+    ],
+    "char-svm-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1047,
+        "accuracy": 0.9665711556829035,
+        "review_worthy_support": 908,
+        "dangerous_misses": 8,
+        "dangerous_miss_rate": 0.00881057268722467
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 254,
+        "accuracy": 0.8070866141732284,
+        "review_worthy_support": 133,
+        "dangerous_misses": 19,
+        "dangerous_miss_rate": 0.14285714285714285
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 302,
+        "accuracy": 0.6986754966887417,
+        "review_worthy_support": 152,
+        "dangerous_misses": 26,
+        "dangerous_miss_rate": 0.17105263157894737
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 197,
+        "accuracy": 0.5583756345177665,
+        "review_worthy_support": 99,
+        "dangerous_misses": 29,
+        "dangerous_miss_rate": 0.29292929292929293
+      }
+    ],
+    "combined-logistic-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1097,
+        "accuracy": 0.9617137648131268,
+        "review_worthy_support": 943,
+        "dangerous_misses": 13,
+        "dangerous_miss_rate": 0.013785790031813362
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 233,
+        "accuracy": 0.8497854077253219,
+        "review_worthy_support": 123,
+        "dangerous_misses": 9,
+        "dangerous_miss_rate": 0.07317073170731707
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 294,
+        "accuracy": 0.6632653061224489,
+        "review_worthy_support": 141,
+        "dangerous_misses": 38,
+        "dangerous_miss_rate": 0.2695035460992908
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 176,
+        "accuracy": 0.5170454545454546,
+        "review_worthy_support": 85,
+        "dangerous_misses": 25,
+        "dangerous_miss_rate": 0.29411764705882354
+      }
+    ],
+    "combined-svm-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 1086,
+        "accuracy": 0.9668508287292817,
+        "review_worthy_support": 893,
+        "dangerous_misses": 16,
+        "dangerous_miss_rate": 0.01791713325867861
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 267,
+        "accuracy": 0.8239700374531835,
+        "review_worthy_support": 154,
+        "dangerous_misses": 19,
+        "dangerous_miss_rate": 0.12337662337662338
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 268,
+        "accuracy": 0.664179104477612,
+        "review_worthy_support": 151,
+        "dangerous_misses": 38,
+        "dangerous_miss_rate": 0.25165562913907286
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 179,
+        "accuracy": 0.5307262569832403,
+        "review_worthy_support": 94,
+        "dangerous_misses": 27,
+        "dangerous_miss_rate": 0.2872340425531915
+      }
+    ],
+    "finbert-logistic-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 844,
+        "accuracy": 0.9691943127962085,
+        "review_worthy_support": 728,
+        "dangerous_misses": 6,
+        "dangerous_miss_rate": 0.008241758241758242
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 277,
+        "accuracy": 0.8592057761732852,
+        "review_worthy_support": 176,
+        "dangerous_misses": 10,
+        "dangerous_miss_rate": 0.056818181818181816
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 403,
+        "accuracy": 0.71712158808933,
+        "review_worthy_support": 243,
+        "dangerous_misses": 41,
+        "dangerous_miss_rate": 0.16872427983539096
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 276,
+        "accuracy": 0.43478260869565216,
+        "review_worthy_support": 145,
+        "dangerous_misses": 55,
+        "dangerous_miss_rate": 0.3793103448275862
+      }
+    ],
+    "bge-logistic-n25000": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 739,
+        "accuracy": 0.9634641407307172,
+        "review_worthy_support": 676,
+        "dangerous_misses": 3,
+        "dangerous_miss_rate": 0.004437869822485207
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 319,
+        "accuracy": 0.8307210031347962,
+        "review_worthy_support": 214,
+        "dangerous_misses": 8,
+        "dangerous_miss_rate": 0.037383177570093455
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 422,
+        "accuracy": 0.7109004739336493,
+        "review_worthy_support": 231,
+        "dangerous_misses": 30,
+        "dangerous_miss_rate": 0.12987012987012986
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 320,
+        "accuracy": 0.559375,
+        "review_worthy_support": 171,
+        "dangerous_misses": 43,
+        "dangerous_miss_rate": 0.25146198830409355
+      }
+    ],
+    "laya-sdk": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 17,
+        "accuracy": 1.0,
+        "review_worthy_support": 17,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 275,
+        "accuracy": 0.9345454545454546,
+        "review_worthy_support": 259,
+        "dangerous_misses": 2,
+        "dangerous_miss_rate": 0.007722007722007722
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 986,
+        "accuracy": 0.6683569979716024,
+        "review_worthy_support": 741,
+        "dangerous_misses": 155,
+        "dangerous_miss_rate": 0.20917678812415655
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 522,
+        "accuracy": 0.34099616858237547,
+        "review_worthy_support": 275,
+        "dangerous_misses": 164,
+        "dangerous_miss_rate": 0.5963636363636363
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c512": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 92,
+        "accuracy": 0.8913043478260869,
+        "review_worthy_support": 76,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 182,
+        "accuracy": 0.8406593406593407,
+        "review_worthy_support": 112,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 456,
+        "accuracy": 0.6820175438596491,
+        "review_worthy_support": 336,
+        "dangerous_misses": 26,
+        "dangerous_miss_rate": 0.07738095238095238
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 1070,
+        "accuracy": 0.4542056074766355,
+        "review_worthy_support": 768,
+        "dangerous_misses": 397,
+        "dangerous_miss_rate": 0.5169270833333334
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c1024": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 166,
+        "accuracy": 0.9036144578313253,
+        "review_worthy_support": 150,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 160,
+        "accuracy": 0.88125,
+        "review_worthy_support": 140,
+        "dangerous_misses": 4,
+        "dangerous_miss_rate": 0.02857142857142857
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 743,
+        "accuracy": 0.6971736204576043,
+        "review_worthy_support": 517,
+        "dangerous_misses": 43,
+        "dangerous_miss_rate": 0.08317214700193423
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 731,
+        "accuracy": 0.44459644322845415,
+        "review_worthy_support": 485,
+        "dangerous_misses": 184,
+        "dangerous_miss_rate": 0.37938144329896906
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c2048": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 46,
+        "accuracy": 0.9565217391304348,
+        "review_worthy_support": 44,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 123,
+        "accuracy": 0.8536585365853658,
+        "review_worthy_support": 92,
+        "dangerous_misses": 9,
+        "dangerous_miss_rate": 0.09782608695652174
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 767,
+        "accuracy": 0.7131681877444589,
+        "review_worthy_support": 561,
+        "dangerous_misses": 49,
+        "dangerous_miss_rate": 0.0873440285204991
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 864,
+        "accuracy": 0.44675925925925924,
+        "review_worthy_support": 595,
+        "dangerous_misses": 172,
+        "dangerous_miss_rate": 0.28907563025210087
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c4096": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 130,
+        "accuracy": 0.9846153846153847,
+        "review_worthy_support": 127,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 208,
+        "accuracy": 0.8942307692307693,
+        "review_worthy_support": 172,
+        "dangerous_misses": 11,
+        "dangerous_miss_rate": 0.06395348837209303
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 596,
+        "accuracy": 0.6493288590604027,
+        "review_worthy_support": 413,
+        "dangerous_misses": 56,
+        "dangerous_miss_rate": 0.13559322033898305
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 866,
+        "accuracy": 0.394919168591224,
+        "review_worthy_support": 580,
+        "dangerous_misses": 227,
+        "dangerous_miss_rate": 0.3913793103448276
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n250-c1024": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 59,
+        "accuracy": 0.8135593220338984,
+        "review_worthy_support": 48,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 209,
+        "accuracy": 0.8564593301435407,
+        "review_worthy_support": 180,
+        "dangerous_misses": 5,
+        "dangerous_miss_rate": 0.027777777777777776
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 768,
+        "accuracy": 0.7109375,
+        "review_worthy_support": 572,
+        "dangerous_misses": 55,
+        "dangerous_miss_rate": 0.09615384615384616
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 764,
+        "accuracy": 0.5706806282722513,
+        "review_worthy_support": 492,
+        "dangerous_misses": 121,
+        "dangerous_miss_rate": 0.2459349593495935
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n1000-c1024": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 377,
+        "accuracy": 0.8726790450928382,
+        "review_worthy_support": 330,
+        "dangerous_misses": 2,
+        "dangerous_miss_rate": 0.006060606060606061
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 171,
+        "accuracy": 0.9064327485380117,
+        "review_worthy_support": 154,
+        "dangerous_misses": 2,
+        "dangerous_miss_rate": 0.012987012987012988
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 441,
+        "accuracy": 0.8140589569160998,
+        "review_worthy_support": 351,
+        "dangerous_misses": 18,
+        "dangerous_miss_rate": 0.05128205128205128
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 811,
+        "accuracy": 0.45745992601726265,
+        "review_worthy_support": 457,
+        "dangerous_misses": 173,
+        "dangerous_miss_rate": 0.3785557986870897
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n16000-c1024": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 410,
+        "accuracy": 0.9634146341463414,
+        "review_worthy_support": 377,
+        "dangerous_misses": 1,
+        "dangerous_miss_rate": 0.002652519893899204
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 272,
+        "accuracy": 0.9117647058823529,
+        "review_worthy_support": 204,
+        "dangerous_misses": 6,
+        "dangerous_miss_rate": 0.029411764705882353
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 505,
+        "accuracy": 0.7069306930693069,
+        "review_worthy_support": 328,
+        "dangerous_misses": 82,
+        "dangerous_miss_rate": 0.25
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 613,
+        "accuracy": 0.3621533442088091,
+        "review_worthy_support": 383,
+        "dangerous_misses": 261,
+        "dangerous_miss_rate": 0.6814621409921671
+      }
+    ],
+    "laya-lora-ce-w0-lr0.0001-n1000-c1024": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 287,
+        "accuracy": 0.8885017421602788,
+        "review_worthy_support": 240,
+        "dangerous_misses": 24,
+        "dangerous_miss_rate": 0.1
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 285,
+        "accuracy": 0.8491228070175438,
+        "review_worthy_support": 218,
+        "dangerous_misses": 24,
+        "dangerous_miss_rate": 0.11009174311926606
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 646,
+        "accuracy": 0.7786377708978328,
+        "review_worthy_support": 475,
+        "dangerous_misses": 83,
+        "dangerous_miss_rate": 0.17473684210526316
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 582,
+        "accuracy": 0.47594501718213056,
+        "review_worthy_support": 359,
+        "dangerous_misses": 129,
+        "dangerous_miss_rate": 0.3593314763231198
+      }
+    ],
+    "laya-lora-ce-w0.0-lr0.0001-n4000-c1024": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 696,
+        "accuracy": 0.9540229885057471,
+        "review_worthy_support": 512,
+        "dangerous_misses": 21,
+        "dangerous_miss_rate": 0.041015625
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 386,
+        "accuracy": 0.8238341968911918,
+        "review_worthy_support": 283,
+        "dangerous_misses": 34,
+        "dangerous_miss_rate": 0.12014134275618374
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 460,
+        "accuracy": 0.6347826086956522,
+        "review_worthy_support": 321,
+        "dangerous_misses": 65,
+        "dangerous_miss_rate": 0.20249221183800623
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 258,
+        "accuracy": 0.47674418604651164,
+        "review_worthy_support": 176,
+        "dangerous_misses": 57,
+        "dangerous_miss_rate": 0.32386363636363635
+      }
+    ],
+    "modernbert-lora-ce-w0.0-lr0.0001-n4000-c1024": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 388,
+        "accuracy": 0.9381443298969072,
+        "review_worthy_support": 288,
+        "dangerous_misses": 23,
+        "dangerous_miss_rate": 0.0798611111111111
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 481,
+        "accuracy": 0.8586278586278586,
+        "review_worthy_support": 308,
+        "dangerous_misses": 56,
+        "dangerous_miss_rate": 0.18181818181818182
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 550,
+        "accuracy": 0.6745454545454546,
+        "review_worthy_support": 428,
+        "dangerous_misses": 117,
+        "dangerous_miss_rate": 0.2733644859813084
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 381,
+        "accuracy": 0.48293963254593175,
+        "review_worthy_support": 268,
+        "dangerous_misses": 71,
+        "dangerous_miss_rate": 0.26492537313432835
+      }
+    ],
+    "finbert-lora-ce-w0.0-lr0.0001-n4000-c512": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 127,
+        "accuracy": 0.9448818897637795,
+        "review_worthy_support": 103,
+        "dangerous_misses": 7,
+        "dangerous_miss_rate": 0.06796116504854369
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 448,
+        "accuracy": 0.8214285714285714,
+        "review_worthy_support": 284,
+        "dangerous_misses": 33,
+        "dangerous_miss_rate": 0.11619718309859155
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 754,
+        "accuracy": 0.6445623342175066,
+        "review_worthy_support": 543,
+        "dangerous_misses": 149,
+        "dangerous_miss_rate": 0.27440147329650094
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 471,
+        "accuracy": 0.5435244161358811,
+        "review_worthy_support": 362,
+        "dangerous_misses": 117,
+        "dangerous_miss_rate": 0.32320441988950277
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c512-zero": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 9,
+        "accuracy": 0.8888888888888888,
+        "review_worthy_support": 8,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 143,
+        "accuracy": 0.8181818181818182,
+        "review_worthy_support": 122,
+        "dangerous_misses": 6,
+        "dangerous_miss_rate": 0.04918032786885246
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 618,
+        "accuracy": 0.6456310679611651,
+        "review_worthy_support": 428,
+        "dangerous_misses": 63,
+        "dangerous_miss_rate": 0.14719626168224298
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 1030,
+        "accuracy": 0.5825242718446602,
+        "review_worthy_support": 734,
+        "dangerous_misses": 228,
+        "dangerous_miss_rate": 0.3106267029972752
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c1024-zero": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 29,
+        "accuracy": 0.7931034482758621,
+        "review_worthy_support": 23,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 213,
+        "accuracy": 0.8497652582159625,
+        "review_worthy_support": 181,
+        "dangerous_misses": 3,
+        "dangerous_miss_rate": 0.016574585635359115
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 829,
+        "accuracy": 0.7092882991556092,
+        "review_worthy_support": 616,
+        "dangerous_misses": 61,
+        "dangerous_miss_rate": 0.09902597402597403
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 729,
+        "accuracy": 0.5692729766803841,
+        "review_worthy_support": 472,
+        "dangerous_misses": 114,
+        "dangerous_miss_rate": 0.24152542372881355
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c2048-zero": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 70,
+        "accuracy": 0.8571428571428571,
+        "review_worthy_support": 60,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 217,
+        "accuracy": 0.8341013824884793,
+        "review_worthy_support": 184,
+        "dangerous_misses": 6,
+        "dangerous_miss_rate": 0.03260869565217391
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 754,
+        "accuracy": 0.6989389920424404,
+        "review_worthy_support": 557,
+        "dangerous_misses": 67,
+        "dangerous_miss_rate": 0.12028725314183124
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 759,
+        "accuracy": 0.5757575757575758,
+        "review_worthy_support": 491,
+        "dangerous_misses": 130,
+        "dangerous_miss_rate": 0.26476578411405294
+      }
+    ],
+    "laya-head-ce-w0.0-lr3e-05-n4000-c4096-zero": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 76,
+        "accuracy": 0.8421052631578947,
+        "review_worthy_support": 64,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 202,
+        "accuracy": 0.8465346534653465,
+        "review_worthy_support": 174,
+        "dangerous_misses": 6,
+        "dangerous_miss_rate": 0.034482758620689655
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 711,
+        "accuracy": 0.6751054852320675,
+        "review_worthy_support": 512,
+        "dangerous_misses": 68,
+        "dangerous_miss_rate": 0.1328125
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 811,
+        "accuracy": 0.5893958076448829,
+        "review_worthy_support": 542,
+        "dangerous_misses": 144,
+        "dangerous_miss_rate": 0.2656826568265683
+      }
+    ],
+    "laya-lora-ce-w0-lr0.0001-n1000-c1024-zero": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 29,
+        "accuracy": 0.7931034482758621,
+        "review_worthy_support": 23,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": 0.0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 213,
+        "accuracy": 0.8497652582159625,
+        "review_worthy_support": 181,
+        "dangerous_misses": 3,
+        "dangerous_miss_rate": 0.016574585635359115
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 829,
+        "accuracy": 0.7092882991556092,
+        "review_worthy_support": 616,
+        "dangerous_misses": 61,
+        "dangerous_miss_rate": 0.09902597402597403
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 729,
+        "accuracy": 0.5692729766803841,
+        "review_worthy_support": 472,
+        "dangerous_misses": 114,
+        "dangerous_miss_rate": 0.24152542372881355
+      }
+    ],
+    "modernbert-lora-ce-w0.0-lr0.0001-n4000-c1024-zero": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 1800,
+        "accuracy": 0.16722222222222222,
+        "review_worthy_support": 1292,
+        "dangerous_misses": 1292,
+        "dangerous_miss_rate": 1.0
+      }
+    ],
+    "finbert-lora-ce-w0.0-lr0.0001-n4000-c512-zero": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.4,
+        "count": 0,
+        "accuracy": null,
+        "review_worthy_support": 0,
+        "dangerous_misses": 0,
+        "dangerous_miss_rate": null
+      },
+      {
+        "lower": 0.4,
+        "upper": 1.0,
+        "count": 1800,
+        "accuracy": 0.16722222222222222,
+        "review_worthy_support": 1292,
+        "dangerous_misses": 1288,
+        "dangerous_miss_rate": 0.9969040247678018
+      }
+    ]
+  }
+}

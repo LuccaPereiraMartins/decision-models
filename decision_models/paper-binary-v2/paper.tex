@@ -1,0 +1,266 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype,amsmath,graphicx,booktabs,tabularx}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{placeins}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{figures/}}
+\hypersetup{pdftitle={Decision Models for Binary Financial Document Triage},
+ pdfauthor={Lucca Pereira Martins and Matthew Ball}}
+\setlength{\parskip}{0.2em}
+\setlength{\emergencystretch}{2em}
+\widowpenalty=10000
+\clubpenalty=10000
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.75}
+\title{Decision Models for Binary Financial Document Triage:\\
+Adaptation, Missed Documents, and Processing Cost}
+\author{Lucca Pereira Martins\thanks{Corresponding author:
+ \href{mailto:lp573@cantab.ac.uk}{lp573@cantab.ac.uk}.} \and Matthew Ball}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+\input{generated/abstract.tex}
+\end{abstract}
+
+\section{Introduction}
+Financial document triage assigns incoming information to automatic discard or
+analyst review. The useful outcome is less reading with few missed developments,
+at a processing cost compatible with the incoming volume. A model that sends
+everything to review avoids false negatives but removes no work. Conversely,
+fast classification is unhelpful if it discards information the analyst should see.
+
+We study a binary, source-content-only review convention across public financial
+filings, corporate releases, policy announcements and a smaller news sample.
+The two labels are \emph{routine} and \emph{review-worthy}. An unresolved,
+potentially significant financial development goes to review; uncertainty is
+metadata rather than a third routing destination. Historical company context,
+portfolio exposures and subsequent returns are unavailable to the classifier.
+The reference labels therefore define a review convention, rather than establish
+investment materiality.
+
+Our main question is whether adaptation of a pretrained decision model improves
+this task relative to a finance encoder and a lexical classifier, and whether
+any improvement warrants its measured processing cost. Seven systems form the
+core comparison: native Laya, Laya with head adaptation, Laya with low-rank
+adaptation (LoRA), frozen FinBERT with logistic regression, FinBERT with LoRA,
+word TF-IDF with logistic regression, and a training-majority reference.
+Trained core systems share the same 4,000 documents. Larger training subsets
+address sample efficiency separately from this equal-data comparison.
+
+The contribution is an incremental financial-domain benchmark with explicit
+reference provenance, event-group controls, adaptation controls and inspectable
+workload/resource measurements. The study follows an earlier three-class
+exploration and reuses its test documents. All binary model and policy choices
+are frozen before the revised evaluation, but this is not a fresh independent
+confirmation of the earlier findings. We report that boundary alongside the
+teacher-agreement nature of the task.
+
+\section{Related work}
+Financial relevance filtering is established. Ahbali et al.\ \citep{credit}
+use a TF-IDF/SVM relevance filter before corporate credit-event analysis.
+Del Corro and Hoffart \citep{financialrelevance} derive financial-news relevance
+from stock-prediction attention. FinLin \citep{finlin} provides multi-source,
+expert-annotated entity relevance and sentiment. These targets differ from
+whole-document source-only review triage.
+
+Closely related decision-model studies also exist. Nandakishore
+\citep{assessor} evaluates Laya Typed-Decisions, teacher agreement, calibration
+and selective escalation on synthetic workflows. Stuani's engineering
+benchmark \citep{complaints} compares Laya, lexical classifiers, encoders and
+language models on financial complaint routing and fraud flags. Borchers
+\citep{borchers} compares adapted decision models with frozen representations
+and learning curves on research-paper categories. Our task and corpus differ;
+we do not claim to introduce financial filtering, decision-model comparison
+or calibration analysis.
+
+Laya's English root checkpoint uses ModernBERT-large and a learned typed-decision
+head \citep{laya,modernbert}. FinBERT's adaptation to financial text and sentiment
+\citep{finbert} makes it a relevant industry comparator, but its sentiment head
+does not supply review labels. We use its encoder with a task classifier.
+LoRA \citep{lora} and temperature scaling \citep{guo} are established methods.
+Automated annotation still requires task-specific validation \citep{annotation};
+success on another annotation task does not validate this rubric.
+
+\section{Task and data}
+\label{sec:data}
+The classifier receives the extracted English source body. Clearly ordinary or
+administrative content is routine. A potentially significant financial development,
+including an unresolved one, warrants review. A scheduled release can carry important
+information; positive or negative sentiment alone does not determine review.
+Neither issuer-specific history nor source identifiers are additional model features.
+Source and event metadata support acquisition, grouping and evaluation.
+
+The corpus draws from SEC filings and release exhibits, Federal Reserve releases,
+ECB institutional/statistical releases, GOV.UK announcements and Wikinews.
+It contains 25,000 training documents dated through March 2026, 1,000 selection
+and 500 calibration documents from April--June, and 2,000 test documents from
+July--September. Related-document groups do not cross these cohorts. Source
+coverage follows eligible available documents; there is no ECB quota.
+The added ECB collection supplies 534 English institutional/statistical releases,
+with author-named and third-party content excluded. Publication/body snapshots
+are retained with hashes and attribution.
+For 350 retained training filings, edgartools supplied the captured text;
+their public links identify verified parent SEC submissions.
+
+Existing definite references are retained. Luna Flex freshly decides every
+previously unclear reference and labels newly selected documents using a pinned
+binary rubric. Thus \emph{unclear} is not mapped mechanically into either class.
+A blinded, balanced 200-document training-only consistency audit compares the
+retained references with binary decisions; it does not override them. This is a
+hybrid annotation protocol, and the audit measures teacher consistency rather
+than agreement with financial analysts. Teacher-reported uncertainty is neither
+a ground-truth error probability nor an evaluation class.
+
+Evaluation additions are chosen without labels or model scores, retaining the
+earlier selection/calibration/test memberships. The revised test keeps the
+previous 1,800 bodies and adds 200. Group checks exclude exact matches,
+known event aliases and verified near-duplicates; probabilistic candidate
+retrieval and inherited groups can miss relationships. Unselected raw corpora
+are not exhaustively re-clustered. SEC content remains dominant, and the small
+news component does not represent a general news inbox.
+
+\input{generated/data-table.tex}
+
+\section{Systems and evaluation}
+\label{sec:methods}
+\subsection{Fixed comparisons and adaptation}
+Training subsets of 4,000, 16,000 and 25,000 documents are nested, with stable
+round-robin family/class sampling. All trainable core systems use the same
+4,000 bodies; the majority reference counts the same labels without optimization. Native Laya
+requires no task training. TF-IDF and frozen FinBERT/logistic additionally use
+16,000 and 25,000 training documents. Both LoRA systems additionally use 16,000;
+their curves stop at that size. Every learning-curve point also
+uses the same 1,500 development labels; training count is not total annotation cost.
+
+TF-IDF learns its vocabulary and transforms from training alone. Logistic
+regularization and class weighting use the same bounded grid at each training
+size, selected by selection macro F1 (Appendix~\ref{sec:supporting}).
+Frozen FinBERT features are computed once and cached with
+body, recipe and source identities. Feature-preparation durations and cache use
+are itemized; command time includes encoding and classifier search. Frozen encoder windows are averaged and
+L2-normalized before classification.
+
+We use pinned \texttt{convaiinnovations/laya} English root and
+\texttt{ProsusAI/finbert} checkpoints; full revisions accompany the evidence.
+Adapted neural systems use seed 42, unweighted document-level cross-entropy and
+up to three epochs. Raw selection macro F1 chooses the checkpoint; epoch zero
+is eligible, and ties retain the earlier epoch. Laya head adaptation updates
+the decision head with a frozen encoder at learning rate $3\times10^{-5}$.
+LoRA updates rank-eight encoder adapters and the task head at $10^{-4}$, with
+scaling 16 and adapter dropout 0.05. Matched pre-update states are preserved
+as supporting controls, avoiding a direct attribution of every SDK-to-adapted
+change to weight updates.
+
+Laya adaptation uses a 1,024-token context and FinBERT uses 512. Overlapping
+windows cover all normalized source tokens, and uniform window-logit pooling
+gives one document-level prediction and loss. No window labels are inferred.
+The native Laya SDK uses 512-token windows and limits GPU passes to eight windows,
+retaining its most-confident long-document aggregation. It therefore differs from
+adapted Laya in context and pooling as well as fitting. Architectures, parameter counts,
+pretraining objectives and classifier recipes differ across systems; those
+comparisons cannot isolate finance pretraining or LoRA as a sole cause.
+
+\subsection{Agreement, misses and review workload}
+Macro F1 averages the routine and review-worthy class F1 values. Exact binary
+ties route to review. We also report review precision/recall, the $2\times2$
+confusion matrix, and false negatives divided by review-worthy reference
+support. At the default decision, a document predicted routine is skipped.
+The skipped fraction quantifies reading removed; its complement is review
+workload. A low miss rate can reflect more review rather than better
+discrimination, so both quantities accompany every operational comparison.
+
+Scalar temperature is fit by calibration negative log likelihood. It changes
+confidence while preserving the default class decision. Binary Brier score is
+the sum over both class columns, equal to twice the positive-class squared
+error. We report raw/calibrated scoring arithmetic in the evidence package.
+
+We fit five routine-only skip policies on calibration: empirical review-miss
+targets of 1\% and 5\%, and maximum skip budgets of 10\%, 20\% and 30\%.
+Each chooses the largest feasible calibration skip count without splitting
+equal-probability ties. Predicted review documents are never skipped by these
+rules. We report achieved test skip counts and missed references, rather than
+assume workloads match or that fitting targets are population guarantees.
+
+The fixed primary comparison is 4k Laya LoRA versus 4k word TF-IDF/logistic.
+We use 2,000 paired whole-group bootstrap draws for percentile 95\% intervals
+and their differences. These intervals condition on a single fitted run;
+they do not measure training instability or correct supplementary comparisons
+for multiplicity. Source/length slices are descriptive, with support reported.
+No method, checkpoint or policy is selected using revised-cohort outcomes.
+
+\subsection{Measured resources}
+GPU jobs run serially on an NVIDIA RTX 3060 with 12 GiB GPU memory;
+CPU work uses an Intel Core i5-12400F. Warm inference includes tokenization/windowing and
+classification, excludes model loading, and uses the same 128 selection bodies.
+We retain each latency, mean/P95, batch-throughput denominator and peak allocated
+GPU memory. Recorded fit-phase and successful command elapsed times are distinguished;
+interrupted attempts are accounted for separately.
+Frozen feature preparation/cache measurements accompany classifier fitting.
+Local timings on the recorded hardware do not estimate cloud prices, energy
+use or deployment service latency.
+
+\FloatBarrier
+\section{Results}
+\label{sec:results}
+\input{generated/main-results.tex}
+
+\section{Discussion and limitations}
+\input{generated/discussion.tex}
+The reference convention is the central limit. Training and evaluation share
+a teacher, and retained versus newly decided labels use different protocols.
+Independent expert adjudication is needed before treating a teacher miss as
+an economically material miss. Review priorities also depend on company,
+portfolio and historical context absent from these inputs. No trading strategy
+or investment profitability is evaluated.
+
+The revised evaluation is temporally later but reuses previously inspected
+test bodies. Fixing binary choices before the rerun prevents selection on its
+new scores; it does not erase earlier information or create independent
+confirmation. Fresh representative evaluation data would be needed for that
+claim. Source imbalance, public-document selection, revised historical web
+content, possible pretraining exposure and missed duplicate relationships
+further constrain transfer to industry inboxes.
+
+The fixed recipes answer a bounded comparison, not the best achievable score
+for every model family. One fitted seed leaves optimization variability
+unmeasured. Supplementary scaling/control intervals are uncorrected, and
+calibration operating points can shift with source mix. The study includes
+neither a frontier generative classifier nor full-model adaptation or RLCD
+training. It should guide a narrower next experiment, rather than establish
+a universal model ranking.
+
+\section{Conclusion}
+\input{generated/conclusion.tex}
+
+\section*{Code and reproducibility}
+The public repository supplies a separate binary evidence package with ordered
+references/logits, decisions, fitting histories, resource measurements,
+artifact/source identities and independent CPU arithmetic replay. Exact model
+fitting additionally requires the preserved local bodies, checkpoints and
+pinned pretrained weights. Public source URLs identify the documents, but live
+recollection does not guarantee identical historical text. Attribution and transfer conditions accompany collection
+code; bodies and weights are excluded from the public evidence package.
+The earlier three-class study and its scientific bundles remain preserved.
+\input{generated/reproducibility.tex}
+
+\FloatBarrier
+\input{references.tex}
+\clearpage
+\appendix
+\section{Supporting comparisons and provenance}
+\label{sec:supporting}
+The following tables support the main agreement/workload questions: recipes,
+pre-update controls and fitting resources. Full calibration policies,
+descriptive source/length/reference-basis slices and per-document arithmetic
+are retained in the public evidence package with their audit receipts.
+The linear grid uses $C\in\{0.001,\allowbreak0.01,\allowbreak0.1,\allowbreak1,\allowbreak10,\allowbreak30,\allowbreak100\}$
+and either no class weighting or balanced weights.
+\input{generated/supporting.tex}
+\end{document}

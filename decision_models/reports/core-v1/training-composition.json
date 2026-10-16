@@ -1,0 +1,126 @@
+{
+  "train_sha256": "025fe5808fb8938d9b458a41d2a0afa96f8bd578fa6b9ed590c8a6b61cfbec0d",
+  "subsets_sha256": "2066a6522bebb46070fa045573923afa9ec19716e5931a0136e9a98f28f80d3c",
+  "subsets": {
+    "250": {
+      "documents": 250,
+      "groups": 250,
+      "labels": {
+        "review_worthy": 100,
+        "routine": 99,
+        "unclear": 51
+      },
+      "families": {
+        "6k": 51,
+        "8k": 51,
+        "ecb": 34,
+        "fed": 49,
+        "news": 32,
+        "releases": 33
+      },
+      "providers": {
+        "sec": 135,
+        "ecb": 34,
+        "fed": 49,
+        "govuk": 27,
+        "wikinews": 5
+      }
+    },
+    "1000": {
+      "documents": 1000,
+      "groups": 999,
+      "labels": {
+        "review_worthy": 404,
+        "routine": 403,
+        "unclear": 193
+      },
+      "families": {
+        "6k": 204,
+        "8k": 202,
+        "ecb": 134,
+        "fed": 191,
+        "news": 134,
+        "releases": 135
+      },
+      "providers": {
+        "sec": 541,
+        "ecb": 134,
+        "fed": 191,
+        "govuk": 109,
+        "wikinews": 25
+      }
+    },
+    "4000": {
+      "documents": 4000,
+      "groups": 3991,
+      "labels": {
+        "review_worthy": 1720,
+        "routine": 1648,
+        "unclear": 632
+      },
+      "families": {
+        "6k": 861,
+        "8k": 861,
+        "ecb": 502,
+        "fed": 631,
+        "news": 572,
+        "releases": 573
+      },
+      "providers": {
+        "sec": 2295,
+        "ecb": 502,
+        "fed": 631,
+        "govuk": 481,
+        "wikinews": 91
+      }
+    },
+    "16000": {
+      "documents": 16000,
+      "groups": 15824,
+      "labels": {
+        "review_worthy": 7987,
+        "routine": 5535,
+        "unclear": 2478
+      },
+      "families": {
+        "6k": 5463,
+        "8k": 4136,
+        "ecb": 666,
+        "fed": 1712,
+        "news": 1373,
+        "releases": 2650
+      },
+      "providers": {
+        "sec": 12249,
+        "ecb": 666,
+        "fed": 1712,
+        "govuk": 1173,
+        "wikinews": 200
+      }
+    },
+    "25000": {
+      "documents": 25000,
+      "groups": 24685,
+      "labels": {
+        "review_worthy": 16674,
+        "routine": 5569,
+        "unclear": 2757
+      },
+      "families": {
+        "6k": 7134,
+        "8k": 7068,
+        "ecb": 666,
+        "fed": 1712,
+        "news": 1373,
+        "releases": 7047
+      },
+      "providers": {
+        "sec": 21249,
+        "ecb": 666,
+        "fed": 1712,
+        "govuk": 1173,
+        "wikinews": 200
+      }
+    }
+  }
+}

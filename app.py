@@ -1,13 +1,20 @@
-"""Small CPU API for the financial-document triage baseline."""
+"""CPU inference for the frozen binary TF-IDF baseline and calibration policy."""
 
-import math
 from contextlib import asynccontextmanager
+import hashlib
+from importlib.metadata import version
+import json
+from pathlib import Path
+from typing import Literal
 
 import joblib
+import numpy as np
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from decision_models.schemas import API_MODEL, LABELS, LabelName
+
+Label = Literal["routine", "review_worthy"]
+MODEL_DIRECTORY = Path(__file__).resolve().parent / "decision_models/serving"
 
 
 class Document(BaseModel):
@@ -15,13 +22,24 @@ class Document(BaseModel):
 
 
 class Prediction(BaseModel):
-    label: LabelName
-    probabilities: dict[LabelName, float]
+    label: Label
+    probabilities: dict[Label, float]
+    action: Literal["review", "skip"]
 
 
 @asynccontextmanager
 async def lifespan(app):
-    app.state.bundle = joblib.load(API_MODEL)
+    metadata = json.loads((MODEL_DIRECTORY / "manifest.json").read_text(encoding="utf-8"))
+    artifact = MODEL_DIRECTORY / "model.joblib"
+    if hashlib.sha256(artifact.read_bytes()).hexdigest() != metadata["model_sha256"]:
+        raise ValueError("Serving model checksum mismatch")
+    for package, expected in metadata["versions"].items():
+        if version(package) != expected:
+            raise ValueError(f"Serving runtime differs from the frozen model: {package}")
+    model = joblib.load(artifact)
+    if set(model.classes_) != {"routine", "review_worthy"} or metadata["task_id"] != "binary-v2":
+        raise ValueError("The API requires the binary triage model")
+    app.state.model, app.state.metadata = model, metadata
     yield
 
 
@@ -30,14 +48,17 @@ app = FastAPI(title="Financial document triage", lifespan=lifespan)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "model": app.state.bundle["name"]}
+    metadata = app.state.metadata
+    return {"status": "ok", "model": metadata["model"], "policy": metadata["policy"]["name"]}
 
 
 @app.post("/predict", response_model=Prediction)
 def predict(document: Document):
-    bundle = app.state.bundle
-    model = bundle["model"]
-    probabilities = dict(zip(model.classes_, model.predict_proba([document.body])[0].tolist()))
-    # The same validation-selected decision offsets as the balanced TF-IDF benchmark.
-    label = max(LABELS, key=lambda name: math.log(max(probabilities[name], 1e-12)) + bundle["offsets"][name])
-    return {"label": label, "probabilities": probabilities}
+    model, metadata = app.state.model, app.state.metadata
+    logits = np.log(np.maximum(model.predict_proba([document.body])[0], 1e-12)) / metadata["temperature"]
+    probabilities = np.exp(logits - logits.max())
+    probabilities /= probabilities.sum()
+    probabilities = dict(zip(model.classes_, probabilities.tolist()))
+    label = "review_worthy" if probabilities["review_worthy"] >= .5 else "routine"
+    skip = label == "routine" and probabilities["routine"] >= metadata["policy"]["routine_threshold"]
+    return {"label": label, "probabilities": probabilities, "action": "skip" if skip else "review"}

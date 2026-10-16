@@ -1,0 +1,47 @@
+{
+  "4000": {
+    "documents": 4000,
+    "characters": 33743648,
+    "sources": {
+      "sec": 2002,
+      "ecb": 666,
+      "fed": 666,
+      "govuk": 557,
+      "wikinews": 109
+    },
+    "labels": {
+      "review_worthy": 2000,
+      "routine": 2000
+    }
+  },
+  "16000": {
+    "documents": 16000,
+    "characters": 155013200,
+    "sources": {
+      "sec": 11740,
+      "ecb": 1175,
+      "fed": 1712,
+      "govuk": 1173,
+      "wikinews": 200
+    },
+    "labels": {
+      "review_worthy": 9525,
+      "routine": 6475
+    }
+  },
+  "25000": {
+    "documents": 25000,
+    "characters": 278402752,
+    "sources": {
+      "sec": 20740,
+      "ecb": 1175,
+      "fed": 1712,
+      "govuk": 1173,
+      "wikinews": 200
+    },
+    "labels": {
+      "review_worthy": 17827,
+      "routine": 7173
+    }
+  }
+}

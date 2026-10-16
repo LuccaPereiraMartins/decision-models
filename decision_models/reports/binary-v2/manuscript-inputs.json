@@ -1,0 +1,21 @@
+{
+  "status": "CPU replay, source regeneration, clean compilation and every-page visual review passed",
+  "freeze_sha256": "e6afdaf0858112466933efe87dde2c229ad000986efdabd026c204328f88e247",
+  "evidence_sha256": "298ff4662f82f71359c672ce5b18b44db61ecc985d252293ba845e353944c229",
+  "renderer_sha256": "73bbafbe26aed000f5ee10d037bcf1117674e8a3345e76549eaf06e5445f713e",
+  "generated_files": {
+    "figures\\confusion.png": "7352a8586a69c0e46f463dbee085200560ac84d82e8aa578badfe3eb88527105",
+    "figures\\learning-curves.png": "392f2e9158aa7fe684283d043c21339d63eb1fdd09d696071bd95c827f081dd1",
+    "generated\\abstract.tex": "075c3dc952520eeff8b1f2a5b5fb12ea33ab2d65aed32ce392d8cc1cf5dd9bf0",
+    "generated\\conclusion.tex": "e0f0cdd4cca94f7f359a2979d14b4f28be382ae14b12e7394e2141d910136707",
+    "generated\\data-table.tex": "f00df3789464cb8d5465eb103873e9c02211315b1c2e959f6cb29b29498530ae",
+    "generated\\discussion.tex": "1d590846c04518e8f27a3f02f233751071e9dbf6feb27bce20b51dc6933b5e2c",
+    "generated\\main-results.tex": "396ec82622247acae9a5591352b2ff6653997e7a9277abffa554ae7d5f8946b7",
+    "generated\\reproducibility.tex": "70c1f74e0b1c696c884a68ff5a912c9a90df6c34444d2e905fd33250503ff7a8",
+    "generated\\supporting.tex": "bf24a47b09577b4c1bf88db12d54b4f0c527472a9839adf3f3867a6abd4aa75a",
+    "paper.tex": "62b9167011a0bba32401464270d147a8b7eaa506c23db9b9ede31bab568ffad7",
+    "references.tex": "86f2113145bc24928297cb08647696759a84c5a2f7dd9a63d6a52a27ada7bc9e"
+  },
+  "paper_manifest_sha256": "8c334dcc612d0ad90d4176108fa4ce1dd87d1c4c6169136e24c92b0a0f49e56b",
+  "publication_checks_sha256": "2527437e29864123acfe17ac7cf833ec626c559f30e8cab3f8c85ee88a65df5b"
+}

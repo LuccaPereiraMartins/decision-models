@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "models": 16,
+  "documents": 2000,
+  "checks": "Independent binary confusion/F1/FN/workload, fitting selection/history, probabilities, policies, timing and paired bootstrap"
+}

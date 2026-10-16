@@ -1,0 +1,1080 @@
+{
+  "purpose": "Pre-test frozen comparison declaration; no held-out outcomes",
+  "frozen_utc": "2026-10-13T04:21:49.631080+00:00",
+  "freeze_sha256": "0be83dda3a2936694d3768c1a15723fbd99b6cb895299d5458771ec32d6c664a",
+  "plan_sha256": "2df6875d656f0ed914c159ba73eed95fa61ab706c23c30a40ba2aed79bdaf747",
+  "selection_sha256": "587799a35d4d16df2373522566f6f55d472457ad5fc550c50bc7850ff5f147b7",
+  "state_sha256": "fbe8f00f2479be74221935010af22306ac03f2033b57b6f3eca74cc9ce2adb59",
+  "manifest_sha256": "336c29fc36c4f7678c6bae4a785d12ee4d6c6985fc8aba8d4a53efe172be6852",
+  "subsets_sha256": "2066a6522bebb46070fa045573923afa9ec19716e5931a0136e9a98f28f80d3c",
+  "primary_samples": 4000,
+  "primary_decision": "laya-lora-ce-w0.0-lr0.0001-n4000-c1024",
+  "primary_linear": "tfidf-logistic-n4000",
+  "primary_criterion": "All selections frozen before test inference",
+  "new_recipes": [
+    {
+      "kind": "laya",
+      "adaptation": "lora",
+      "samples": 4000,
+      "context": 1024,
+      "learning_rate": 0.0001,
+      "loss": "ce",
+      "class_weight_power": 0.0,
+      "lora_rank": 8
+    },
+    {
+      "kind": "modernbert",
+      "adaptation": "lora",
+      "samples": 4000,
+      "context": 1024,
+      "learning_rate": 0.0001,
+      "loss": "ce",
+      "class_weight_power": 0.0,
+      "lora_rank": 8
+    },
+    {
+      "kind": "finbert",
+      "adaptation": "lora",
+      "samples": 4000,
+      "context": 512,
+      "learning_rate": 0.0001,
+      "loss": "ce",
+      "class_weight_power": 0.0,
+      "lora_rank": 8
+    }
+  ],
+  "human_review": "Deferred by the user; teacher-agreement study only",
+  "deferred": [
+    "larger LoRA runs",
+    "generative LLM adaptation",
+    "BGE adaptation",
+    "extra recipe/context sweeps",
+    "RL/RLCD"
+  ],
+  "comparisons": {
+    "majority-logistic-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "majority",
+      "family": "research_linear",
+      "selection_macro_f1": 0.26493880489560834,
+      "sha256": {
+        "config.json": "fc15d2a9d5136dea764d01ff1f6af8a99d4a196cb75f5fad0860effca62419bb",
+        "complete.json": "8ebe7e2e79a6c2cb6e28d53fcd3db8faace4cc60d6aad60e967ea81a26e356f7",
+        "decision.json": "a940ee7bf2c0279ca31a80850ad45b1139289e099114eb46a04762d256bbd66e",
+        "selection.json": "c0d42845c9c9363fcbbcb91471bbb3c09f405a74d294eaf7d6132766fc499424",
+        "performance.json": "03fd07c3ae4b8a21af1f4b2a567b61db13da9a3ab700856c8fb29a1162649251",
+        "model.joblib": "943b643fa3de756a16e87bc06a0245261de9162ac062b11995deebe9a90527bb"
+      },
+      "matched_zero": null
+    },
+    "tfidf-logistic-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6694768033940975,
+      "sha256": {
+        "config.json": "fbe22ebd7a0135bcdf613b7dc32bea6f5c842ec5fd520e658bce9adde1f6ad31",
+        "complete.json": "57268bb961e5f3535dbe374595087529360f7785e6b231b08bf6586ca2fe9bb0",
+        "decision.json": "8f8dd177dd013a625f486257d3dc7ea47fec1270a07269452d2fc9b5e5020f00",
+        "selection.json": "5df08f60fbfd8b77616a62858afeb73a23be47dbcab6f8364cc9538ababf14d8",
+        "performance.json": "274163ce90b2d78881f7b18ad93a12a84b357064b9e16a936aba04428185f42c",
+        "model.joblib": "679c7f60daaf102d453fb0e1ad165f97f63071af1118a83d1ee6699777002093"
+      },
+      "matched_zero": null
+    },
+    "tfidf-svm-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.677894179662858,
+      "sha256": {
+        "config.json": "1749a5bb199c227cd0bee1e57b8760a69109874b5027ccf8fc365e4e187d48fd",
+        "complete.json": "d1995acf3e04c2ac682909d84c8789c7c9e280abcd520d43eea0a0d5c2847286",
+        "decision.json": "6a1bca39ca3c55cb2251d18cf6cfd5fe86096198359a544f275e27e4c275f878",
+        "selection.json": "eaadd82e1e69255746cb41eba84479487f417ced11d90bf22194ff85554de11a",
+        "performance.json": "2ce40402f4905f7fbb00229c60848f467ab3954030e1a20e7d2783fe393ae8f7",
+        "model.joblib": "4c3ac597d613468be45cffbac4ccff1077a83ad29ba04680f6baa04a064ba23c"
+      },
+      "matched_zero": null
+    },
+    "char-logistic-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6472057591552044,
+      "sha256": {
+        "config.json": "3f83b3ae9c8c90a313b4eb2cf3aa3213e3e5aac9e62bc985b7b51d7682e6e9c6",
+        "complete.json": "4045ff559fabba62b2daa1da53344a47c8c4d2a0519e8f376555e4b158fa0d98",
+        "decision.json": "523bf4299f85cc2840883b50bfdf06a768a4d0da6e97efb8d9b3df55823c32bd",
+        "selection.json": "9f17f6d7f7bb65d39cffa4271bedbb8f02fd6ebc1b85b768f639acb65ac18c4e",
+        "performance.json": "e2f6367b2b058b9af4a6109473f91de6db22863ebffbb1b1d3d9d29ebe953432",
+        "model.joblib": "d5f77ccf7813cfdfe6644e4f9224528bbc04557c7df7fd96ed6f6601af560992"
+      },
+      "matched_zero": null
+    },
+    "char-svm-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6364887354669045,
+      "sha256": {
+        "config.json": "c48ee3159e2547b84b66734be3508b2f06a6033b4d68c68e5618826189da3b2e",
+        "complete.json": "f0d82a59cf64b32ce3fa6acb6228001e8b29c7f265ce3d82884e916a32c0296e",
+        "decision.json": "fde97ecb1f9a3b5cf0eada2346d31ab9f83c659c65eccb5964dde4bf7aeb3352",
+        "selection.json": "76197b127816c80932ba968a500bb4aad04ffe8790daef4aa1ba37572b9ba826",
+        "performance.json": "35f0cd2faac7d19db3b2961a76651593947413a3b34d458ab553900b1c462b52",
+        "model.joblib": "63133445d04fa15ff411c52678b2feb5150940bf20017ac74a71b58593a762ea"
+      },
+      "matched_zero": null
+    },
+    "combined-logistic-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6561786100171696,
+      "sha256": {
+        "config.json": "ac65b5ea9aceb58456e788c2e29572443f8a36484f89fb4171b1201549d030e5",
+        "complete.json": "b7e747abc9773716c4030384b8b36f98f67100d0744605ed1d225b77cc8f28bc",
+        "decision.json": "81e733ec143f2b444b01af969edb59d20f978aaf9761a83916a4ff956c06b0dd",
+        "selection.json": "2ab47239b8dd2d67bbd0808ea2f24975bc2323fcc61b7ef62dfe238d0ea8ffb0",
+        "performance.json": "877294a676a864d65401ec5bab4080229ea25a1126d1ca494d60e54f5fc18582",
+        "model.joblib": "6052b4b63ffdc38d85f4bf464ad3fb0b148b03d3274e3d19bc862a7076463ad1"
+      },
+      "matched_zero": null
+    },
+    "combined-svm-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6456807565200268,
+      "sha256": {
+        "config.json": "7fb81c2fbcac7cf42581b3774fe8901d1c6fc01ba7f367559b491b7503b2cc01",
+        "complete.json": "f0f795e690ac7f59a7a57b94065f66b31fc03de4868a54c3903640a3f2ed8526",
+        "decision.json": "b8b012aa0521fea29d9ce43576149f5282932f57bd1c253974641e69adf30c76",
+        "selection.json": "f59b77a18e8b182e46e3828f6c31943dad651d5d1f3c12026c74b7514e7a1c79",
+        "performance.json": "dd31175c78451bd48e473d20114ff63c02137a93cc9c3e5c321c715a077678e3",
+        "model.joblib": "ed14c4a3e19f14b1312774d70215e48b3e720d738b3f79ece3eb96844b8e9000"
+      },
+      "matched_zero": null
+    },
+    "finbert-logistic-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "finbert",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6208799827254653,
+      "sha256": {
+        "config.json": "a5ac356aafcfc74d5fa57f2ecc1816aa05d695ca5215cbb1eb607a3656645d50",
+        "complete.json": "ca8d39cc3aed81013c4bb780a260f270f8a03e9fe86e48405cb2e4a5444d7576",
+        "decision.json": "e771ac9a5d5306ee7321804e807bf85302054cfb40d7674ef4c70149d9086e27",
+        "selection.json": "ffffde80ad21b955b0e90f900096c080f688c598ecb14748e2d144ae727c7ea6",
+        "performance.json": "d97b7568f2825414e880144e0d38320eb31129fb9097a871901f8a10192cc172",
+        "model.joblib": "7cce63835149d7d1d988918d2bf31caeb5618b8cb84a7235a97212fdacab9cf1"
+      },
+      "matched_zero": null
+    },
+    "bge-logistic-n250": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "bge",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6065609208452433,
+      "sha256": {
+        "config.json": "52b8f9998a18cb259d1b79c96c958d89f33877403e9e100371d6a5a1eb3068b4",
+        "complete.json": "27257c29265d39c69c499e9ee7413f57ef87e0c29e79fe27d307e6e070051847",
+        "decision.json": "97960a4efe792a8a348808300bb52ede637e5f0176a122bcc5dbe110d6ffee1b",
+        "selection.json": "34a2e3f4c282f64cc3be161df095fb85150dd03cc8a23e2b8c115f08130bd591",
+        "performance.json": "d1ef3563d6f7f357efd3bff9db771dbd84261c4f2160d8a7e8f17c38a522ea50",
+        "model.joblib": "0cabf7d06d318aeb42cac19c41c7a958424752b17ddbc3ad767bd7e1347d0ad4"
+      },
+      "matched_zero": null
+    },
+    "majority-logistic-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "majority",
+      "family": "research_linear",
+      "selection_macro_f1": 0.26493880489560834,
+      "sha256": {
+        "config.json": "35655790f2285f13033de74ad679c50e9caae53857e1ca6d670348ee7a82b784",
+        "complete.json": "54cd14c0062b393c20152dfae44285aec57549ad87c75e618aa16b1955bffd04",
+        "decision.json": "a940ee7bf2c0279ca31a80850ad45b1139289e099114eb46a04762d256bbd66e",
+        "selection.json": "c0d42845c9c9363fcbbcb91471bbb3c09f405a74d294eaf7d6132766fc499424",
+        "performance.json": "60f451ffaa34e6e16671fde0369c3540da9167ca2a719bd0524efda8c5e6a98f",
+        "model.joblib": "a80076b0541f7df480941eb46100ecc1ae833071b63f81efa78a9ae3dd28f04a"
+      },
+      "matched_zero": null
+    },
+    "tfidf-logistic-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6703318892875488,
+      "sha256": {
+        "config.json": "af0031f1a5b795557749c34f5706c3aa723ca01527414e1eddf06ab3aec77f78",
+        "complete.json": "d81af8e8f85dd0acecea3b95a3179fda1fe572579a8a2813d6dee5692cd9f15c",
+        "decision.json": "78f1db7498c39e700c51108a3d374a930d9628470809eed6fcbb778f251251ce",
+        "selection.json": "63672ba439ab5b813ce415d9a5e6eb4c34d732f488b5759afdc8817e73280416",
+        "performance.json": "1035a3c2212c9d003f5769369fb77700619d74a0ba084a8003e5259881040bdb",
+        "model.joblib": "fcba7cb26e0cae2a41adc8e97d75874571ce6837f83293f7091d7fc679516f14"
+      },
+      "matched_zero": null
+    },
+    "tfidf-svm-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6745176748210476,
+      "sha256": {
+        "config.json": "e0e14239cfd2895cfa57703437e68b573208d772a1476046302f68c366eb7267",
+        "complete.json": "45df864acc5800ac3bd7044c27feab64be9c73f8741349d834ddebb4fa18f36e",
+        "decision.json": "374624d3fc9a83e9f31c99b11fb27deeb9aaf1e21fb481b5082626dfb09aedfa",
+        "selection.json": "220aaece9bb8f49d97184c6f43a903a13b9dd9dd67707f3cc62891b36c624292",
+        "performance.json": "4aa0c3e8e20d8b64269d392cfc6ebc6563ffa511c18346f28237ba10cea673d7",
+        "model.joblib": "6463b9ef96f2d52baecfa1d847d006b0871c4e556e5cad0471892b4d3d5f14a8"
+      },
+      "matched_zero": null
+    },
+    "char-logistic-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6617599974335384,
+      "sha256": {
+        "config.json": "437e6669134fad01fce8a3f1927179cec0891b0067baf0e1dab0f080bbaa05f8",
+        "complete.json": "5f255fd4f10ea569b2d69a835009eb2eed11624a3192a301b75283576f6b626e",
+        "decision.json": "39a34b054f18f6e8c2642bc6b9fe2dfb2f9e3fc56cb7f59d39db271d956e047b",
+        "selection.json": "e07bc3cb9261922ab64530307c105bb4cef2a359626c510a0ea6dbb373b93570",
+        "performance.json": "30cb3ba58d7b6bd8da1d4f5f7e69d3bb031518afceef759d8bb13ece731109fc",
+        "model.joblib": "b096fde39d2f0f1c2b05689386a9fb342382b7e78f43ceecf520838ee7f45161"
+      },
+      "matched_zero": null
+    },
+    "char-svm-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6539650302308752,
+      "sha256": {
+        "config.json": "debfe65419fcc0c2f9e68038db77fc4ee32cb66dfea23f384e427fc49acb18b4",
+        "complete.json": "da332bedc11f87236b29fe88e80cfffb5224f0d5a2c92ffa8e52090869f5356b",
+        "decision.json": "bac4b269943ba93cc5de9f22f501d9b2f3911a3e159be191a8e9c6db029360bc",
+        "selection.json": "4e2d829d5359ea72a895b3f69edb302776e1d846fcb2633941ddc2e6bfe1de0e",
+        "performance.json": "d26694cc71e41f69c8c4b8cfe6e12a1e8964136bf5e0dd2ab392784c7ad96cc0",
+        "model.joblib": "140673d5d5ebe1af9aa6f07ebcaf0287ac275cc73a3d2c89548644bc9180d85f"
+      },
+      "matched_zero": null
+    },
+    "combined-logistic-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6624585339403816,
+      "sha256": {
+        "config.json": "229a842f288a885830249d30a7cd9317e5a1fdd3e6fcd8ff3626ca53324289b4",
+        "complete.json": "11e14fa390c246301be16175da672256b2115a5a115a04614a95728c6cb354fb",
+        "decision.json": "93e3b0a7ae5533f67de71529a6e0b5149cd71c552747c25d8ed576a615fbf171",
+        "selection.json": "4ef112457f3c2fa8250983af4269a0abec08a27f5d416725d70b26f2aa5ca8bd",
+        "performance.json": "cbf744a5c29ab4fecf426a84a8db45ed5e50bb6073fe1fe8859d5ae6f5263b21",
+        "model.joblib": "bfc7bf2fb93ec835d7d4d83e26fad475bd03ed068fb98dc95e8b013b2d40b479"
+      },
+      "matched_zero": null
+    },
+    "combined-svm-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6532028326346203,
+      "sha256": {
+        "config.json": "06d9e1d256a6d0c54869919789632fa50572785528ebc1aaeaf7b80eb66f7d7d",
+        "complete.json": "182a07d000ba8cefb1e097b6d2ea8a6a72c5ef62b28345359f8728b2c9fe1dd8",
+        "decision.json": "cf34822b2f21714d997d3e5065246dc81fc6d6521ac6d4a4140004a30e65840a",
+        "selection.json": "e3aa40cdd3670197f224f8b18a2a3f2f0bcacb02b3f52ad12076eb0629bff57b",
+        "performance.json": "ef45b5f4dd2cdf12dcf1bc44fd896d3e69583dfd9585ed9a7c43a6389ffda32f",
+        "model.joblib": "d12fbe97c0fe8217f6f0a2caffe4daf8563fd335c426d12e2722efb9c22f578d"
+      },
+      "matched_zero": null
+    },
+    "finbert-logistic-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "finbert",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6499263729882196,
+      "sha256": {
+        "config.json": "c43f4a6625b4966ad1111a99ec2f1da27cf2ea085284ff9060e2bfc06a30af6f",
+        "complete.json": "23eabc51022fbc35901130b65a59c079c08e8f638897ebcda72560882dcafa95",
+        "decision.json": "3096989c4a5db97be6f70436a5f9ca1459069b81b02abbc84ab2f2308cbd0cee",
+        "selection.json": "0fce8a1d47a1664a53b6ccfa5dfe3d4c9bdd76c04e8a1d9a7672033e73a38d93",
+        "performance.json": "6e3941c4ef246df6ca20387b208527e2d8e195c303b38474bc06c410870675da",
+        "model.joblib": "b631adb6ce52e406d097e5bc051ad004b87a6cef1627c523e377e3bf550ea218"
+      },
+      "matched_zero": null
+    },
+    "bge-logistic-n1000": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "bge",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6446428314992892,
+      "sha256": {
+        "config.json": "ad9259dde01b8411c24ad0b4d0c1e233a519c45f55b35f6a0c0f7302a4cdf03c",
+        "complete.json": "b0debd30d5411d186c28e9910497f9eadc2f943dabc7387705ac33c55f273bcd",
+        "decision.json": "0bb7e7221d949dadd85c573a3f4f6737882f5b47b2b3f9cdb247fec964234d68",
+        "selection.json": "6429d1fca95530e66bacb688b8ecaf48b556bdf397d0b55a177efcbdfb573070",
+        "performance.json": "3c78e75da5e1cbf8c7ee2564d1f54fbf69ff9c7c96ce921af11dcc73310b0017",
+        "model.joblib": "e3adae5822218a87861a6b2924de8d6bd1fd115e4ffb0d0775963f1b0a4a102f"
+      },
+      "matched_zero": null
+    },
+    "majority-logistic-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "majority",
+      "family": "research_linear",
+      "selection_macro_f1": 0.26493880489560834,
+      "sha256": {
+        "config.json": "904fdddf9406780d5142a4c9ab7e4811bfafbeddf437d147023970f64ccf9548",
+        "complete.json": "260dfdb2e107472e00379df685480388ffb53e16dd6762df99247c2c2acdc329",
+        "decision.json": "a940ee7bf2c0279ca31a80850ad45b1139289e099114eb46a04762d256bbd66e",
+        "selection.json": "c0d42845c9c9363fcbbcb91471bbb3c09f405a74d294eaf7d6132766fc499424",
+        "performance.json": "a0457b3d38413df8bfe7e81ce417401511ea019d901924f34276d23dbfebdfeb",
+        "model.joblib": "77f42c24534f44dfee598d3a20fd2d4d27fb4bd8f47f810dae5b5575596ffc1e"
+      },
+      "matched_zero": null
+    },
+    "tfidf-logistic-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7257928065701661,
+      "sha256": {
+        "config.json": "f162ae5b0adba64324808d6ce4f96c9e571b018bd69ebd5841d7765406b70df8",
+        "complete.json": "36c70a298e1622c251ce65ebe78b417ea4d4c62b086754f2b945782d595401c4",
+        "decision.json": "83a096ee4b10f6bf70fcc962d7f50cfd031dc766c3bd53227244ddf77a0ecd62",
+        "selection.json": "03d97397946e5a0030045eeb2803755e909144c5eb6dab58cd9af2668514d067",
+        "performance.json": "f76e20e8e27029c3f72df4171851c3d0a011c58f169bff7f7b3660db4d6374d8",
+        "model.joblib": "28fd9c42dbe5cf77bed6485a491943df1ad5d751e1aac5080baca4e483208775"
+      },
+      "matched_zero": null
+    },
+    "tfidf-svm-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7157934290844071,
+      "sha256": {
+        "config.json": "e32252de19722621ffb3ea49f64c4373e4db8c5985264879eb5aa81ef0e86db2",
+        "complete.json": "26b04608e4d39a86b4702ad30a111c060a54ea7b8ab844c3b43933b2a7647ae7",
+        "decision.json": "90c4f2e731b223c3eaa2129058217c901e47bf5744397a1591cc4e56ee35057e",
+        "selection.json": "de33b8768ee0e031c244c450ba139a8c0646a45448ed2f8c4716e4f0da969234",
+        "performance.json": "a563e93324062c6e396460d7d151b128698cdd5fcb387adbe5ff3e864e9efaf2",
+        "model.joblib": "ae5cbbeffc79682b0d26e2e11b3d34e5679056de4ed3db362e568e052252d797"
+      },
+      "matched_zero": null
+    },
+    "char-logistic-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6903511828347803,
+      "sha256": {
+        "config.json": "2c20994a95f687839bda3638644896779630ed705b9b6bdd2cbc13458880560e",
+        "complete.json": "8fba7b91eb88f56ed90d731902121679a33eadea45d1cf7fe3eeded46c7b0de1",
+        "decision.json": "ab1e073a637dd3aa9972abc1445c7a7beaac02809d8d70df5bd3ed9be9dafcc6",
+        "selection.json": "8f0da401f70aac6684e38cc51de8be63cd0c51cb58b2105051ba2ff82a6f44cd",
+        "performance.json": "d2dce09374f42ec887492484aff2e2e48a185f91370716abd99def57cfcb2688",
+        "model.joblib": "15a6d195485ab06a17fd83811ed6707930cd8cc91e61cd25e4705a06ba19097e"
+      },
+      "matched_zero": null
+    },
+    "char-svm-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6918445128860604,
+      "sha256": {
+        "config.json": "cec8644f5002e2611069334db5e66f6ae1784a1c50b50666896be7ff9ae39a26",
+        "complete.json": "9c0869ea586d1ad30fe3d9a901277b68cd524a9ade641a965efdddcca193cd2f",
+        "decision.json": "5a2ce0a47b1ce25e103f39408338bfddb235cc5f1ffa311a04cef029abefd11c",
+        "selection.json": "bcbed5982b3a6d6f74453200d6e2ba3fce0ba43d0aaa3702ba167ab7808c187a",
+        "performance.json": "0c1d08b55dbe6f96d43a33daee76c84efcb53c5897a54482daf5a97ca70781ef",
+        "model.joblib": "c565b7712c267197f746b11e5d4bfb2d10bb756fcfcb7b08e6345a634704e39e"
+      },
+      "matched_zero": null
+    },
+    "combined-logistic-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7166037492168801,
+      "sha256": {
+        "config.json": "9863004883689c83103307ec10f3a9b0a361199cd0497c19cde21dd004f62b82",
+        "complete.json": "93a9ed869360f2740169459be6da400397e10eeaaa959c76a9e7f2e29d2bd2fd",
+        "decision.json": "c374694182b9bfebe67a4c2e41829b94d6feccbda6120a6613de53ecda54a69f",
+        "selection.json": "e2facf2bf21c624e63f175c3b2aa0e21398e2afcb013f0013e41339de9506d01",
+        "performance.json": "2b711f13033da6657e33050576e67589dc36c7c54265a4706d2e79627fd92f05",
+        "model.joblib": "f2b5740b61278695c372a075c79ef29ab9b9bf35450aa8e2b2382579850a8df7"
+      },
+      "matched_zero": null
+    },
+    "combined-svm-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7134907247546409,
+      "sha256": {
+        "config.json": "0e647797b2262d80c1975de0be81a2b9ac67f7d28a6e46041bd0631a7a358c52",
+        "complete.json": "07d536dd380a2fe621a44b93e2c4b6529ec0f59ec6c116f53129ca480da37d2a",
+        "decision.json": "d40e671043b6c716f8d864e4ae56751bde62395fd9299ab6b2f0248600a1b9d8",
+        "selection.json": "2e26cfdba51d3cf892bc92e03c5c7649fc5bcb0aa12731471279f9d5f375c2ae",
+        "performance.json": "8cc4f5bc0ffc56e1d44c7dc193b077636a0d4a9b88916aa7008efadfb0e60cef",
+        "model.joblib": "7229a84330b5d170c43e29592d1f7b1c19f7063728efb5bbecb91b3601105eda"
+      },
+      "matched_zero": null
+    },
+    "finbert-logistic-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "finbert",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6701110583493785,
+      "sha256": {
+        "config.json": "f914f4b3d16d08417d6dac98e6d0014c18ca6c7eb629a7db23baa97e747af7df",
+        "complete.json": "0910e48b0585cf35a7b837737d92c4d4e6f97f87c95e2ed0aae0514078884de6",
+        "decision.json": "755ae8820180a78b427d88b2780f34aeb4cb54e236d2fac2456e539a7abdfbe8",
+        "selection.json": "442a08c6ac883e8f883b2b19ee639fb07c90b4f910d9b6a73e885a550cc24139",
+        "performance.json": "1809931f821acb94c6c9c5564ea0d350a36ea8f347621f3090bfa7bba5f7e28c",
+        "model.joblib": "29d765c3cdcdc803946a2940839eb3a72a149a04f3482a6d1da0c8f98460f350"
+      },
+      "matched_zero": null
+    },
+    "bge-logistic-n4000": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "bge",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6459109395150872,
+      "sha256": {
+        "config.json": "7b4619784e7e758942088d4224c4fcf0777a8f5a7ceeb31aa77366e035debf19",
+        "complete.json": "0edbe160e14b68bc13488880fd5bbec5c663437cdbf9d2a6b2e3cffd5a33c794",
+        "decision.json": "42fa01679fb8b33ba1109b7bc490a4652e64ae6c2f7c8bd09121d2c4a18ac804",
+        "selection.json": "f3175c32989d989d6e79cd0f51825c8b09e4c7dbde6bdedcf07fb4bed261368e",
+        "performance.json": "a5ce367adaa00aed55044c2d6e1772ebac08530ece92b368391298a93d2f9866",
+        "model.joblib": "6c762dc2f5f348ec702ec7538f8c466d598d48d4a22d622c0a052cd4631bec06"
+      },
+      "matched_zero": null
+    },
+    "majority-logistic-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "majority",
+      "family": "research_linear",
+      "selection_macro_f1": 0.26493880489560834,
+      "sha256": {
+        "config.json": "af5e8d4d1c15ecc5ba260115d3b827a1a8b41bd3afac9165ba2ad89a2254100e",
+        "complete.json": "5c533166d489387922bb24b6bbd586b8a7a289a6de20c161a639c9ad67a2c2d0",
+        "decision.json": "a940ee7bf2c0279ca31a80850ad45b1139289e099114eb46a04762d256bbd66e",
+        "selection.json": "c0d42845c9c9363fcbbcb91471bbb3c09f405a74d294eaf7d6132766fc499424",
+        "performance.json": "c9a4c4a250cc0899ccc691777f915ba1f25d80d7021a721aeb742724feb07a5d",
+        "model.joblib": "910effd549f206b36d40f317fb38a30e457c36e4938cecce86be2b780d2433c2"
+      },
+      "matched_zero": null
+    },
+    "tfidf-logistic-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.759089625439227,
+      "sha256": {
+        "config.json": "7b6c6ecbb31a86c59e6703923cd69e2479872ca568a1cd50bf6d4cd07342c7a6",
+        "complete.json": "1ed7e57b5e7ac70d788125a27f692ef0483839e23f898a73dca3748584f1c617",
+        "decision.json": "189dd55f62e735985923dd35cea970a5f22b0cec0809f8de45aa8f046eaed3ea",
+        "selection.json": "eede035aa2d381e2c792f8dddfaab19de0d1b479f566f6977711403bc291fe05",
+        "performance.json": "c67838750c6ae7b880f01d2abf20b3a54342072caf384570a8baf8e30d370419",
+        "model.joblib": "55d3f84422fbdc98da1247471c2c2092eeeeb543d22c6c36b6f42b9d6ee069fa"
+      },
+      "matched_zero": null
+    },
+    "tfidf-svm-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.756082748739097,
+      "sha256": {
+        "config.json": "88186e7dd6bccab0f723e37a34eb2b36582aa870a8f45f45d4f549f9e886439c",
+        "complete.json": "548e262d5e9d8348e0c6e980ff14b1691ec42f313c65a3c5a6dcfa03c816ff56",
+        "decision.json": "7c443ed1b90bee9fcc92f931f8beee25aaa45a211f6dfc153025df8098ecd328",
+        "selection.json": "3d1e0838caac93114e6a927b0ec8c706132979a20e730906a11c2b98d260bc18",
+        "performance.json": "b2b4953c136821b81aa62015fb216cfee0f29edaa851a28d221f05679c4b1905",
+        "model.joblib": "f8bd72446901aaac797d925835c38ec87ab03d7c1bf52a97b8483f2bb279356e"
+      },
+      "matched_zero": null
+    },
+    "char-logistic-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7491649251974235,
+      "sha256": {
+        "config.json": "df4a535ad3371b9a581ba5d341eb26358da3da05867f185218dea084affe3009",
+        "complete.json": "38e175e395a6d028642fcbcd0c2092426c21de9b545e6309752c74b8d6a363e7",
+        "decision.json": "df23d1bd16dc7020a673ca570344e0f90ecfd6ab2d091958cdbe55f4eb71616c",
+        "selection.json": "5427ce7b7c797b6553280276b20c517f34b13148783fbdd9911fe6e2b6076a58",
+        "performance.json": "ef1491fef743ad2527ed08106d66ecd47916b3f3db38287ac18b6062128b0888",
+        "model.joblib": "0811219fff40b469852392231fcb75ad305a38d9e8aa9ba68e72fdba6f683873"
+      },
+      "matched_zero": null
+    },
+    "char-svm-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7535386043827268,
+      "sha256": {
+        "config.json": "68fb5d5e5a7189b0eacaa9e576521f790aad196d283ce944582a58df45c2dbb5",
+        "complete.json": "b1232c5f95ced3995db1d47b0b9deb7d28003864c738751904a272727b518cdd",
+        "decision.json": "d83018c8cd443af81cd41366574463b31514809bd0042ab5d1c849dd22cd81ea",
+        "selection.json": "c465e9166142eb16f6cba5d3ea7b00b674dfa4e535587a920c42cb4d4b1a3ad9",
+        "performance.json": "40d945c38cb18b2b5b7d1492b32701f1fc26f678588df71563d36b5636db2ebf",
+        "model.joblib": "8ddbcc54be2bf19b18b498ba21b731bbde202399078f6e0cbdd3ff935c59b7bb"
+      },
+      "matched_zero": null
+    },
+    "combined-logistic-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7615845785046904,
+      "sha256": {
+        "config.json": "89c3c061a79515ec61f01223932bca6029836dc0d210af20748c70e160fa2bc6",
+        "complete.json": "7b4ca676d824a3760e3efe0e56a46533d10ed0ca05feecabd1211a9ace87ea7b",
+        "decision.json": "1ed1892c62786c768ebf1a2c70d1954951da65c7f73a587dea8e906549fa3959",
+        "selection.json": "1f39582e0251812dbf89773c7a5525282adb3f33d27f189b699827bec51a5731",
+        "performance.json": "90f05cac2e62d2bd80f90f2804099c8bc1827654fffbb58e12c115ca5d5c213e",
+        "model.joblib": "4b3032d7e43c873244ac453a3da3a2a6aab90ca085b5502afe862e8841a3979d"
+      },
+      "matched_zero": null
+    },
+    "combined-svm-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7658977172195466,
+      "sha256": {
+        "config.json": "a8264acfc9fe744086c6d05c4279e3832a8c634b878fd6a4ba93ddf565ccf8c3",
+        "complete.json": "8102f120dfe845e324264b347550ed9bb312f422c1c27d94ea7ac7120e13adcf",
+        "decision.json": "0160e77a11e966bc89af17fbe583b891f85ca69d327737d673602894e00979d8",
+        "selection.json": "4667f4f4dbb32e8617b14255590ecd34092c3b678141ba383fe232064ea59ee3",
+        "performance.json": "7026e9772ba1ad6d44ea69a3e1699d4e56cf3ed9e823a410fdfd192595a8a495",
+        "model.joblib": "063d60a28acafbb1b01f8c4cea84e3f50e619bb015cbfc1d3b49d0cc3531e42f"
+      },
+      "matched_zero": null
+    },
+    "finbert-logistic-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "finbert",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7155805290909217,
+      "sha256": {
+        "config.json": "ba687aad066a42a2f36431fa53e46883ed86f9e1066a5581a2287b2c1135e217",
+        "complete.json": "3047fa5bd8fd485cf52f55f2e1fcecbbb078a1d32ba881e6f771b7d8b8d97235",
+        "decision.json": "c8c688eb4e78ded792a6cc40abafd858beea984b2317445b241c2774ea30dc9e",
+        "selection.json": "2e0848e7b9e1fda4f09d6114c6596fda9e044f44c042aef78880cc9a54728683",
+        "performance.json": "58248bbda9baf267d8bd06fea5df9a5ac0b4eec2d2dd28a0e1fdf20202ee8f32",
+        "model.joblib": "d33ed8ba194e90cb90a31a063666176f7f823039fe9ff9dd878480c1c5ea8121"
+      },
+      "matched_zero": null
+    },
+    "bge-logistic-n16000": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "bge",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6911757370475938,
+      "sha256": {
+        "config.json": "cb340ad5e6ef0ec0ff01cae37302a90b799e8a608182208f724ed8a3fd00f1d9",
+        "complete.json": "37fb4954a1026087607099477cf9a7792e9da0ac675df6ad18db3b11ae2e0cb1",
+        "decision.json": "c276dfd63463d952db5adca23014559a264feb87a928aeb3081d2ad40694cde3",
+        "selection.json": "825a243ea822d5de3ef44ab75989543e82a2a7abee96e81b0577d2e88f56112b",
+        "performance.json": "6ef96c3184595eef18162c01de396b8b7e532516e80154cee3018ca82f7456d3",
+        "model.joblib": "e81621d07dc50d407951c40ed61951ba9045c3e77c45c6fe89f12cda15efc65f"
+      },
+      "matched_zero": null
+    },
+    "majority-logistic-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "majority",
+      "family": "research_linear",
+      "selection_macro_f1": 0.26493880489560834,
+      "sha256": {
+        "config.json": "82c0ff35033a59a6fad542dd4812ca46f00c381397d8fcce434890686b7180a9",
+        "complete.json": "0ad7cfd18e2197fd4c698078c0eb72389f54fa0347b14530c03b370c2b097154",
+        "decision.json": "a940ee7bf2c0279ca31a80850ad45b1139289e099114eb46a04762d256bbd66e",
+        "selection.json": "c0d42845c9c9363fcbbcb91471bbb3c09f405a74d294eaf7d6132766fc499424",
+        "performance.json": "d997d11d39d3c42c11d60f984e14d106094e6780df3fe075c863d31ee98347f0",
+        "model.joblib": "52f4f5617ae14f679297f22c8a775133387914b1d7d861c1f77e04fee2a28e61"
+      },
+      "matched_zero": null
+    },
+    "tfidf-logistic-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7789118567416399,
+      "sha256": {
+        "config.json": "61280c2ee70aa82cbc34f5c25e27536d819254e6090b6c140fd61c4a4a8ab638",
+        "complete.json": "3fe0ee0a07cd621ed44f6a612d8899d2da0d12fbe16749bf7229313533f2cd7a",
+        "decision.json": "4dc4a840e2bdfab7c6280b772998a4669a7d9172f818e3d156cd5af5cd0d8659",
+        "selection.json": "ddaf3a68ce1988f704675b819ef1d0ada50014008229a4ce57d7829651a6b089",
+        "performance.json": "7eb1f1db70ba462b66c261b7013e49a08fc5bf2c1986f4857854470f8f74c820",
+        "model.joblib": "d0a7949d32bc5e66690bcb12e5aa13dffdb2e4fe99fe5c71daaf5fc6a4788ff6"
+      },
+      "matched_zero": null
+    },
+    "tfidf-svm-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "tfidf",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7790190708335274,
+      "sha256": {
+        "config.json": "32fb213cca6e3c2527ab6e982ace8242873799f94eee8b98f46dd35e7027267f",
+        "complete.json": "2457feff1f959412e1494b4001a4320d1992f53d9cbf83c1a61f38016ae1a5d8",
+        "decision.json": "d3584e5e991c1d13fd3ba037c62da57a254b8a39e56d2b9b6c77daf22d9d42f7",
+        "selection.json": "0924280571aa574807b5246d0d08c1182e9dc5ff8cbbcbd0486bc962b6ae3508",
+        "performance.json": "fb08d369737dbd4337be526730f6358cee0b5eb94afac0acfdfc945d41f259d9",
+        "model.joblib": "3c209343d369c71f5bfc09416473bf69c6ceb5a4a405de2bb6e342a5e24919c1"
+      },
+      "matched_zero": null
+    },
+    "char-logistic-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7625604185258298,
+      "sha256": {
+        "config.json": "46787f189f32a58ba2fdd572e6a452bd9e7bdff98607122dbef2fe7c6d3fd58b",
+        "complete.json": "fd770a09ceff8ca1d695770126ca2c0048301f7005fdfe49f2a0cc0ee17e4a97",
+        "decision.json": "028b8e7bdd43d9e8eb036f788abfd98c713d5862f2cf08e4085c9363579704ea",
+        "selection.json": "bcdfe2a2be6550d7caf97782383b66014c7c43b43ae3d323576f19ddedc30e96",
+        "performance.json": "018332d468670e8b5ac2c08327c221b75a6de310fb658319cdb32d56370d1b90",
+        "model.joblib": "9f5bc1a9b49027155edc1fcc909f2d4606b98430d860468f7c702d76de26bbb3"
+      },
+      "matched_zero": null
+    },
+    "char-svm-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "char",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7613455936710927,
+      "sha256": {
+        "config.json": "d3b0a277ed957b2a98faa5d2e1430bc1562236fa3a757873d045cb050a70698b",
+        "complete.json": "7883a8dca9503ac37a1cb25543cefba5cabd9e97f3ecfc0228881eb183c900a3",
+        "decision.json": "545db41eb30203e69663f08afab59940aaca1afad242bcd0113d392db82bc72c",
+        "selection.json": "a8d9654bd9a2f2c685dfefc06d3c3f6ac24dd93577fd10733af7e782f142f394",
+        "performance.json": "cbb25ef3afbf3617f5ba782b695c3a42c3a8e3e6a1e1aa8c67a4833b29dbdb74",
+        "model.joblib": "915bcb7439705d912f20641a153929b861e2bc112c4ed2c7badbf5633d98447d"
+      },
+      "matched_zero": null
+    },
+    "combined-logistic-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7784842087078125,
+      "sha256": {
+        "config.json": "3487f73c1f25ed0e9d06783f7190af44dea7cb863772010f982ef78b2452c403",
+        "complete.json": "2903bec950f0c061fd83715657a497e5485cc2e985cfab6a66debb9b45805baa",
+        "decision.json": "c518ae2c8b8d61bb9c95e78b340090b4c8c6bcd8dc78e74447ea6b695edffb7f",
+        "selection.json": "6fdecdea1725b824365546e7bb71ae4efb345a3def6a6e44b2f133a68d7c406f",
+        "performance.json": "d75f316106b46fadced5f9b1da776bd5b4455cdcd7251c0dd6f2c2034e953a45",
+        "model.joblib": "bcd2ae92633bc97c64892fe60860477c304ef7f89b3bde41fc027d0a000c0c16"
+      },
+      "matched_zero": null
+    },
+    "combined-svm-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "combined",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7828291992988315,
+      "sha256": {
+        "config.json": "b71c2c2242cc5188f2c26f3c6492c6d35ea6d82d8b1305a5726aeacfd1c80632",
+        "complete.json": "631adb3a04d2b86972ef4a674b24594c09b9e0bffd37a79cb4aee6d9d288b5e7",
+        "decision.json": "a6548249c1a0bf8a377d0bdcf1fe578f5322ea4c794157c0d3c855f330d4dc31",
+        "selection.json": "e48f863d0f342ed15451c3ce811ec39fd159af7c2163eb60362bf74d77711154",
+        "performance.json": "13fd6b54fabfb33e7f3247459ab5512414b1b88c09352bf7c667cdbe454385c9",
+        "model.joblib": "65fb573e767699cc31425454a195e6b0c14026fe4895021d43c67153f795ec14"
+      },
+      "matched_zero": null
+    },
+    "finbert-logistic-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "finbert",
+      "family": "research_linear",
+      "selection_macro_f1": 0.7212647173961568,
+      "sha256": {
+        "config.json": "4348c5580881481018aa8a275a8d6bcfdf8e6037f37bcbe3641a88681cd7ea97",
+        "complete.json": "97564509cff5ccaf90b66419ba9389b1f16ae9d97d401ff7219fe46933225d92",
+        "decision.json": "adc8f8c8187a80d64761d6db4e1915cae565a2410cf4fa585cf98a41002ea561",
+        "selection.json": "dd27ce8fac0610e9c19121f5c548f7a55cc2620b40e1ed7f2dd39c8c76559f7e",
+        "performance.json": "ac19701976db6d6348245cf3f43ebfb805043b3cc32a61cff04507d594f835f0",
+        "model.joblib": "b817c243a12ff994b3cb393933b5bea4a34b9fea4bbf2738efb5dd88cc2954bd"
+      },
+      "matched_zero": null
+    },
+    "bge-logistic-n25000": {
+      "role": "curve",
+      "samples": 25000,
+      "kind": "bge",
+      "family": "research_linear",
+      "selection_macro_f1": 0.6990817401776305,
+      "sha256": {
+        "config.json": "d4914f8fd4b107167f4d5b5465e0f28cc076d8f88b259f8a5b746da64b7bc881",
+        "complete.json": "cae5a3b32a8558cd40738c5c2da54d46fd87c924195672b93fea3bdd54c84ffc",
+        "decision.json": "4e024edbfdb66703eb793e3aeb0ad5d2d449ea27b601b2d194000494d1aa440d",
+        "selection.json": "a87fd255341d46741b11f9bafa453a9b322ac6d77b0561b69e014ce11e4eedf9",
+        "performance.json": "ec4e0eca3eb2bc89f35ec918a30f52a75e8296a17cb0a7b1e609e9f5ed40b08e",
+        "model.joblib": "10e9feab600db21c7ba0e365707be77c05b74dc99d7ab0816f3e0955bc6df2ff"
+      },
+      "matched_zero": null
+    },
+    "laya-sdk": {
+      "role": "reference",
+      "samples": 0,
+      "kind": "laya",
+      "family": "research_sdk",
+      "selection_macro_f1": 0.3869076661491831,
+      "sha256": {
+        "config.json": "992724f906af6ff0b0be4fc9b9ca9d2cdbde0ea0a035a2981513d3b8a8560749",
+        "complete.json": "a365e536ab88e46c05dfbe7b708deca793e45c46869d24e78f92715f76f696b1",
+        "decision.json": "331ec7482459179f1cae1d68255a59a05393cb3d6a2b719e141e0727ed7ffef1",
+        "selection.json": "d1d141abc04c9e6a5dc8e2fe6367804599f63cd01fb222d4193d47c1d9955d7b",
+        "performance.json": "92ca75932312ad2efa59c71a9a09e56c1387b672f98958587f1ced39f43ccca7",
+        "base.json": "bfd6a9cb8f5202ed4f8b8657a7ac4e9f55a474c92251bf634edcb9b28cd9277e"
+      },
+      "matched_zero": null
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c512": {
+      "role": "context",
+      "samples": 4000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.5598455630254556,
+      "sha256": {
+        "config.json": "d91bd85df0edac316cdc0d0d430d39a88ab4f94d99cbca7ceddbd7640a4c99d0",
+        "complete.json": "988f1b0a24f976d5392335be30360076485fc200266c4282b87d514dda7e49c1",
+        "decision.json": "5b0b85a7f12177a0a32f3be026062b70a099ec08c2959c037e8ec30fc401565a",
+        "selection.json": "140f79f9644e8f03b5c0947394ca2b4c46ea5504090b02eddda76aa36ec50db3",
+        "performance.json": "344aefa19854ccb197737d51dadd12d38c6cbacdedc945baa0e8207efc14ee93",
+        "best.pt": "a179b21bd94e572386e060a6e32e6caeab96fe11ba4def8351995361132a4d09"
+      },
+      "matched_zero": "laya-head-ce-w0.0-lr3e-05-n4000-c512-zero"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c1024": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.5824945533769063,
+      "sha256": {
+        "config.json": "4cdac149a1f6b045f3080c068067666fe96504e87676e174d5f6c8438ea393c3",
+        "complete.json": "dce32aecd2f5463abb5a8ffb8bf896f38c25d389b2b4115b6b35b1a949d823ca",
+        "decision.json": "01228b0ba1e82d90273afb44616e04cc71b604342f678f72d7836e08be12516f",
+        "selection.json": "a487ddd4d68929ab304e86fc6428c876138b92ad1516f2a636d23fe20b914d76",
+        "performance.json": "8b14f9e21587a4125ebc572e27de4c3b2bd94a99fab9965218110753bb1ef2a6",
+        "best.pt": "bb82cd1b12f884b67427bc767d38e9a45af8b3fce21b93bc8212948272eef993"
+      },
+      "matched_zero": "laya-head-ce-w0.0-lr3e-05-n4000-c1024-zero"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c2048": {
+      "role": "context",
+      "samples": 4000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.5557878480374622,
+      "sha256": {
+        "config.json": "88606899bc76b66f6feaaca85ac7ea87b6a441f130269126b12643b294b6e08d",
+        "complete.json": "8bca6867d1bb2f5f4df8a876bc762308b0d027f8b4206553dc8dd8b44fbc028b",
+        "decision.json": "66a87bcf73756bb467a055294aa5d23ec487f58651ccca60ab66c09c323f012a",
+        "selection.json": "e39fa696eb990e459e0d1a40f31498c7b006d0d4667b97990a750e914628a8fd",
+        "performance.json": "3e41be806e99f8eebfbd0be0ea8df61fcdb86bc42617b6ba89208aa4f2f165d0",
+        "best.pt": "f402f714e62e1aa19a886f4a8d0f8e6189a4334c90f4d0fce476adcd3e140f57"
+      },
+      "matched_zero": "laya-head-ce-w0.0-lr3e-05-n4000-c2048-zero"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c4096": {
+      "role": "context",
+      "samples": 4000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.5722567287784679,
+      "sha256": {
+        "config.json": "ae7f821063c7bc3c40d9a39075c6fafa9d97d0e2951cd3216dbeaeeea52f6a40",
+        "complete.json": "8c7d475b101d904f2659099bbccd2d8b852d8b40253d944ea850c9535d704d24",
+        "decision.json": "700efe8cc65a0f7ffc6389c4ef2a7e1c8d71d76b8e1b8e875bd08bba5c763aab",
+        "selection.json": "def0e66ba3dd92008f3b4c9dae28c25fca096ef7bc1d4453d83bf7577141f9c2",
+        "performance.json": "374904ee8a7ffc7bbcf2e7e33b5fa629ce9e4eb03c39fec91282df0274742fd5",
+        "best.pt": "15fb66451d7c280d6e35b3b918f41b02d96ebf0adbdf97a47119113f162c279c"
+      },
+      "matched_zero": "laya-head-ce-w0.0-lr3e-05-n4000-c4096-zero"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n250-c1024": {
+      "role": "curve",
+      "samples": 250,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.3636988427885972,
+      "sha256": {
+        "config.json": "30ce1f7893750155802b2d87366ef7392f535a86b796064c0c43c4a668a443e7",
+        "complete.json": "2e0badc88c7c38b1e807e23795784a4c5b941155478dcda2f84b1dc735c3c64d",
+        "decision.json": "6a620fbc4c547b74a993e23dfb9f9d29bf7496bc1e179492bbc20f3f128ca0ff",
+        "selection.json": "a9045ff2b0e37c58603f88864809c600dd6c1da04145502e683a9aa6e93feadd",
+        "performance.json": "d4096d0d3a221af5aa33225572f6b64b42b921f350b757ceacfabe0b760e4efb",
+        "best.pt": "21235c13aa76a4c5afdfb299e029ceccc171964268a9fcbee2e29afe93757631"
+      },
+      "matched_zero": "laya-head-ce-w0.0-lr3e-05-n4000-c1024-zero"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n1000-c1024": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.5442383539154001,
+      "sha256": {
+        "config.json": "2d3b47eee31520ccba047ff028e4b566c4c7c0315a47447124b278fc4c24b490",
+        "complete.json": "77dd934b979f07ae52a97e96dd1edb75d7baeebc2c3a622782a26bb957dc0332",
+        "decision.json": "561ebd9031ad275114f53862b6100c66dcbef3a75af0fb590122a9438f45451a",
+        "selection.json": "122d8b4cdf5e2fee7c833f93f022eef2b3cef250be1c954bc4a70b46eb2cf8c1",
+        "performance.json": "a50ae7b5d2093e641c40d4fbe8721f4c315c75e1f795c58e21013d93c5dbacfc",
+        "best.pt": "04da662f548b01930376f385c30203010778fca98ba1455bdd7e3ab44416d7b1"
+      },
+      "matched_zero": "laya-head-ce-w0.0-lr3e-05-n4000-c1024-zero"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n16000-c1024": {
+      "role": "curve",
+      "samples": 16000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.6613282917355497,
+      "sha256": {
+        "config.json": "cf86109ed4c450e387b7a096d652a7d9ba8798e4665496bcf8bdeb65fc6fa220",
+        "complete.json": "45934fcf3817f73364c9f5fbb74d397b8408c1bf515104b236f25c627c706e3c",
+        "decision.json": "3ebec8d997f1b00a97512ad4110efe9c3962e158c08d98221f224130eee0a672",
+        "selection.json": "2ed67b64e71031b61e6a6f6d07ecc5cbf71883bc02f886193c32964db72bae0c",
+        "performance.json": "b08e69995f67d13b1576cbcd9ba9fb1a04be74aeae83b59b0294c7b768811817",
+        "best.pt": "57f05fba388107e1320c11236b35f70d30e4414ca5a8449831ad655dc7fb77ea"
+      },
+      "matched_zero": "laya-head-ce-w0.0-lr3e-05-n4000-c1024-zero"
+    },
+    "laya-lora-ce-w0-lr0.0001-n1000-c1024": {
+      "role": "curve",
+      "samples": 1000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.6558737426896092,
+      "sha256": {
+        "config.json": "f277dc0401a7ba3891891334ee74d71baa752a940097cee34a83177041181907",
+        "complete.json": "ea07b9d6b963ac5273c145b30b50c89b0ded4abb8591fcd81abc2bea06520c80",
+        "decision.json": "3937e54624900d9c024ca349932964f27c4fc9d8a820d4df390edb0e79ac2de3",
+        "selection.json": "12a7dffc369a9dafe917cd6f6f61478d2d13c8f256a4b93a4f33b929d1e791b5",
+        "performance.json": "795bf5ae65ceabf662a5559af49f6c9960696185796bdfac55511718b2b34aaa",
+        "best.pt": "80c75a66c8657f6f7036c903dc796cae31d75022384d88291018cc9009c0b0ca"
+      },
+      "matched_zero": "laya-lora-ce-w0-lr0.0001-n1000-c1024-zero"
+    },
+    "laya-lora-ce-w0.0-lr0.0001-n4000-c1024": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "laya",
+      "family": "research_neural",
+      "selection_macro_f1": 0.7272074842028914,
+      "sha256": {
+        "config.json": "a28e2686f72e31c6e0d67f562ee95dafe7e450bd8c943ea8795c5ee59f043da5",
+        "complete.json": "4ff24c91edac42962ad62c18af6bd9cfdb4c04ca9fe4c65e99a88f80e6327609",
+        "decision.json": "4b689d0861477c0c1087bb72385c82460c607f25b8e14f6cac137f16ffb1c53e",
+        "selection.json": "9944e3f433b2a5d0dfec646d7b477a78d9b85cc4c4410a0f0a3fc60f7a7cce03",
+        "performance.json": "35e6242cb01d1690e9cf9a986ff1a092a56e5cef4ab03ee8771b4704d44d3f54",
+        "best.pt": "fb988d439db04ebc8cf80a935a870df0b7c29f9cf9f53d4ebe392d534d340062"
+      },
+      "matched_zero": "laya-lora-ce-w0-lr0.0001-n1000-c1024-zero"
+    },
+    "modernbert-lora-ce-w0.0-lr0.0001-n4000-c1024": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "modernbert",
+      "family": "research_neural",
+      "selection_macro_f1": 0.7009685480063949,
+      "sha256": {
+        "config.json": "83a889b4179fdc1dadc8d07c181ed902af098a2e0c09e79ed4c24cdade5c5d66",
+        "complete.json": "0bcea049f8c7bf250b421dbb191f01a9e9f314d998fc3bde177cf5e4401527bb",
+        "decision.json": "3ee0e54a1c8453a04791c0d785cc5ae3237cda71bbe5a26a0e9c11e33c9f0196",
+        "selection.json": "21992951332aff54fb8c3e4e52fa4ba92dddc2d4ccbe7934aa76e8c6824f5e65",
+        "performance.json": "b093b55152e40b7c6c98dd97624892e612779ec3492f1df9793d6f5ae9ebb254",
+        "best.pt": "85f12a0e06a06214ec51e89db94557d3ad5c8f0466b020b80b90ff3b339e3091"
+      },
+      "matched_zero": "modernbert-lora-ce-w0.0-lr0.0001-n4000-c1024-zero"
+    },
+    "finbert-lora-ce-w0.0-lr0.0001-n4000-c512": {
+      "role": "curve",
+      "samples": 4000,
+      "kind": "finbert",
+      "family": "research_neural",
+      "selection_macro_f1": 0.6715172242287563,
+      "sha256": {
+        "config.json": "dcfe87593a480b46f11ed76ea46cead69b918805a0ecaf7e3c0df45d89bb10bd",
+        "complete.json": "7c9a46baf3cc8ddfaa63b9dbeab711089559ff368483d7097651163b2dd667e9",
+        "decision.json": "2ee896ca42d9a85103238dcf441bc6a012803a3c4725b708b655cc17823604a9",
+        "selection.json": "9713e6ccc78991ac6fc19cd69bcc960401d24a621b00c15995e7dfe5db9d516f",
+        "performance.json": "7adfdc1e42cde49387ab7e91baa6b0f17221c111961fd50d66a812ca468444a7",
+        "best.pt": "0e7e9ee899144cf4307d97abc0926b654700db26452956605ccb3d2de8e26c96"
+      },
+      "matched_zero": "finbert-lora-ce-w0.0-lr0.0001-n4000-c512-zero"
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c512-zero": {
+      "role": "control",
+      "samples": 0,
+      "kind": "laya",
+      "family": "research_zero",
+      "selection_macro_f1": 0.3921385742838108,
+      "sha256": {
+        "config.json": "d7d36137811a2f3c47a19535c00291664810f328d0469fb53af10bb9feb5044b",
+        "complete.json": "15de8475849c70dbcadef20c89bf45094a46dcf8f46f3bf7ee5ad0192ea72628",
+        "decision.json": "bc86eb77d4891ef81a6f38bf6ed4318ab23cd5729fc699e52aea067327817622",
+        "selection.json": "97d629f31449b6e2c09104dfe855d06d98f8de5543d81a03a01cbfea5350de57",
+        "performance.json": "52018791deee7a503919d5af50be04a4a885c72a1aa91f6eec5dc4cd219217bb",
+        "best.pt": "90379e819f1208cf38984b7ee8c489515f945e4315ba8a799f1826fc205b639f"
+      },
+      "matched_zero": null
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c1024-zero": {
+      "role": "control",
+      "samples": 0,
+      "kind": "laya",
+      "family": "research_zero",
+      "selection_macro_f1": 0.3620469209955101,
+      "sha256": {
+        "config.json": "719af38304e25f4cc17ff0126248bf5dcd142156c33f44509c3a595d44ed640e",
+        "complete.json": "8b2f85e45963ffd537b29ffe7b90dd9a55612b949a00107161d62ae0c4a77d8f",
+        "decision.json": "214ac8a753d37fa8aeea5b66c243ac3b7a88088fe66a97758df268508eb07961",
+        "selection.json": "214ddcb93dd4e1e18ab8025c458fd2d20441e72e151524fd38e3746f156c2b20",
+        "performance.json": "3468b0bc3f0c4d97d62fc8bf8a98c122203ab8ca46525b964a77219f376f319a",
+        "best.pt": "e3ceca2cd8002372d94f124e22dcae9a3037ddf73af78e812276cfc16b6910f5"
+      },
+      "matched_zero": null
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c2048-zero": {
+      "role": "control",
+      "samples": 0,
+      "kind": "laya",
+      "family": "research_zero",
+      "selection_macro_f1": 0.3811072664359862,
+      "sha256": {
+        "config.json": "106439d3b55330f69a9b354d3e1f8de55240eda3ed574d5a2ffeaed3c3a7de74",
+        "complete.json": "d95c7b511aa161481f7eab3512fc15dd2164b2b5f3f54ba598544a6765647b07",
+        "decision.json": "04511ed65551a5b98c44fa54a02db8c33d2842dcd7ff5d63675151defda96822",
+        "selection.json": "39a4131a4d439454013d6e65adc2f39685b83f2ed924a88cbba808d445edeced",
+        "performance.json": "c37caa79e89bd5e5c835966fc36ba7162e65477e06745c33b68623dece86a63b",
+        "best.pt": "9d6a262e0c577f6662f06ee8a68717b6e647e94baf4c204efa04586347b14098"
+      },
+      "matched_zero": null
+    },
+    "laya-head-ce-w0.0-lr3e-05-n4000-c4096-zero": {
+      "role": "control",
+      "samples": 0,
+      "kind": "laya",
+      "family": "research_zero",
+      "selection_macro_f1": 0.3786705192955193,
+      "sha256": {
+        "config.json": "675c174052ec85e67eef0725ed76123b34fbd03382deaf9a7dbeb17f587a1971",
+        "complete.json": "e631a93a067859ebf9f592ee83e290d51e360ebf1192e21d4b74b426045a7d23",
+        "decision.json": "28090a08247d09e065d4984b05a140ff23d37da1f5c495beb15dd5913a8015f0",
+        "selection.json": "1ccd25a769f943a06ff07182d0850a1fd98256fadeb279a709785598af3ab4b1",
+        "performance.json": "7d6bf6a00e31591ebd8d1f8d8ae62819dc27c43e67da0cf3fb4d625392de676f",
+        "best.pt": "807a5b9f18bb19c3a6093dd276f9b1120c6a9296420d1906be8e35a401afa523"
+      },
+      "matched_zero": null
+    },
+    "laya-lora-ce-w0-lr0.0001-n1000-c1024-zero": {
+      "role": "control",
+      "samples": 0,
+      "kind": "laya",
+      "family": "research_zero",
+      "selection_macro_f1": 0.3620469209955101,
+      "sha256": {
+        "config.json": "a41110d7108da816612890f54dc2ea2b3a30fc7add0db0c84ff1db65a4668590",
+        "complete.json": "dba10e341d51ad5f7940d6b3350077d54fbc0c46db06e289045623d92ca372ba",
+        "decision.json": "214ac8a753d37fa8aeea5b66c243ac3b7a88088fe66a97758df268508eb07961",
+        "selection.json": "214ddcb93dd4e1e18ab8025c458fd2d20441e72e151524fd38e3746f156c2b20",
+        "performance.json": "b2e44a7c16317a3fafa8e9f25ec5c93a727111cd8cf681f081c2df81e33ea2bb",
+        "best.pt": "cd94580a78e55029642123ecc413a1111593a12e8907616da9e9b9c727dde75b"
+      },
+      "matched_zero": null
+    },
+    "modernbert-lora-ce-w0.0-lr0.0001-n4000-c1024-zero": {
+      "role": "control",
+      "samples": 0,
+      "kind": "modernbert",
+      "family": "research_zero",
+      "selection_macro_f1": 0.12439261418853255,
+      "sha256": {
+        "config.json": "efd7c2933a8b0eb8117c58c94b41a97e3101990ad0b2dfe61a34fcdc09f9a6fc",
+        "complete.json": "7e642a5a95c3e9f3021b5cf628f32bc2e9b4e83517cf2f6fd58b7428f1dd3d86",
+        "decision.json": "fee1b261295143b4c8598872c93afedc956228be0070505b6e409d46a3317cf9",
+        "selection.json": "9169337b3399f7238d407ff3d53398aa4aecaa011fdf65dd7cfdea2a8fc90d71",
+        "performance.json": "5a0701aff827a0d57adc1a1b1e47287feadf010822ccd205f9dd578a527b0294",
+        "best.pt": "66284aefd8b84e9cdfe755b1bf15e8b1091000147a98847c611811c56e617d6c"
+      },
+      "matched_zero": null
+    },
+    "finbert-lora-ce-w0.0-lr0.0001-n4000-c512-zero": {
+      "role": "control",
+      "samples": 0,
+      "kind": "finbert",
+      "family": "research_zero",
+      "selection_macro_f1": 0.12805809460795123,
+      "sha256": {
+        "config.json": "41e0d572027dcfac430c6cb5df2f9b6204bfec554aa243146a8c8dcccc59c0aa",
+        "complete.json": "e560e247ea9cabed2779c897cec6dac4582fed6602d287913a3df5b0cf5078ba",
+        "decision.json": "cf2e78f8a0f8055b8ff8001b431f2afa24930c71d63c693082f9c18d63892436",
+        "selection.json": "29a2d19f132f72ad8059cbe98215e9c8082cf6c51cbc937b46e26257c6ff130d",
+        "performance.json": "be5cca0a9d18b693095cf972aa1cd96ab29ce34b43beef0aa45de3a3204329ad",
+        "best.pt": "ec6258fa02f6a9dde81d9290389164da47488b3d8fe62d004877f71baf4d3b67"
+      },
+      "matched_zero": null
+    }
+  }
+}

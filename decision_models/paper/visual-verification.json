@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "utc": "2026-10-13T16:53:33.320402+00:00",
+  "pages": 13,
+  "inspected_pages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "pdf_sha256": "c93a58fa41d6799b33020517116f2298c27d133c6153c1488ff8bdeab7dd71a3",
+  "source_sha256": "0ed70472db7ae7792f7dbc0cb63c19a01c195087264c777cb7301cec75f65c75",
+  "page_png_sha256": {
+    "1": "5e88bd4d3aaf6fd409f5790924fa7bf37089d66afb0e66a01aae870d0e060ac0",
+    "2": "c5da43407c7d4af32427b89eeed0ed9849b9384ee73cbb240cfb15c578110ae4",
+    "3": "0329081f24cf9f493eed5be9f92714f62a8940fd5284babda0b1547d1652d3e8",
+    "4": "27b1e88cae53de9c63088ef91c2ec53c835786248bdd77fbc378ecc71eb7d747",
+    "5": "80e49f288af9140f6813b0db527a03fe9e097b570e7c060b8647e6ffd108e3fc",
+    "6": "28ee933f884af1c11437b34474daf4abb3bbd34540ab4e19fcd8a922b750bfdb",
+    "7": "0fae977afd28e47715f87268cf7623a174fb6ee1e68b5c8a9190b969e2622853",
+    "8": "0b7326490a875d403dd51cd34e5f9ef87b2bf54fb26d1d0986551defb9ab3f63",
+    "9": "a795c02bb3760aea412744dd7284ed72cccdd3ed3028ad9cff147cb91d914d56",
+    "10": "aadcd9a020b0a3c6250fcd1abdfed04b3d72f8107bf8415e17df129ada01c729",
+    "11": "1f3686fb821e68d9bc49af6a80be289a14f210632c011abcc0d3c6d709ae5715",
+    "12": "4dc197b922224ec5e88169d36138d5f25c1fc547ef08491a7c11048e50cbe367",
+    "13": "2f78f1a2a83dda377fd95df8e338a38474ebdd852e0c58948218466b01689730"
+  },
+  "figures": {
+    "confusion.png": "f0f181b4b6bc104c77dacec382e8452f6579366862997ace25f3cb995f387227",
+    "context.png": "9c3862bf1213695c25ff4087efa07432432ded226b89376ed1522a5c1ac65e57",
+    "diagnostic-policies.png": "261ddd603c5a8b37740162aab0fbceb61be41f02c44025d80e5fae678425eefa",
+    "diagnostic-slices.png": "5a5bd843815c2134600fed9f505eda6afdc856458029bd94ef2170638fbdaf7a",
+    "learning-curves.png": "bbbb315b91b9b1f9e525ef2761c9f8c36becf6afba8fdad4e08c519392a62d4a",
+    "throughput.png": "18a408250b28c9f052836ef0c8dbdc7c015cdb8bcdb1accf260ae3de4d3d1f70"
+  },
+  "method": "Every revised page was freshly reviewed after Poppler rendering at 120 dpi, including all six unchanged scientific figures.",
+  "findings": "Readable text/tables, mathematical glyphs, captions and eighteen references; no clipping, overlap, orphan headings or visible missing glyphs. No cumulative appendix added."
+}
