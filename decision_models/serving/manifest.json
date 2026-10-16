@@ -1,0 +1,27 @@
+{
+  "task_id": "binary-v2",
+  "model": "tfidf-logistic-n4000",
+  "labels": [
+    "routine",
+    "review_worthy"
+  ],
+  "training_documents": 4000,
+  "temperature": 1.236756223119131,
+  "policy": {
+    "name": "calibration_miss_1pct",
+    "routine_threshold": 0.8668069623886557,
+    "calibration_miss_target": 0.01,
+    "population_guarantee": false
+  },
+  "versions": {
+    "scikit-learn": "1.9.1",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "joblib": "1.6.0"
+  },
+  "model_sha256": "f581ca4b561b9c1f9c01d21eba09e34dfcbc81c345f9b49e470c265b21a00cd9",
+  "freeze_sha256": "e6afdaf0858112466933efe87dde2c229ad000986efdabd026c204328f88e247",
+  "config_sha256": "9b92c7ad06254859bd62fa63874f6868ad56d23a52286abcf75bc6d635ab022f",
+  "decision_sha256": "5511776738564d844afa8d401c577601bd64170b6c2d3fa709b6d86d89d1c840",
+  "references": "Luna teacher labels; not analyst-validated financial materiality"
+}

@@ -53,3 +53,5 @@ the distinction between the core comparison and learning curves.
 
 The [historical reproduction guide](reproduce-core-v1.md) applies only to the earlier
 three-class study and its preserved core package.
+Retired pilot/collection/review commands in the [historical guide](historical-guide.md)
+require its linked historical source revision; they are not current entry points.

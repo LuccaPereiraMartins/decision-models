@@ -4,8 +4,6 @@
 !uv.lock
 !app.py
 !decision_models/
-!decision_models/baselines.py
-!decision_models/schemas.py
-!decision_models/build_model.py
-!decision_models/data/
-!decision_models/data/filings-10k-splits.zip
+!decision_models/serving/
+!decision_models/serving/model.joblib
+!decision_models/serving/manifest.json

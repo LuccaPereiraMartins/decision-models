@@ -4,6 +4,13 @@ This guide records the original 10k benchmark, the expanded three-class study an
 the larger proposed grid. Commands and status statements below belong to those
 versions; they are not the current study plan. Start with the [binary study guide](README.md).
 
+Six historical entry points have been retired from the current checkout:
+`collect.py`, `split.py`, `evaluate.py`, `research_pipeline.py`, `review.py` and
+`laya_infer.py`. Use the
+[source at revision 7b36ead](https://github.com/LuccaPereiraMartins/systematic-trading/tree/7b36eadb79daeaa6583643792a4e29afa957cefc/decision_models)
+when following their commands below. Current acquisition and evaluation use
+`collect_sources.py`, `prepare_binary.py` and `study_binary.py`.
+
 Classify a document as `routine`, `review_worthy` or `unclear` for investment-analyst review. Current references are Luna labels, with human annotations taking precedence. Scores measure agreement with those references, not verified investment usefulness.
 
 ## Code

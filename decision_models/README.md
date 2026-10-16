@@ -53,7 +53,7 @@ cohorts only because it was chosen after the test results were inspected.
 
 | Stage | Files |
 | --- | --- |
-| Acquisition and provenance | `collect_sources.py`, `collect.py`, `legacy_events.py` |
+| Acquisition and provenance | `collect_sources.py`, `legacy_events.py` |
 | Grouping, binary preparation and labels | `prepare.py`, `prepare_binary.py`, `label.py`, `schemas.py` |
 | Models and fitting | `baselines.py`, `fit_baselines.py`, `encoders.py`, `train.py`, `decision_base.py` |
 | Metrics, calibration and inference | `protocol.py`, `research_runtime.py` |
@@ -76,5 +76,13 @@ and expanded experiment grid. The [core report](reports/core-v1/README.md),
 and [planning log](research.md) preserve earlier stages. Their dated plans and
 runtime estimates are historical; the completed binary study is the current result.
 
-The repository's [API](../README.md#api) still serves its original three-class
-TF-IDF model. It does not deploy the binary research classifiers.
+Retired tools (`collect.py`, `split.py`, `evaluate.py`, `research_pipeline.py`,
+`review.py` and the toy `laya_infer.py`) are available in the
+[last revision before removal](https://github.com/LuccaPereiraMartins/systematic-trading/tree/7b36eadb79daeaa6583643792a4e29afa957cefc/decision_models).
+They are superseded by the mixed-source collector, binary preparation and bounded
+study, or apply only to the old three-class pilot. Shared training/runtime code
+and the independent verifiers remain required even after a study has completed.
+
+The repository's [API](../README.md#api) serves the frozen primary binary TF-IDF
+baseline with its calibration-fitted routing policy. Its separate
+[serving package](serving/README.md) contains the classifier required by the image.
