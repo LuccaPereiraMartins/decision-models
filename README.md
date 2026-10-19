@@ -46,7 +46,7 @@ uvicorn app:app --reload
 For collection, labeling and neural experiments:
 
 ```bash
-uv pip install --system --group models --group encoders --group laya
+uv pip install --system --group models --group encoders --group laya --group tabular
 ```
 
 Set `SEC_USER_AGENT` and `OPENAI_API_KEY` in a local `.env` for collection and
