@@ -131,13 +131,15 @@ class TabularModel:
             self.model.clear()
         return np.log(np.maximum(total / len(subsets), 1e-12))
 
-    def finetune(self, x, y, evaluate, *, steps, every, context_size=512, query_size=256, lr=1e-5, seed=42):
+    def finetune(self, x, y, evaluate, *, steps, every, context_size=512, query_size=256, lr=1e-5, seed=42,
+                 max_seconds=None, checkpoint=None):
         """Full fine-tuning on episodes sampled from training rows; keep the best state by `evaluate()`.
 
         Step 0 is the pretrained state, so selection can always fall back to no fine-tuning.
         """
         import sdm
         import sdm.processing as sp
+        import time
         import torch
         import torch.nn.functional as F
 
@@ -150,23 +152,49 @@ class TabularModel:
         recipe.output = sp.Identity()
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=lr)
         y = np.asarray(y)
+        started = time.perf_counter()
         history = [{"step": 0, "score": evaluate()}]
+        evaluation_seconds = time.perf_counter() - started
         best, best_state = history[0]["score"], copy.deepcopy(self.model.state_dict())
         losses = []
+
+        def preserve(step):
+            if checkpoint:
+                checkpoint({"step": step, "weights": self.model.state_dict(), "best_weights": best_state,
+                            "optimizer": optimizer.state_dict(), "history": history, "losses": losses,
+                            "numpy_rng": rng.bit_generator.state, "torch_rng": torch.get_rng_state(),
+                            "cuda_rng": torch.cuda.get_rng_state_all() if self.device.type == "cuda" else []})
+
+        preserve(0)
+        training_seconds = 0.
         for step in range(1, steps + 1):
+            training_started = time.perf_counter()
             self.model.train()
             index = rng.permutation(len(x))[: context_size + query_size]
             context, query = index[:context_size], index[context_size:]
             x_context, y_context = _table(x[context], y[context], self.device)
             x_query, target = _table(x[query], y[query], self.device)
             optimizer.zero_grad()
-            with self.autocast():
+            with torch.autocast(self.device.type, torch.bfloat16, enabled=self.device.type == "cuda"):
                 output = self.model(x_context=x_context, y_context=y_context, x_query=x_query, recipe=recipe)[0]
                 logits, truth = sdm.evaluation.to_class_indices(output, target, missing_score=-torch.inf)
                 loss = F.cross_entropy(logits.float(), truth)
+            if not torch.isfinite(loss):
+                preserve(step - 1)
+                raise ValueError("Non-finite tabular fine-tuning loss")
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1., error_if_nonfinite=True)
             optimizer.step()
             losses.append(float(loss.detach()))
+            training_seconds += time.perf_counter() - training_started
+            if max_seconds is not None:
+                elapsed = time.perf_counter() - started
+                remaining = training_seconds / step * (steps - step) + math.ceil((steps - step) / every) * evaluation_seconds
+                if step == min(5, steps):
+                    print(f"Fine-tuning forecast: {elapsed + remaining:.1f}s for {steps} steps; budget {max_seconds:g}s", flush=True)
+                if elapsed >= max_seconds or (step == min(5, steps) and elapsed + remaining > max_seconds):
+                    preserve(step)
+                    raise TimeoutError(f"Fine-tuning exceeds {max_seconds:g}s budget; checkpoint retained at step {step}")
             if step % every == 0 or step == steps:
                 score = evaluate()
                 history.append({"step": step, "score": score, "train_loss": float(np.mean(losses))})
@@ -174,6 +202,7 @@ class TabularModel:
                 losses = []
                 if score > best:
                     best, best_state = score, copy.deepcopy(self.model.state_dict())
+                preserve(step)
         self.model.load_state_dict(best_state)
         self.model.eval()
         return history, max(history, key=lambda h: (h["score"], -h["step"]))["step"]

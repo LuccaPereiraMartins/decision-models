@@ -92,6 +92,9 @@ def fit(args):
             "context_size": args.finetune_context,
             "query_size": args.finetune_query,
             "lr": args.lr,
+            "max_seconds": args.finetune_max_seconds,
+            "precision": "bf16 CUDA / fp32 CPU",
+            "gradient_clip_norm": 1.0,
         },
         "device": args.device,
         "encoder_device": encoder_device,
@@ -173,6 +176,12 @@ def fit(args):
     if args.finetune_steps:
         import torch
 
+        def checkpoint(state):
+            temporary = args.output / "finetune-last.tmp"
+            torch.save(state, temporary)
+            temporary.replace(args.output / "finetune-last.pt")
+            save(state["history"], args.output / "finetune-history.json")
+
         tuning = time.perf_counter()
         history, step = model.finetune(
             x,
@@ -183,6 +192,8 @@ def fit(args):
             context_size=args.finetune_context,
             query_size=args.finetune_query,
             lr=args.lr,
+            max_seconds=args.finetune_max_seconds,
+            checkpoint=checkpoint,
         )
         timings["finetune_seconds"] = time.perf_counter() - tuning
         config["finetune"].update(history=history, selected_step=step)
@@ -250,6 +261,7 @@ if __name__ == "__main__":
     parser.add_argument("--encoder-device", choices=("cpu", "mps", "cuda"), help="FinBERT device; default --device")
     parser.add_argument("--finetune-steps", type=int, default=0, help="0 keeps the pretrained in-context model")
     parser.add_argument("--finetune-every", type=int, default=50, help="Selection evaluation interval")
+    parser.add_argument("--finetune-max-seconds", type=float, help="Stop and preserve state if the fine-tuning budget cannot fit")
     parser.add_argument("--finetune-context", type=int, default=1024)
     parser.add_argument("--finetune-query", type=int, default=256)
     parser.add_argument("--lr", type=float, default=1e-5)
@@ -258,6 +270,8 @@ if __name__ == "__main__":
         parser.error("Dimensions, context size and estimators must be positive")
     if args.finetune_steps < 0 or args.finetune_every <= 0:
         parser.error("Fine-tuning steps must be non-negative and the interval positive")
+    if args.finetune_max_seconds is not None and args.finetune_max_seconds <= 0:
+        parser.error("Fine-tuning budget must be positive")
     if args.bags is not None and args.bags < 1:
         parser.error("Bags must be positive")
     if min(args.finetune_context, args.finetune_query) < 1 or args.lr <= 0:

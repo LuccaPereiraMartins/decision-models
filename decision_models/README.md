@@ -133,6 +133,8 @@ generalization claim needs fresh held-out data. The development references are f
 FinBERT/logistic selection macro F1 0.7580/0.7869/0.8002 and TF-IDF/logistic
 0.7825/0.8152/0.8313 at 4k/16k/25k. Selection also chooses the TFM width, so compare
 the calibration-set F1 in `calibration.json` as well.
+Verified CUDA results and CPU arithmetic replay are in
+[tabular development evidence](reports/tabular-development/README.md).
 
 ```sh
 uv pip install --system --group models --group encoders --group tabular
@@ -152,6 +154,10 @@ episodes sampled from training rows. Its default learning rate is 1e-5, followin
 sdm example. Step 0 is the pretrained model, so selection can keep it. Each run saves
 `reducer.joblib`, `context.npz` (reduced training rows and labels), optional `finetuned.pt`,
 and the usual config, search, decision, calibration, selection and performance files.
+Fine-tuning uses bf16 CUDA, finite-loss/gradient checks and gradient clipping at 1.
+`--finetune-max-seconds 900` bounds the fit and rejects an excessive five-step
+forecast. `finetune-last.pt` preserves model/best weights, optimizer and RNG state
+at selection checkpoints or a budget stop; automatic resume is not implemented.
 
 There are two hardware limits. With sdm 0.2.1, pretrained KumoTabular returns constant
 probabilities on MPS, so Kumo runs on CPU on a Mac; TabICLv2 works on MPS. FinBERT
