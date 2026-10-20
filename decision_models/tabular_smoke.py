@@ -55,7 +55,7 @@ def write(output, train=600, selection=200, calibration=120):
     splits = {}
     for offset, (name, count) in enumerate((("train", train), ("selection", selection), ("calibration", calibration))):
         content = "".join(json.dumps(row) + "\n" for row in documents(count, offset))
-        (output / f"{name}.jsonl").write_text(content, encoding="utf-8")
+        (output / f"{name}.jsonl").write_bytes(content.encode())
         splits[name] = {"count": count, "sha256": hashlib.sha256(content.encode()).hexdigest()}
     rows = [json.loads(line) for line in (output / "train.jsonl").read_text(encoding="utf-8").splitlines()]
     sizes = sorted({min(n, train) for n in (train // 4, train // 2, train)})

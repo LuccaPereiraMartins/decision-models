@@ -1,6 +1,7 @@
 """Tabular foundation-model heads on frozen document features (NVIDIA structured-data-models)."""
 
 import copy
+import hashlib
 import math
 
 import numpy as np
@@ -73,6 +74,11 @@ class TabularModel:
         cls, kwargs = MODELS[name]
         self.name, self.labels, self.device = name, tuple(labels), torch.device(device)
         self.model = getattr(sdm.models, cls)(task="classification", device=device, **kwargs).eval()
+        digest = hashlib.sha256()
+        for key, value in sorted(self.model.state_dict().items()):
+            digest.update(f"{key}:{value.dtype}:{tuple(value.shape)}".encode())
+            digest.update(value.detach().reshape(-1).view(torch.uint8).cpu().numpy().tobytes())
+        self.pretrained_sha256 = digest.hexdigest()
 
     def autocast(self):
         import torch
@@ -83,8 +89,12 @@ class TabularModel:
         frame = output.to_pandas()
         frame.columns = [str(c) for c in frame.columns]
         # Read by class name: sdm orders output columns independently of the task's label order.
-        p = np.column_stack([frame[c].to_numpy() if c in frame else np.zeros(len(frame)) for c in self.labels])
-        return p / np.maximum(p.sum(1, keepdims=True), 1e-12)
+        if set(frame.columns) != set(self.labels):
+            raise ValueError("Tabular model returned different task classes")
+        p = np.column_stack([frame[c].to_numpy() for c in self.labels])
+        if not np.isfinite(p).all() or (p < 0).any() or (p.sum(1) <= 0).any():
+            raise ValueError("Tabular model returned invalid class probabilities")
+        return p / p.sum(1, keepdims=True)
 
     def contexts(self, n, context_size, bags, seed):
         """Disjoint-as-possible random context subsets; one bag uses every row when it fits."""
@@ -105,6 +115,7 @@ class TabularModel:
         y_context, total = np.asarray(y_context), np.zeros((len(x_query), len(self.labels)))
         subsets = self.contexts(len(x_context), context_size, bags, seed)
         for bag, rows in enumerate(subsets):
+            print(f"Context {bag + 1}/{len(subsets)}: {len(rows)} training rows, {len(x_query)} queries", flush=True)
             generator = torch.Generator(device=self.device).manual_seed(seed + bag)
             with self.autocast():
                 x, y = _table(x_context[rows], y_context[rows], self.device)

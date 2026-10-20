@@ -55,6 +55,12 @@ def raw_features(kinds, rows, split, device, details):
 
 
 def fit(args):
+    import torch
+
+    torch.manual_seed(42)
+    torch.set_num_threads(4)
+    if args.device == "cuda":
+        torch.cuda.reset_peak_memory_stats()
     train = training_subset(args.splits, args.samples)
     selection, calibration = [load_split(args.splits, name) for name in ("selection", "calibration")]
     manifest = json.loads((args.splits / "manifest.json").read_text(encoding="utf-8"))
@@ -89,6 +95,9 @@ def fit(args):
         },
         "device": args.device,
         "encoder_device": encoder_device,
+        "cpu_threads": 4,
+        "gpu": torch.cuda.get_device_name() if args.device == "cuda" else None,
+        "cuda_runtime": torch.version.cuda if args.device == "cuda" else None,
         "selection": "Macro F1 on selection groups; ties retain the first width / earliest fine-tuning step",
         "evaluation": "Development cohorts only; the test split is never loaded",
         "source_sha256": sources,
@@ -119,14 +128,26 @@ def fit(args):
         name: raw_features(args.features, rows, name, encoder_device, preparation)
         for name, rows in (("train", train), ("selection", selection), ("calibration", calibration))
     }
+    print(f"Frozen features ready in {time.perf_counter() - started:.1f}s", flush=True)
     timings["feature_seconds"] = time.perf_counter() - started
     config["feature_preparation"] = preparation
     y = np.array([annotation(r)["label"] for r in train])
 
     loading = time.perf_counter()
     model = TabularModel(args.model, args.device, labels)
+    config["pretrained_state_sha256"] = model.pretrained_sha256
+    print(f"Loaded {args.model} on {args.device}", flush=True)
     timings["model_loading_seconds"] = time.perf_counter() - loading
     options = {"context_size": args.context_size, "bags": args.bags, "num_estimators": args.num_estimators}
+    contexts = model.contexts(len(train), args.context_size, args.bags, 42)
+    config["inference_context"] = {
+        "bags": len(contexts),
+        "rows_per_bag": [len(rows) for rows in contexts],
+        "unique_training_rows": len(set(np.concatenate(contexts).tolist())),
+        "ordered_indices_sha256": hashlib.sha256(json.dumps([rows.tolist() for rows in contexts]).encode()).hexdigest(),
+        "query_batch": 512,
+    }
+    save(config, args.output / "config.json")
 
     def score(x, sx):
         rows = prediction_rows(selection, model.log_probabilities(x, y, sx, **options), labels=labels)
@@ -134,6 +155,7 @@ def fit(args):
 
     trials, chosen = [], None
     for dimensions in args.dimensions:
+        print(f"START width {dimensions}", flush=True)
         trial_started = time.perf_counter()
         reducer = FeatureReducer(args.features, dimensions)
         x = reducer.fit_transform(raw["train"])
@@ -187,7 +209,16 @@ def fit(args):
         args.output / "selection.json",
     )
     timings["total_seconds"] = time.perf_counter() - started
-    save({**timings, **peak_memory(args.device), "platform": platform.platform()}, args.output / "performance.json")
+    memory = peak_memory(args.device)
+    if args.device == encoder_device == "cuda":
+        memory["peak_vram_bytes"] = max(
+            memory["peak_vram_bytes"], max((p.get("peak_vram_bytes", 0) for p in preparation.values()), default=0)
+        )
+    save(
+        {**timings, **memory, "platform": platform.platform(),
+         "timing_scope": "Development batch inference includes context fitting; not a warm per-document latency benchmark"},
+        args.output / "performance.json",
+    )
     save(config, args.output / "config.json")
     save(
         {
@@ -227,6 +258,10 @@ if __name__ == "__main__":
         parser.error("Dimensions, context size and estimators must be positive")
     if args.finetune_steps < 0 or args.finetune_every <= 0:
         parser.error("Fine-tuning steps must be non-negative and the interval positive")
+    if args.bags is not None and args.bags < 1:
+        parser.error("Bags must be positive")
+    if min(args.finetune_context, args.finetune_query) < 1 or args.lr <= 0:
+        parser.error("Fine-tuning context, query size and learning rate must be positive")
     if args.model.startswith("kumo") and args.device == "mps":
         parser.error("KumoTabular returns constant probabilities on MPS in sdm 0.2.1; use --device cpu")
     if "cuda" in (args.device, args.encoder_device):
