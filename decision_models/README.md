@@ -9,6 +9,8 @@ scores measure teacher agreement, not analyst-validated financial materiality.
   fitting records, measurements and independent CPU replay.
 - [FinBERT 25k extension](reports/binary-finbert25k/README.md): subsequent development
   results, separate from the paper's test comparisons.
+- [Additional 25k comparisons](reports/lora25k/README.md): FinBERT's completed
+  reused-test evaluation and the pending Laya 25k fit.
 - [Sources](sources.md): acquisition, reuse conditions and provenance limitations.
 
 ## Design and interpretation
@@ -38,7 +40,7 @@ is Laya LoRA versus TF-IDF/logistic at 4k. Macro F1 is primary; false negatives,
 review recall, skipped reading and processing time quantify the routing tradeoff.
 Selection chooses recipes/checkpoints; calibration fits temperatures and thresholds;
 all choices precede test evaluation. Bootstrap intervals condition on one fitted run.
-The later FinBERT 25k experiment uses development cohorts only.
+The later FinBERT 25k fit and its additional test evaluation are reported separately.
 
 ## Reproduce the published evidence
 
@@ -47,6 +49,7 @@ From the repository root, with Python and NumPy installed:
 ```sh
 python decision_models/reports/binary-v2/verify.py
 python decision_models/reports/binary-finbert25k/verify.py
+python decision_models/reports/lora25k/verify.py
 ```
 
 These independent verifiers check saved predictions, metrics, checkpoint selection,
