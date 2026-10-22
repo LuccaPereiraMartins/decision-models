@@ -1,9 +1,11 @@
 # Binary financial-document triage paper
 
 [Read the paper](paper.pdf): six main pages, one reference page and one supporting
-page. The [scientific evidence](../reports/binary-v2/README.md) supplies the frozen
-comparisons and independent CPU replay. The later [FinBERT 25k fit](../reports/binary-finbert25k/README.md)
-is separate development evidence.
+page. The [original evidence](../reports/binary-v2/README.md) supplies the 16 frozen
+comparisons; the [additional 25k package](../reports/lora25k/README.md) supplies the
+completed FinBERT/Laya comparisons and paired intervals on the reused test cohort.
+Both provide independent CPU replay. The original
+[FinBERT 25k development evidence](../reports/binary-finbert25k/README.md) is preserved.
 
 To compile independently, extract [arxiv-source.zip](arxiv-source.zip) into an empty
 directory and run `tectonic --keep-logs paper.tex` (Tectonic 0.17.0 tested).

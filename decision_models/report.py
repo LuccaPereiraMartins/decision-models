@@ -110,7 +110,7 @@ def plot(bundle, output, freeze):
         eligible = (config["family"] == "research_linear" and config.get("kind") in ("tfidf", "finbert")) or (
             config["family"] == "research_neural" and config.get("adaptation") == "lora"
         )
-        if run["entry"]["role"] in ("core", "curve") and eligible:
+        if run["entry"]["role"] in ("core", "curve", "additional") and eligible:
             groups.setdefault(name(run), []).append(key)
     colors = ["#244b74", "#b45625", "#416b43", "#654678"]
     styles = ["o", "s", "^", "D"]
@@ -122,7 +122,11 @@ def plot(bundle, output, freeze):
             y = np.array([runs[key]["test"]["metrics"]["overall"][score_key] for key in keys])
             lows = np.array([statistics[key][metric]["lower"] for key in keys])
             highs = np.array([statistics[key][metric]["upper"] for key in keys])
-            axis.plot(x, y, color=color, marker=marker, label=title)
+            original = np.array([runs[key]["entry"]["role"] != "additional" for key in keys])
+            axis.plot(x[original], y[original], color=color, marker=marker, label=title)
+            if not original.all():
+                axis.plot(x[-2:], y[-2:], color=color, linestyle="--")
+                axis.scatter(x[~original], y[~original], color="white", edgecolors=color, marker=marker, zorder=3)
             axis.vlines(x, lows, highs, color=color, alpha=0.6, linewidth=1)
     for axis, title in zip(axes, ("Macro F1", "Review-reference miss rate"), strict=True):
         axis.set(xlabel="Training documents (thousands)", ylabel=title, xticks=[4, 16, 25])
@@ -132,11 +136,29 @@ def plot(bundle, output, freeze):
     plt.close(fig)
 
 
-def build(output, paper):
+def additional_models(directory):
+    subprocess.run([sys.executable, str(directory / "verify.py")], check=True)
+    bundle = json.loads(gzip.decompress((directory / "evidence.json.gz").read_bytes()))
+    development = json.loads(gzip.decompress((directory.parent / "binary-finbert25k/evidence.json.gz").read_bytes()))
+    finbert = development["runs"]["25000"]
+    laya = {key.removesuffix(".json"): json.loads(value) for key, value in bundle["laya"]["training_files"].items()}
+    runs = {
+        "finbert-lora-n25000-c512": {**finbert, "test": json.loads(bundle["files"]["test.json"]),
+                                     "command_seconds": development["controller"]["elapsed_seconds"]},
+        "laya-lora-n25000-c1024": {"configuration": laya["config"], "performance": laya["performance"],
+                                   "history": laya["history"], "test": json.loads(bundle["laya"]["files"]["test.json"])},
+    }
+    for run in runs.values():
+        run["entry"] = {"role": "additional"}
+    return runs, bundle
+
+
+def build(output, paper, additional=None):
     subprocess.run([sys.executable, str(output / "verify.py"), str(output)], check=True)
     bundle = json.loads(gzip.decompress((output / "evidence.json.gz").read_bytes()))
     freeze = read(output / "freeze.json")
     runs, statistics = bundle["runs"], bundle["bootstrap"]["models"]
+    extra_runs, extension = additional_models(additional) if additional is not None else ({}, None)
     core = [key for key, run in runs.items() if run["entry"]["role"] in ("core", "reference")]
     order = {
         title: i
@@ -206,6 +228,11 @@ def build(output, paper):
                 percent(workload["workload_reduction"]),
             )
         )
+    for key, run in extra_runs.items():
+        score = run["test"]["metrics"]["overall"]
+        miss, workload = [score["policies"][policy] for policy in ("0.01", "skip_0.2")]
+        policies.append((name(run) + " (25k)", f"{miss['dangerous_misses']}/{support}", percent(miss["workload_reduction"]),
+                         f"{workload['dangerous_misses']}/{support}", percent(workload["workload_reduction"])))
     tables = [
         table(
             "Core systems on the revised 2,000-document evaluation. Default decisions; false negatives (FN) are divided by review-reference support. "
@@ -215,9 +242,9 @@ def build(output, paper):
             rows,
         ),
         table(
-            "Achieved test outcomes for two calibration policies. The left pair uses an empirical 1\\% calibration miss target; "
-            "the right pair maximizes calibration skips within 20\\%. All policies skip only routine predictions and preserve ties. "
-            "Achieved test workloads are not assumed equal.",
+            "Test outcomes for the empirical 1\\% calibration miss target and 20\\% calibration skip budget. "
+            "Policies skip only routine predictions, preserving ties; achieved test workloads differ."
+            + (" The last two rows are additional fits; preceding rows use core systems." if extension else ""),
             "tab:policy",
             ["System", "1\\% miss: FN", "Skipped", "20\\% skip: FN", "Skipped"],
             policies,
@@ -237,9 +264,17 @@ def build(output, paper):
                     interval(contrast["metrics"]["macro_f1"], 4),
                 )
             )
+    if extension:
+        combined = {**runs, **extra_runs}
+        for contrast in extension["bootstrap"]["contrasts"].values():
+            left, right = [combined[contrast[k]] for k in ("left", "right")]
+            increments.append((name(left), "16k to 25k",
+                               number(left["test"]["metrics"]["overall"]["macro_f1"] - right["test"]["metrics"]["overall"]["macro_f1"], 4),
+                               interval(contrast["metrics"]["macro_f1"], 4)))
     tables.append(
         table(
-            "Paired training-size F1 increments for fixed system families. Conditional 95\\% intervals; supplementary comparisons are uncorrected.",
+            "Paired training-size F1 increments for fixed system families. Conditional 95\\% intervals; supplementary comparisons are uncorrected."
+            + (" The 25k LoRA fits are additional comparisons on the reused cohort." if extension else ""),
             "tab:increments",
             ["System", "Training change", "$\\Delta$ F1", "95\\% interval"],
             increments,
@@ -334,10 +369,34 @@ def build(output, paper):
             + ". These attempts are excluded from the successful-command column; cumulative elapsed time and attempt receipts remain in the evidence package."
         )
     save_tex("supporting.tex", "\n\n".join(supporting))
-    plot(bundle, figures, freeze)
+    if extension:
+        laya, finbert = [extra_runs[key]["test"]["metrics"]["overall"]
+                        for key in ("laya-lora-n25000-c1024", "finbert-lora-n25000-c512")]
+        laya_hours = extension["laya"]["controller_receipt"]["jobs"][-1]["elapsed_seconds"] / 3600
+        old = {kind: next(run for run in runs.values() if run["configuration"].get("kind") == kind
+                          and run["configuration"].get("adaptation") == "lora" and run["configuration"]["samples"] == 16000)
+               for kind in ("laya", "finbert")}
+        previous_laya, previous_finbert = [old[kind]["test"]["metrics"]["overall"] for kind in ("laya", "finbert")]
+        save_tex("additional-results.tex",
+                 f"From 16k to 25k, Laya LoRA F1 changes from {number(previous_laya['macro_f1'], 4)} to {number(laya['macro_f1'], 4)}, "
+                 f"misses from {previous_laya['false_negatives']} to {laya['false_negatives']}, and skipped reading from "
+                 f"{percent(previous_laya['skip_fraction'])} to {percent(laya['skip_fraction'])}. "
+                 f"FinBERT LoRA F1 changes from {number(previous_finbert['macro_f1'], 4)} to {number(finbert['macro_f1'], 4)}, "
+                 f"with {previous_finbert['false_negatives']} to {finbert['false_negatives']} misses and "
+                 f"{percent(previous_finbert['skip_fraction'])} to {percent(finbert['skip_fraction'])} skipped. "
+                 f"Command times increase from {number(old['laya']['controller']['successful_attempt_seconds'] / 3600, 2)} to "
+                 f"{number(laya_hours, 2)} hours for Laya and from {number(old['finbert']['controller']['successful_attempt_seconds'] / 3600, 2)} "
+                 f"to {number(extra_runs['finbert-lora-n25000-c512']['command_seconds'] / 3600, 2)} hours for FinBERT. "
+                 "Tables~\\ref{tab:policy} and~\\ref{tab:increments} report their policy outcomes and paired F1 increments.")
+        plot_bundle = {**bundle, "runs": {**runs, **extra_runs},
+                       "bootstrap": {"models": {**extension["bootstrap"]["models"], **statistics}}}
+    else:
+        plot_bundle = bundle
+    plot(plot_bundle, figures, freeze)
     return {
         "comparisons": len(runs),
         "core_systems": len(core),
+        "additional_comparisons": len(extra_runs),
         "status": "Tables and figures reproduced; prose unchanged",
     }
 
@@ -346,5 +405,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evidence", type=Path, default=HERE / "reports/binary-v2")
     parser.add_argument("--paper", type=Path, default=HERE / "paper")
+    parser.add_argument("--additional", type=Path, default=HERE / "reports/lora25k")
     args = parser.parse_args()
-    print(json.dumps(build(args.evidence.resolve(), args.paper.resolve()), indent=2))
+    print(json.dumps(build(args.evidence.resolve(), args.paper.resolve(), args.additional.resolve()), indent=2))

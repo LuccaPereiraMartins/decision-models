@@ -32,8 +32,7 @@ Adaptation, Missed Documents, and Processing Cost}
 \section{Introduction}
 Financial document triage routes incoming information to automatic skipping or
 analyst review. Its value depends on how much reading it removes, how much
-important information it misses, and its processing cost. Sending every document
-to review avoids classification misses but saves no reading.
+important information it misses, and its processing cost.
 
 We classify public financial documents as \emph{routine} or \emph{review-worthy}
 using their content alone. Potentially significant but unresolved developments
@@ -118,18 +117,16 @@ and extraction details are retained in the public evidence package.
 Training subsets of 4,000, 16,000 and 25,000 documents are nested, with stable
 round-robin family/class sampling. All trainable core systems use the same
 4,000 bodies; the majority reference counts the same labels without optimization. Native Laya
-requires no task training. TF-IDF and frozen FinBERT/logistic additionally use
-16,000 and 25,000 training documents. Both LoRA systems additionally use 16,000;
-their curves stop at that size. Every learning-curve point also
+requires no task training. TF-IDF, frozen FinBERT/logistic and both LoRA systems
+additionally use 16,000 and 25,000 training documents. Every learning-curve point also
 uses the same 1,500 development labels; training count is not total annotation cost.
 
 TF-IDF learns its vocabulary and transforms from training alone. Logistic
 regularization and class weighting use the same bounded grid at each training
 size, selected by selection macro F1 (Appendix~\ref{sec:supporting}).
-Frozen FinBERT features are computed once and cached with
-body, recipe and source identities. Feature-preparation durations and cache use
-are itemized; command time includes encoding and classifier search. Frozen encoder windows are averaged and
-L2-normalized before classification.
+Frozen FinBERT windows are averaged and L2-normalized before classification.
+Caches bind body, recipe and source identities; command time includes encoding
+and classifier search.
 
 We use pinned \texttt{convaiinnovations/laya} English root and
 \texttt{ProsusAI/finbert} checkpoints; full revisions accompany the evidence.
@@ -178,7 +175,10 @@ We use 2,000 paired whole-group bootstrap draws for percentile 95\% intervals
 and their differences. These intervals condition on a single fitted run;
 they do not measure training instability or correct supplementary comparisons
 for multiplicity. Source/length slices are descriptive, with support reported.
-All model and policy choices precede revised-cohort evaluation.
+The original 16-comparison freeze preceded revised-cohort evaluation. The two
+25k LoRA fits were added after those results, using the inherited fixed recipes;
+their selected checkpoints and calibration were fixed before scoring them on
+the same test cohort.
 
 \subsection{Measured resources}
 Serial GPU jobs use an NVIDIA RTX 3060 (12 GiB); CPU work uses an Intel
@@ -202,11 +202,9 @@ adjudication is needed to relate classification misses to economically material
 information. The study supplies neither company/portfolio context nor evidence
 about trading profitability.
 
-The test is temporally later than training but includes previously inspected
-bodies. Freezing binary choices before reevaluation cannot remove that earlier
-information. Fresh representative data are needed for independent confirmation.
-Source imbalance, changing historical web content, possible pretraining exposure
-and incomplete duplicate detection further limit transfer to industry inboxes.
+A temporally later but previously inspected test cannot independently confirm
+generalization. Source imbalance, changing web content, possible pretraining
+exposure and missed duplicates further limit transfer to industry inboxes.
 
 Fixed recipes and one seed leave optimization variability and the best achievable
 performance within each model family unresolved. Supplementary intervals are
@@ -230,9 +228,9 @@ Acquisition records specify attribution and transfer conditions.
 \appendix
 \section{Supporting comparisons and provenance}
 \label{sec:supporting}
-The tables below give pre-update controls, neural configurations and fitting
-resources. The public evidence package retains acquisition details, source/length
-slices, all calibration policies and per-document arithmetic.
+These tables describe the original freeze. Both additional 25k fits select epoch
+three with unchanged recipes; full measurements and per-document arithmetic
+accompany the public packages.
 The linear grid uses $C\in\{0.001,\allowbreak0.01,\allowbreak0.1,\allowbreak1,\allowbreak10,\allowbreak30,\allowbreak100\}$
 and either no class weighting or balanced weights.
 \input{generated/supporting.tex}

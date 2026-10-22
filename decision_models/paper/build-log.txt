@@ -895,12 +895,12 @@ Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+t
 num;+lnum;mapping=tex-text;" at 14.4pt
  -> TeXGyreTermesX-Bold.otf
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/it' will be
-(Font)              scaled to size 10.95pt on input line 38.
+(Font)              scaled to size 10.95pt on input line 37.
 Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;-ss05;
 +tnum;+lnum;mapping=tex-text;" at 10.95pt
  -> TeXGyreTermesX-Italic.otf
 
-Underfull \hbox (badness 1184) in paragraph at lines 66--75
+Underfull \hbox (badness 1184) in paragraph at lines 65--74
 []\TU/TeXGyreTermesX(0)/m/n/10.95 Closely related decision-model studies also e
 xist. Nandakishore [[]] evaluates Laya Typed-
  []
@@ -909,7 +909,7 @@ xist. Nandakishore [[]] evaluates Laya Typed-
 
 ] (generated/data-table.tex)
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/b/n' will be
-(Font)              scaled to size 12.0pt on input line 117.
+(Font)              scaled to size 12.0pt on input line 116.
 Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+t
 num;+lnum;mapping=tex-text;" at 12.0pt
  -> TeXGyreTermesX-Bold.otf
@@ -968,14 +968,15 @@ Requested font "ntxexa" at 8.0pt
  -> ntxexa
 Requested font "ntxexa" at 6.1pt
  -> ntxexa
- (generated/main-results.tex [3]
+ [3] (generated/main-results.tex
 File: figures//confusion.png Graphic file (type bmp)
 <figures//confusion.png>
+ [4]
 File: figures//learning-curves.png Graphic file (type bmp)
 <figures//learning-curves.png>
- [4])
-(generated/discussion.tex) [5] (generated/conclusion.tex)
-(generated/reproducibility.tex) (references.tex
+
+(generated/additional-results.tex)) (generated/discussion.tex) [5]
+(generated/conclusion.tex) (generated/reproducibility.tex) (references.tex
 Underfull \hbox (badness 10000) in paragraph at lines 4--7
 []\TU/TeXGyreTermesX(0)/m/n/10 Dogu Araci. FinBERT: Financial sentiment analysi
 s with pre-trained language models. 2019.
@@ -995,4 +996,4 @@ Requested font "[lmmono10-regular]:" at 10.0pt
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 0D5109DBBC4D9BD0AD45759575757F81;2388.
  )
-Output written on paper.xdv (8 pages, 242156 bytes).
+Output written on paper.xdv (8 pages, 240052 bytes).

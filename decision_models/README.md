@@ -7,10 +7,10 @@ scores measure teacher agreement, not analyst-validated financial materiality.
 - [Paper](paper/paper.pdf): six main pages, references and one supporting page.
 - [Core evidence](reports/binary-v2/README.md): all 16 frozen comparisons, predictions,
   fitting records, measurements and independent CPU replay.
-- [FinBERT 25k extension](reports/binary-finbert25k/README.md): subsequent development
-  results, separate from the paper's test comparisons.
-- [Additional 25k comparisons](reports/lora25k/README.md): FinBERT's completed
-  reused-test evaluation and the pending Laya 25k fit.
+- [FinBERT 25k development](reports/binary-finbert25k/README.md): the original
+  fitting evidence, preserved separately.
+- [Additional 25k comparisons](reports/lora25k/README.md): completed FinBERT and
+  Laya reused-test evaluations, paired intervals and independent CPU replay.
 - [Sources](sources.md): acquisition, reuse conditions and provenance limitations.
 
 ## Design and interpretation
@@ -29,18 +29,19 @@ not an independent confirmation on fresh documents. The paper states these limit
 | --- | --- |
 | Laya native SDK | No task fitting |
 | Laya head | 4,000 |
-| Laya LoRA | 4,000 and 16,000 |
+| Laya LoRA | 4,000, 16,000 and 25,000 |
 | Frozen FinBERT + logistic | 4,000, 16,000 and 25,000 |
-| FinBERT LoRA | 4,000 and 16,000 |
+| FinBERT LoRA | 4,000, 16,000 and 25,000 |
 | Word TF-IDF + logistic | 4,000, 16,000 and 25,000 |
 | Majority | Counts the shared 4,000 labels; no optimization |
 
 Three matched pre-update controls complete the 16 comparisons. The primary pair
 is Laya LoRA versus TF-IDF/logistic at 4k. Macro F1 is primary; false negatives,
 review recall, skipped reading and processing time quantify the routing tradeoff.
-Selection chooses recipes/checkpoints; calibration fits temperatures and thresholds;
-all choices precede test evaluation. Bootstrap intervals condition on one fitted run.
-The later FinBERT 25k fit and its additional test evaluation are reported separately.
+Selection chooses recipes/checkpoints; calibration fits temperatures and thresholds.
+The original choices preceded revised-cohort evaluation. Both additional 25k LoRA
+fits use inherited fixed recipes and reuse that test cohort after original results
+were available. Bootstrap intervals condition on one fitted run.
 
 ## Reproduce the published evidence
 
@@ -64,8 +65,9 @@ python decision_models/build_paper.py --engine tectonic
 ```
 
 Rendering needs the `reports` dependency group; Tectonic 0.17.0 is the tested engine.
-The renderer preserves editorial prose. The builder checks frozen result-table,
-figure and reference identities, compiles in a clean directory and produces
+The renderer preserves editorial prose. The builder checks protected original inputs
+and reconstructs numerical tables/figures from verified original and additional
+evidence, compiles in a clean directory and produces
 [arxiv-source.zip](paper/arxiv-source.zip). Inspect rendered pages after editing.
 See [paper/README.md](paper/README.md) for a standalone archive build.
 
@@ -118,4 +120,4 @@ in the [repository README](../README.md).
 
 Superseded three-class code, execution diaries, old paper editions and their data
 are available in [Git history](https://github.com/LuccaPereiraMartins/systematic-trading/tree/cbe5c5dd0424e71ee9a6199e311adc659885b86c/decision_models).
-The current tree keeps one paper and the two binary evidence packages.
+The current tree keeps one paper, the original binary evidence and its two extensions.
