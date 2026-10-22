@@ -1,4 +1,4 @@
-"""Independent CPU replay of the additional 25k-model test comparison."""
+"""Independent CPU replay for the planned 25k LoRA comparisons."""
 
 import gzip
 import hashlib
@@ -57,6 +57,21 @@ def verify_laya(bundle, reference):
     verify_fitting({"configuration": config, "history": training["history"], "selection": training["selection"],
                     "checkpoint_audit": audit["checkpoints"]})
     check(training["history"]["steps"], 9375, "complete Laya updates")
+    laya16 = next(run for run in reference["runs"].values()
+                  if run["configuration"].get("kind") == "laya"
+                  and run["configuration"].get("adaptation") == "lora"
+                  and run["configuration"]["samples"] == 16000)
+    old_rows = {row["body_sha256"]: row for row in laya16["selection"]["predictions"]}
+    new_rows = {row["body_sha256"]: row for row in training["selection"]["predictions"]}
+    check(set(new_rows), set(old_rows), "shared Laya selection documents")
+    changed_classes = sum(new_rows[key]["prediction"] != old_rows[key]["prediction"] for key in new_rows)
+    changed_probabilities = sum(new_rows[key]["probabilities"] != old_rows[key]["probabilities"] for key in new_rows)
+    check(changed_classes, 56, "changed Laya selection classes")
+    check(changed_probabilities, 1000, "changed Laya selection probabilities")
+    check(laya16["history"]["history"][-1]["validation"]["macro_f1"],
+          0.8616405612622198, "16k Laya final selection F1")
+    check(training["history"]["history"][-1]["validation"]["macro_f1"],
+          0.8615907214173111, "25k Laya final selection F1")
     fields = ("body_sha256", "group_id", "date", "source", "family", "reference", "reference_source")
     for cohort in ("selection", "calibration"):
         saved = training[cohort]

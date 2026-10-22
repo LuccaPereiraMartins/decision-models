@@ -33,7 +33,7 @@ Table~\ref{tab:policy} applies calibration-selected thresholds unchanged to test
 
 \begin{table}[!htbp]
 \centering
-\caption{Test outcomes for the empirical 1\% calibration miss target and 20\% calibration skip budget. Policies skip only routine predictions, preserving ties; achieved test workloads differ. The last two rows are additional fits; preceding rows use core systems.}
+\caption{Test outcomes for the empirical 1\% calibration miss target and 20\% calibration skip budget. Policies skip only routine predictions, preserving ties; achieved test workloads differ. Rows span the 4k core comparison and the planned 25k fits.}
 \label{tab:policy}
 \small
 \setlength{\tabcolsep}{3.5pt}
@@ -60,7 +60,8 @@ Figure~\ref{fig:learning} shows the nested training-size curves alongside the sh
 
 \begin{figure}[!htbp]\centering
 \includegraphics[width=\linewidth]{learning-curves.png}
-\caption{Nested training-size curves. Left: macro F1. Right: review-reference miss rate. Vertical segments are marginal whole-group 95\% intervals. Hollow points and dashed segments denote the additional 25k LoRA comparisons.}\label{fig:learning}\end{figure}
+\caption{Nested training-size curves. Left: macro F1. Right: review-reference miss rate. Vertical segments are marginal whole-group 95\% intervals.}
+\label{fig:learning}\end{figure}
 
 \input{generated/additional-results.tex}
 
@@ -68,7 +69,7 @@ Matched pre-update comparisons (Table~\ref{tab:controls}) compare each recipe wi
 
 \begin{table}[!htbp]
 \centering
-\caption{Paired training-size F1 increments for fixed system families. Conditional 95\% intervals; supplementary comparisons are uncorrected. The 25k LoRA fits are additional comparisons on the reused cohort.}
+\caption{Paired training-size F1 increments for fixed system families. Conditional 95\% intervals; comparisons are uncorrected for multiplicity. All sizes use the same frozen test cohort.}
 \label{tab:increments}
 \small
 \setlength{\tabcolsep}{3.5pt}

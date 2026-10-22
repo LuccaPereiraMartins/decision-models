@@ -110,7 +110,7 @@ def plot(bundle, output, freeze):
         eligible = (config["family"] == "research_linear" and config.get("kind") in ("tfidf", "finbert")) or (
             config["family"] == "research_neural" and config.get("adaptation") == "lora"
         )
-        if run["entry"]["role"] in ("core", "curve", "additional") and eligible:
+        if run["entry"]["role"] in ("core", "curve") and eligible:
             groups.setdefault(name(run), []).append(key)
     colors = ["#244b74", "#b45625", "#416b43", "#654678"]
     styles = ["o", "s", "^", "D"]
@@ -122,11 +122,7 @@ def plot(bundle, output, freeze):
             y = np.array([runs[key]["test"]["metrics"]["overall"][score_key] for key in keys])
             lows = np.array([statistics[key][metric]["lower"] for key in keys])
             highs = np.array([statistics[key][metric]["upper"] for key in keys])
-            original = np.array([runs[key]["entry"]["role"] != "additional" for key in keys])
-            axis.plot(x[original], y[original], color=color, marker=marker, label=title)
-            if not original.all():
-                axis.plot(x[-2:], y[-2:], color=color, linestyle="--")
-                axis.scatter(x[~original], y[~original], color="white", edgecolors=color, marker=marker, zorder=3)
+            axis.plot(x, y, color=color, marker=marker, label=title)
             axis.vlines(x, lows, highs, color=color, alpha=0.6, linewidth=1)
     for axis, title in zip(axes, ("Macro F1", "Review-reference miss rate"), strict=True):
         axis.set(xlabel="Training documents (thousands)", ylabel=title, xticks=[4, 16, 25])
@@ -149,7 +145,7 @@ def additional_models(directory):
                                    "history": laya["history"], "test": json.loads(bundle["laya"]["files"]["test.json"])},
     }
     for run in runs.values():
-        run["entry"] = {"role": "additional"}
+        run["entry"] = {"role": "curve"}
     return runs, bundle
 
 
@@ -244,7 +240,7 @@ def build(output, paper, additional=None):
         table(
             "Test outcomes for the empirical 1\\% calibration miss target and 20\\% calibration skip budget. "
             "Policies skip only routine predictions, preserving ties; achieved test workloads differ."
-            + (" The last two rows are additional fits; preceding rows use core systems." if extension else ""),
+            + (" Rows span the 4k core comparison and the planned 25k fits." if extension else ""),
             "tab:policy",
             ["System", "1\\% miss: FN", "Skipped", "20\\% skip: FN", "Skipped"],
             policies,
@@ -273,8 +269,8 @@ def build(output, paper, additional=None):
                                interval(contrast["metrics"]["macro_f1"], 4)))
     tables.append(
         table(
-            "Paired training-size F1 increments for fixed system families. Conditional 95\\% intervals; supplementary comparisons are uncorrected."
-            + (" The 25k LoRA fits are additional comparisons on the reused cohort." if extension else ""),
+            "Paired training-size F1 increments for fixed system families. Conditional 95\\% intervals; comparisons are uncorrected for multiplicity."
+            + (" All sizes use the same frozen test cohort." if extension else ""),
             "tab:increments",
             ["System", "Training change", "$\\Delta$ F1", "95\\% interval"],
             increments,
@@ -377,6 +373,11 @@ def build(output, paper, additional=None):
                           and run["configuration"].get("adaptation") == "lora" and run["configuration"]["samples"] == 16000)
                for kind in ("laya", "finbert")}
         previous_laya, previous_finbert = [old[kind]["test"]["metrics"]["overall"] for kind in ("laya", "finbert")]
+        laya16_history = next(run["history"]["history"] for run in runs.values()
+                              if run["configuration"].get("kind") == "laya"
+                              and run["configuration"].get("adaptation") == "lora"
+                              and run["configuration"]["samples"] == 16000)
+        laya25_history = extra_runs["laya-lora-n25000-c1024"]["history"]["history"]
         save_tex("additional-results.tex",
                  f"From 16k to 25k, Laya LoRA F1 changes from {number(previous_laya['macro_f1'], 4)} to {number(laya['macro_f1'], 4)}, "
                  f"misses from {previous_laya['false_negatives']} to {laya['false_negatives']}, and skipped reading from "
@@ -387,7 +388,13 @@ def build(output, paper, additional=None):
                  f"Command times increase from {number(old['laya']['controller']['successful_attempt_seconds'] / 3600, 2)} to "
                  f"{number(laya_hours, 2)} hours for Laya and from {number(old['finbert']['controller']['successful_attempt_seconds'] / 3600, 2)} "
                  f"to {number(extra_runs['finbert-lora-n25000-c512']['command_seconds'] / 3600, 2)} hours for FinBERT. "
-                 "Tables~\\ref{tab:policy} and~\\ref{tab:increments} report their policy outcomes and paired F1 increments.")
+                 "Tables~\\ref{tab:policy} and~\\ref{tab:increments} report their policy outcomes and paired F1 increments. "
+                 f"On the shared selection set, Laya 25k scores {number(laya25_history[1]['validation']['macro_f1'], 4)} versus "
+                 f"{number(laya16_history[1]['validation']['macro_f1'], 4)} at epoch one and "
+                 f"{number(laya25_history[2]['validation']['macro_f1'], 4)} versus "
+                 f"{number(laya16_history[2]['validation']['macro_f1'], 4)} at epoch two; epoch-three scores are "
+                 f"{number(laya25_history[3]['validation']['macro_f1'], 5)} and "
+                 f"{number(laya16_history[3]['validation']['macro_f1'], 5)}. Their final class decisions differ on 56 of 1,000 documents.")
         plot_bundle = {**bundle, "runs": {**runs, **extra_runs},
                        "bootstrap": {"models": {**extension["bootstrap"]["models"], **statistics}}}
     else:

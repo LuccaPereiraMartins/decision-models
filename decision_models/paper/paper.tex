@@ -20,8 +20,7 @@
 \renewcommand{\floatpagefraction}{0.75}
 \title{Decision Models for Binary Financial Document Triage:\\
 Adaptation, Missed Documents, and Processing Cost}
-\author{Lucca Pereira Martins\thanks{Corresponding author:
- \href{mailto:lp573@cantab.ac.uk}{lp573@cantab.ac.uk}.} \and Matthew Ball}
+\author{Lucca Pereira Martins \and Matthew Ball}
 \date{}
 \begin{document}
 \maketitle
@@ -175,10 +174,10 @@ We use 2,000 paired whole-group bootstrap draws for percentile 95\% intervals
 and their differences. These intervals condition on a single fitted run;
 they do not measure training instability or correct supplementary comparisons
 for multiplicity. Source/length slices are descriptive, with support reported.
-The original 16-comparison freeze preceded revised-cohort evaluation. The two
-25k LoRA fits were added after those results, using the inherited fixed recipes;
-their selected checkpoints and calibration were fixed before scoring them on
-the same test cohort.
+The two 25k LoRA fits were part of the planned comparisons but completed after
+the initial report because of training time. Their recipes were fixed in advance
+and were not adjusted in response to earlier results. All training sizes use the
+same frozen test cohort.
 
 \subsection{Measured resources}
 Serial GPU jobs use an NVIDIA RTX 3060 (12 GiB); CPU work uses an Intel
@@ -202,9 +201,11 @@ adjudication is needed to relate classification misses to economically material
 information. The study supplies neither company/portfolio context nor evidence
 about trading profitability.
 
-A temporally later but previously inspected test cannot independently confirm
-generalization. Source imbalance, changing web content, possible pretraining
-exposure and missed duplicates further limit transfer to industry inboxes.
+All training-size comparisons share the same test cohort; their paired intervals
+do not make them independent replications or provide a fresh sample for external
+generalization. Source imbalance,
+changing web content, possible pretraining exposure and missed duplicates further
+limit transfer to industry inboxes.
 
 Fixed recipes and one seed leave optimization variability and the best achievable
 performance within each model family unresolved. Supplementary intervals are
@@ -228,9 +229,9 @@ Acquisition records specify attribution and transfer conditions.
 \appendix
 \section{Supporting comparisons and provenance}
 \label{sec:supporting}
-These tables describe the original freeze. Both additional 25k fits select epoch
-three with unchanged recipes; full measurements and per-document arithmetic
-accompany the public packages.
+These tables report matched controls and fitting records for the Laya and FinBERT
+systems. The 25k fits use the same recipes on larger nested subsets; full
+measurements and per-document arithmetic accompany the public packages.
 The linear grid uses $C\in\{0.001,\allowbreak0.01,\allowbreak0.1,\allowbreak1,\allowbreak10,\allowbreak30,\allowbreak100\}$
 and either no class weighting or balanced weights.
 \input{generated/supporting.tex}

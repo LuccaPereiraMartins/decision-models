@@ -1,9 +1,9 @@
 # Binary financial-document triage paper
 
 [Read the paper](paper.pdf): six main pages, one reference page and one supporting
-page. The [original evidence](../reports/binary-v2/README.md) supplies the 16 frozen
-comparisons; the [additional 25k package](../reports/lora25k/README.md) supplies the
-completed FinBERT/Laya comparisons and paired intervals on the reused test cohort.
+page. The [original evidence](../reports/binary-v2/README.md) supplies the frozen
+comparisons; the [25k LoRA package](../reports/lora25k/README.md) supplies the
+planned larger training-size runs and paired intervals on the same test cohort.
 Both provide independent CPU replay. The original
 [FinBERT 25k development evidence](../reports/binary-finbert25k/README.md) is preserved.
 

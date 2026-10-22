@@ -1,8 +1,8 @@
 {
   "status": "passed",
-  "verified_utc": "2026-10-22T11:53:40.811330+00:00",
-  "paper_manifest_sha256": "c88766f43a7e823743379267185fc37dc9908198ca749158cfd25320fc8c4e87",
-  "pdf_sha256": "65258d219adcd4f7cf4b34895fe2af85d4ef25a9ab31d7920097a63f51215607",
+  "verified_utc": "2026-10-22T21:03:55.153034+00:00",
+  "paper_manifest_sha256": "4b2756dd016c542cfba06fb7de2c143091d500e7d32e8b913956e945a9eb7bf0",
+  "pdf_sha256": "b3143ace077b1ef043f2320b06605d3ea5feecebe5354f534ca518727352b25d",
   "pages": 8,
   "main_pages": 6,
   "reference_pages": 1,
@@ -33,21 +33,21 @@
   ],
   "render_long_edge_pixels": 1400,
   "page_image_sha256": {
-    "1": "b0f64e0fc1dfe0f8f6804c6660b43c26678b9a12d95238063b882b56d1f78a0b",
-    "2": "fba374210739b5269b983870daf9f0016c616285ea1d38240abdc052a467bb46",
-    "3": "08882e8966914beb184d4f0149295aed8bc9b8d8776a546daeef0e5089e8cce4",
-    "4": "e1126113b2f447331d06a8d581cda89354d36a92b71f9994133a1b7a7071a6ac",
-    "5": "c8ac31cffcf09faca99849f1d39e1f3964836eedcfb8ff3b273918e49a76e96c",
-    "6": "b1d5b92ba32e9e379046d2004b8c9fbe8b3ab06d44c3ef170e7ceee61c2ada91",
+    "1": "4bb34f6ef9342aa5a16faadc04145e614a2d415488fd6847adbfe1fb3d531a44",
+    "2": "e2384dc7cdf62ace752a43067cf13a82b1a1465280680c43099ff8efd9fd4640",
+    "3": "1703ee9b4e6d028592172873795eae881417e409164207e6cc64f3d3fc4a70ca",
+    "4": "fae3b0b0aaed3cf999859d820e4514bc213354bedcaadd624cc8e9cc4f7660c8",
+    "5": "49fd31688c7bb1a3709fdc15e1860d148ff78ebf32b089c06a885d22914da2ec",
+    "6": "a40b728ebaca6226e7b405c0c332e4037338b680990d6bc221a83731147f9bd8",
     "7": "2d24fadc318b862225ccab9b212edf5276475d28f3972bb29866fefefbde27be",
-    "8": "3424e74eba8f5cb3baf184dab7a57440be06a78df67e7aa323473f68703e61f4"
+    "8": "a93a017f92d3b53aa4ec846e7346f59672fe6dc3605c3e91d32274812ae8c519"
   },
   "replay_checks": {
-    "binary_core": "16 comparisons passed; original package hashes unchanged",
+    "binary_core": "16 comparisons passed; original evidence package hashes unchanged",
     "finbert25k_development": "3 development comparisons passed; original package hashes unchanged",
-    "additional25k": "Both test comparisons and paired group bootstrap replayed; exact development replay and finite checkpoints audited locally",
-    "renderer": "Numerical tables and figures reproduced from independently verified original and additional evidence",
-    "archive": "Extracted into an empty directory, compiled independently, and all eight rendered pages match the inspected PDF"
+    "lora25k": "Both planned 25k test metrics/policies and paired bootstrap replayed; Laya epoch-three selection scores and changed decisions verified",
+    "renderer": "Result tables and learning curves reproduced from verified evidence",
+    "archive": "Clean source archive compiled independently; all eight rendered pages match the inspected PDF"
   },
-  "limits": "Additional 25k fits use inherited fixed recipes and the reused test cohort; no fresh independent generalization or training-instability evidence. Original frozen scientific packages remain unchanged."
+  "limits": "Both 25k runs were planned and completed after the initial report because of runtime; their recipes were fixed without prior test outcomes. All sizes use the same test cohort and do not supply fresh-sample generalization or training-seed uncertainty."
 }

@@ -1,4 +1,4 @@
-# Additional 25k LoRA comparisons
+# 25k LoRA comparisons
 
 The completed FinBERT and Laya 25k checkpoints were evaluated on the existing
 2,000-document test cohort, using their fixed selected checkpoints, temperatures
@@ -17,10 +17,16 @@ misses slightly at nearly unchanged skipped reading. Intervals use 2,000 paired
 whole-group bootstrap draws over 1,967 groups and condition on one fitted run.
 They do not measure training variability or correct for multiple comparisons.
 
-Labels remain teacher judgments. Both 25k fits were added after the original test
-results were available, using inherited fixed recipes. These additional comparisons
-reuse that cohort; fresh held-out data is needed for independent generalization
-evidence. The original frozen study and evidence files remain unchanged.
+On the shared Laya selection set, 25k F1 is higher at epochs one and two (.8269
+vs .8112; .8540 vs .8381), then nearly matches the 16k score at epoch three
+(.86159 vs .86164). Their final class decisions differ on 56 of 1,000 documents.
+The aggregate score converges even though the errors change.
+
+Labels remain teacher judgments. Both 25k runs were part of the planned comparisons
+but completed after the initial report because of training time. Their recipes were
+fixed in advance and not adjusted in response to earlier results. All training sizes
+use the same frozen test cohort; fresh documents are still needed to estimate
+generalization to a new sample. The original evidence files remain unchanged.
 
 ```sh
 python decision_models/reports/lora25k/verify.py

@@ -9,7 +9,7 @@ scores measure teacher agreement, not analyst-validated financial materiality.
   fitting records, measurements and independent CPU replay.
 - [FinBERT 25k development](reports/binary-finbert25k/README.md): the original
   fitting evidence, preserved separately.
-- [Additional 25k comparisons](reports/lora25k/README.md): completed FinBERT and
+- [25k LoRA comparisons](reports/lora25k/README.md): completed FinBERT and
   Laya reused-test evaluations, paired intervals and independent CPU replay.
 - [Sources](sources.md): acquisition, reuse conditions and provenance limitations.
 
@@ -39,9 +39,10 @@ Three matched pre-update controls complete the 16 comparisons. The primary pair
 is Laya LoRA versus TF-IDF/logistic at 4k. Macro F1 is primary; false negatives,
 review recall, skipped reading and processing time quantify the routing tradeoff.
 Selection chooses recipes/checkpoints; calibration fits temperatures and thresholds.
-The original choices preceded revised-cohort evaluation. Both additional 25k LoRA
-fits use inherited fixed recipes and reuse that test cohort after original results
-were available. Bootstrap intervals condition on one fitted run.
+The 25k LoRA runs were planned but completed after the initial report because of
+training time. Their recipes were fixed in advance without using prior test results.
+All sizes reuse the same frozen test cohort. Bootstrap intervals condition on one
+fitted run.
 
 ## Reproduce the published evidence
 
