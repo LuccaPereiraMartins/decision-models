@@ -17,9 +17,11 @@ from schemas import (
     HERE,
     annotation,
     body_hash,
+    family,
     file_hash,
     load_split,
     read_records,
+    sample,
     save,
     source_hashes,
     write_records,
@@ -30,13 +32,6 @@ PERMUTATIONS = 128
 NEAR_THRESHOLD = 0.90
 SEARCH_THRESHOLD = 0.80
 CUTOFFS = ("2026-03-31", "2026-06-30", "2026-09-30")
-
-
-def family(row):
-    kind = row.get("document_type", "8-K")
-    if row.get("source", "sec") == "sec":
-        return {"8-K": "8k", "6-K": "6k", "corporate_release": "releases"}[kind]
-    return "news" if kind == "news" else row["source"]
 
 
 def shingle_set(body):
@@ -109,16 +104,6 @@ def partition(date):
     if date <= CUTOFFS[2]:
         return "test"
     return "outside"
-
-
-def sample(rows, number=None, by_label=False):
-    buckets = defaultdict(list)
-    for row in rows:
-        key = (family(row), annotation(row)["label"] if by_label else row["date"][:7])
-        buckets[key].append(row)
-    groups = [sorted(buckets[key], key=body_hash) for key in sorted(buckets, key=str)]
-    ordered = [row for group in zip_longest(*groups) for row in group if row is not None]
-    return ordered[:number] if number is not None else ordered
 
 
 NAMES = ("train", "selection", "calibration", "test")

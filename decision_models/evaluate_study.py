@@ -150,7 +150,6 @@ def claim_holdout(splits, output, freeze_hash):
 
 
 def evaluate(splits, output, *, deadline=None):
-    import torch
     from filelock import FileLock
     from schemas import HERE
 
@@ -187,6 +186,8 @@ def evaluate(splits, output, *, deadline=None):
             predictions[name] = result["predictions"]
             continue
         cpu = config["family"] == "research_linear" and config["kind"] != "finbert"
+        if not cpu:
+            import torch
         with FileLock(HERE / "data/research/gpu-job.lock"):
             check_deadline()
             runtime = Runtime(output / entry["directory"], "cpu" if cpu else "cuda")
@@ -235,7 +236,8 @@ def evaluate(splits, output, *, deadline=None):
             import gc
 
             gc.collect()
-            torch.cuda.empty_cache()
+            if not cpu:
+                torch.cuda.empty_cache()
     summaries(output, predictions, freeze)
 
 

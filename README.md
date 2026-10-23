@@ -7,6 +7,12 @@ corporate releases and public announcements, with SEC documents predominant.
 Start with the [research guide](decision_models/README.md) or
 [paper](decision_models/paper/paper.pdf).
 
+The main result is a tradeoff: at 4k training documents, Laya LoRA's macro F1
+advantage over TF-IDF/logistic is uncertain, while it skips more documents,
+misses more review references and takes longer to run. The
+[critical review](decision_models/REVIEW.md) separates verified findings,
+implementation fixes and questions that need new evidence.
+
 ## API
 
 The CPU image serves the frozen **binary TF-IDF/logistic baseline** and its
@@ -36,17 +42,19 @@ corpora, checkpoints, research scripts, papers, credentials and Git history.
 
 ## Local setup
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). Install into your existing Python:
+Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/); Python 3.13 matches
+the serving image. Create an isolated environment from the committed lockfile:
 
 ```bash
-uv export --frozen --no-dev --no-emit-project | uv pip install --system -r -
-uvicorn app:app --reload
+uv sync --frozen --python 3.13
+uv run --no-sync uvicorn app:app --reload
 ```
 
-For collection, labeling and neural experiments:
+This also supports metrics and the TF-IDF/majority fitting CLI without PyTorch,
+model downloads or collection packages. For collection, labeling and neural experiments:
 
 ```bash
-uv pip install --system --group models --group encoders --group laya
+uv sync --frozen --python 3.13 --group models --group encoders --group laya
 ```
 
 Set `SEC_USER_AGENT` and `OPENAI_API_KEY` in a local `.env` for collection and

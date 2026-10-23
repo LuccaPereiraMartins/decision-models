@@ -8,9 +8,8 @@ import time
 import numpy as np
 from scipy.optimize import minimize_scalar
 from scipy.special import softmax
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_recall_fscore_support
-from prepare import family, sample
-from schemas import BINARY_TASK, LABELS, annotation, body_hash, load_split, save, task_labels
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from schemas import BINARY_TASK, LABELS, annotation, body_hash, family, load_split, sample, save, task_labels
 
 
 def fingerprint(path):
@@ -46,6 +45,9 @@ def temperature(logits, truth, *, labels=LABELS):
 
 
 def predicted_labels(probability, *, labels=LABELS):
+    """Binary class decision; an exact tie goes to review."""
+    if tuple(labels) != LABELS:
+        raise ValueError("Expected ordered binary labels: routine, review_worthy")
     p = np.asarray(probability)
     return (p[:, 1] >= 0.5).astype(int)
 
@@ -73,26 +75,33 @@ def policy_scores(truth, discarded, *, labels=LABELS):
 
 
 def fit_policies(p, truth, *, labels=LABELS):
+    """Choose the most skips allowed by each empirical calibration constraint.
+
+    Score each distinct routine-confidence threshold once. Equal probabilities
+    stay together, and predicted review documents are never eligible for skipping.
+    The threshold above one represents reviewing every document.
+    """
     p, truth = (np.asarray(p), np.asarray(truth))
+    routine = predicted_labels(p, labels=labels) == 0
+    review_all = {"threshold": 1.000001, **policy_scores(truth, np.zeros(len(truth), dtype=bool), labels=labels)}
+    candidates = [
+        {"threshold": float(t), **policy_scores(truth, discard(p, t, labels=labels), labels=labels)}
+        for t in sorted(set(p[routine, 0]), reverse=True)
+    ]
+
+    def most_skips(allowed):
+        return max((c for c in candidates if allowed(c)), key=lambda c: c["discarded"], default=review_all)
+
     policies = {}
     for rate in (0.01, 0.05):
-        best = {"threshold": 1.000001, **policy_scores(truth, np.zeros(len(truth), dtype=bool), labels=labels)}
-        if (truth == 1).any():
-            for threshold in sorted(set(p[:, 0]), reverse=True):
-                score = policy_scores(truth, discard(p, threshold, labels=labels), labels=labels)
-                if score["dangerous_miss_rate"] <= rate and score["discarded"] > best["discarded"]:
-                    best = {"threshold": float(threshold), **score}
+        best = most_skips(lambda c: c["dangerous_miss_rate"] is not None and c["dangerous_miss_rate"] <= rate)
         policies[str(rate)] = {
             **best,
             "target_miss_rate": rate,
             "criterion": "Empirical calibration miss rate; no population guarantee",
         }
     for fraction in (0.1, 0.2, 0.3):
-        best = {"threshold": 1.000001, **policy_scores(truth, np.zeros(len(truth), dtype=bool), labels=labels)}
-        for threshold in sorted(set(p[:, 0]), reverse=True):
-            score = policy_scores(truth, discard(p, threshold, labels=labels), labels=labels)
-            if score["discarded"] <= int(np.floor(fraction * len(truth))) and score["discarded"] > best["discarded"]:
-                best = {"threshold": float(threshold), **score}
+        best = most_skips(lambda c: c["discarded"] <= int(np.floor(fraction * len(truth))))
         policies[f"skip_{fraction}"] = {
             **best,
             "target_skip_fraction": fraction,
@@ -133,6 +142,7 @@ def prediction_rows(records, logits, decision=None, *, labels=LABELS):
 
 
 def metrics(rows, *, labels=LABELS):
+    """Teacher agreement and document-count workload; neither measures analyst utility."""
     if not rows:
         return {"count": 0}
     truth = np.array([labels.index(r["reference"]) for r in rows])
@@ -168,10 +178,8 @@ def metrics(rows, *, labels=LABELS):
     default_policy = policy_scores(truth, predicted == 0, labels=labels)
     result = {
         "count": len(rows),
-        "macro_f1": float(
-            f1_score(truth, predicted, labels=list(range(len(labels))), average="macro", zero_division=0)
-        ),
-        "accuracy": float(accuracy_score(truth, predicted)),
+        "macro_f1": float(f1.mean()),
+        "accuracy": float((truth == predicted).mean()),
         "per_class": {
             name: {
                 "precision": float(precision[i]),

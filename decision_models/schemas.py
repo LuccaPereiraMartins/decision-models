@@ -2,7 +2,9 @@
 
 from typing import Literal, get_args
 import ast
+from collections import defaultdict
 import hashlib
+from itertools import zip_longest
 import json
 import time
 from pathlib import Path
@@ -112,6 +114,25 @@ def annotation(record):
 
 def body_hash(record):
     return hashlib.sha256(record["body"].encode()).hexdigest()
+
+
+def family(row):
+    """Source family used for sampling and descriptive evaluation slices."""
+    kind = row.get("document_type", "8-K")
+    if row.get("source", "sec") == "sec":
+        return {"8-K": "8k", "6-K": "6k", "corporate_release": "releases"}[kind]
+    return "news" if kind == "news" else row["source"]
+
+
+def sample(rows, number=None, by_label=False):
+    """Stable round-robin sample by family and month (or reference label)."""
+    buckets = defaultdict(list)
+    for row in rows:
+        key = (family(row), annotation(row)["label"] if by_label else row["date"][:7])
+        buckets[key].append(row)
+    groups = [sorted(buckets[key], key=body_hash) for key in sorted(buckets, key=str)]
+    ordered = [row for group in zip_longest(*groups) for row in group if row is not None]
+    return ordered[:number] if number is not None else ordered
 
 
 def file_hash(path):
