@@ -12,7 +12,6 @@ scores measure teacher agreement, not analyst-validated financial materiality.
 - [25k LoRA comparisons](reports/lora25k/README.md): completed FinBERT and
   Laya reused-test evaluations, paired intervals and independent CPU replay.
 - [Sources](sources.md): acquisition, reuse conditions and provenance limitations.
-- [Critical review](REVIEW.md): what the evidence supports and what remains unverified.
 
 ## Reading the implementation
 
@@ -39,8 +38,8 @@ reading time, economic losses or guarantees about future data.
 ## Design and interpretation
 
 The frozen corpus has 25,000 training, 1,000 selection, 500 calibration and 2,000
-test documents. Training ends in March 2026, development covers Aprilâ€“June and test
-Julyâ€“September. Related-document groups cannot cross cohorts. SEC supplies
+test documents. Training ends in March 2026, development covers April-June and test
+July-September. Related-document groups cannot cross cohorts. SEC supplies
 1,870/2,000 test documents; the other public sources provide limited coverage.
 
 Previously unclear references received binary decisions; definite references were

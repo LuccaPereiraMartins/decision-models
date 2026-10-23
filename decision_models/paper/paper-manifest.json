@@ -24,13 +24,13 @@
     "generated/main-results.tex": "5e5aa641ac8017c707654f3de4e58619ad006eb2c9ab87c2a047db3573893b10",
     "generated/reproducibility.tex": "a068a7d2fc29d9da561d079d619f4f7012b574c5feb1bea22551eb7f35032cf6",
     "generated/supporting.tex": "bf24a47b09577b4c1bf88db12d54b4f0c527472a9839adf3f3867a6abd4aa75a",
-    "paper.tex": "2b929c0cc5af4ae3f5fdb6dad4760c4f547a403da9a615284a1863305e040a7b",
+    "paper.tex": "76801b3eadcf0fb751c778e5f6c43a63edbf73551f7093431f305bca05c24bba",
     "references.tex": "86f2113145bc24928297cb08647696759a84c5a2f7dd9a63d6a52a27ada7bc9e"
   },
   "artifacts": {
-    "paper.pdf": "96696c2207a886c2e70508e8af44ca30c0bba196dc35496de5090fa5bf5afc01",
-    "arxiv-source.zip": "dd6d67475fdf45de6949acada6514d7442ed5bd5a5636f46f0210506fdd026ac",
-    "build-log.txt": "f6a380ba9fa7ba88f716f3ff924891424b8ec8b232df06acdbca46fe3da6d03c"
+    "paper.pdf": "c23a5c083f68f0038faff90511db82fda6b1818946a4a155f129d31e923dfb38",
+    "arxiv-source.zip": "98a401ac11ea8ff7b1414d1528fb5d3243bbd2895bcf445e1bd207f593a829b3",
+    "build-log.txt": "08169ba0ba0027766f4443f3637eca5c2ddb510b793652d8fb226f56cae82eb9"
   },
   "checks": "Protected original inputs; all numerical tables/figures regenerated from verified original and additional evidence; fresh source-archive compilation"
 }

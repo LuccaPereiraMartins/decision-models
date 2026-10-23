@@ -1,8 +1,8 @@
 {
   "status": "passed",
-  "verified_utc": "2026-10-23T11:37:29.705645+00:00",
-  "paper_manifest_sha256": "34e7924120f1e701d21ae7a89c9c561ab65e3c8c8bbc39a08063512e713808b4",
-  "pdf_sha256": "96696c2207a886c2e70508e8af44ca30c0bba196dc35496de5090fa5bf5afc01",
+  "verified_utc": "2026-10-23T12:18:40.258810+00:00",
+  "paper_manifest_sha256": "d8fe8c365a5527903cb922a595a872762d7c3e4dccc1b856085a87b5ac879ee1",
+  "pdf_sha256": "c23a5c083f68f0038faff90511db82fda6b1818946a4a155f129d31e923dfb38",
   "pages": 8,
   "main_pages": 6,
   "reference_pages": 1,
@@ -35,11 +35,11 @@
   "page_image_sha256": {
     "1": "4bb34f6ef9342aa5a16faadc04145e614a2d415488fd6847adbfe1fb3d531a44",
     "2": "e2384dc7cdf62ace752a43067cf13a82b1a1465280680c43099ff8efd9fd4640",
-    "3": "1703ee9b4e6d028592172873795eae881417e409164207e6cc64f3d3fc4a70ca",
-    "4": "fae3b0b0aaed3cf999859d820e4514bc213354bedcaadd624cc8e9cc4f7660c8",
-    "5": "49fd31688c7bb1a3709fdc15e1860d148ff78ebf32b089c06a885d22914da2ec",
-    "6": "a40b728ebaca6226e7b405c0c332e4037338b680990d6bc221a83731147f9bd8",
-    "7": "2d24fadc318b862225ccab9b212edf5276475d28f3972bb29866fefefbde27be",
+    "3": "a2fe580c56bd28374197c36aa45bc83a11e1526dc29948fe4fbb31900fcb1d28",
+    "4": "bb684cadc6becae8c27469cb126a480dfd608bdda9df6b46932c5678125579a1",
+    "5": "2efb35306c4669fb48ed57a79072e0c37dbfca731e958ae3c03eea48f6c89db0",
+    "6": "eaf75b8c397aa2d7c3cdb919cc33b1c836ede438df7f4516e4f849c0b13a6906",
+    "7": "7295010c63ed772cb00bceca3b5a3ab9a13e67f23134e4c1635b74cd841ba01c",
     "8": "a93a017f92d3b53aa4ec846e7346f59672fe6dc3605c3e91d32274812ae8c519"
   },
   "replay_checks": {
@@ -47,7 +47,7 @@
     "finbert25k_development": "3 development comparisons passed; original package hashes unchanged",
     "lora25k": "Both planned 25k test metrics/policies and paired bootstrap replayed; Laya epoch-three selection scores and changed decisions verified",
     "renderer": "Result tables and learning curves reproduced from verified evidence",
-    "archive": "Permanent evidence link pinned; clean archive rebuild matches all eight previously inspected pages pixel for pixel"
+    "archive": "Review revisions compiled from the source archive independently; all eight rebuilt page renders match the inspected PDF pixel for pixel"
   },
   "limits": "Both 25k runs were planned and completed after the initial report because of runtime; their recipes were fixed without prior test outcomes. All sizes use the same test cohort and do not supply fresh-sample generalization or training-seed uncertainty."
 }
