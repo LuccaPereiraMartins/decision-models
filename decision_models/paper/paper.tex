@@ -153,14 +153,19 @@ Macro F1 averages the routine and review-worthy class F1 values. Exact binary
 ties route to review. We also report review precision/recall, the $2\times2$
 confusion matrix, and false negatives divided by review-worthy reference
 support. At the default decision, a document predicted routine is skipped.
-The skipped fraction quantifies reading removed; its complement is review
-workload. A low miss rate can reflect more review rather than better
-discrimination, so both quantities accompany every operational comparison.
+The skipped fraction measures documents removed from the review queue, not
+reading time or economic loss. A low miss rate can reflect more review rather
+than better discrimination, so both quantities accompany every comparison.
 
 Scalar temperature is fit by calibration negative log likelihood. It changes
 confidence while preserving the default class decision. Binary Brier score is
 the sum over both class columns, equal to twice the positive-class squared
 error. We report raw/calibrated scoring arithmetic in the evidence package.
+
+Inference produces two logits, ordered routine and review-worthy, divides them
+by the fitted temperature, and applies softmax. Review probability at least 0.5
+predicts review-worthy; otherwise a document is routine. A threshold policy skips
+only routine predictions whose routine probability reaches its fitted threshold.
 
 We fit five routine-only skip policies on calibration: empirical review-miss
 targets of 1\% and 5\%, and maximum skip budgets of 10\%, 20\% and 30\%.
@@ -168,6 +173,8 @@ Each chooses the largest feasible calibration skip count without splitting
 equal-probability ties. Predicted review documents are never skipped by these
 rules. We report achieved test skip counts and missed references, rather than
 assume workloads match or that fitting targets are population guarantees.
+Calibration contains 365 review references, so the 1\% target permits at most
+three observed misses.
 
 The fixed primary comparison is 4k Laya LoRA versus 4k word TF-IDF/logistic.
 We use 2,000 paired whole-group bootstrap draws for percentile 95\% intervals
@@ -218,9 +225,11 @@ training are outside this comparison.
 
 \section*{Code and reproducibility}
 The public package supplies predictions, references, fitting records, resource
-measurements and source hashes. Exact model reproduction additionally requires
-local text snapshots and weights; live source URLs may return changed text.
-Acquisition records specify attribution and transfer conditions.
+measurements and source hashes, but excludes source bodies and neural weights.
+Exact model reproduction requires retained snapshots, selected weights, archived
+producer code and recorded dependencies; live source URLs may return changed text.
+The release therefore supports arithmetic replay, not a standalone reconstruction
+of the frozen corpus. Acquisition records specify attribution and transfer conditions.
 \input{generated/reproducibility.tex}
 
 \FloatBarrier
