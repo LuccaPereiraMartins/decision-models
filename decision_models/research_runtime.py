@@ -43,9 +43,6 @@ def verify(directory, manifest, sources=True):
 
 class Runtime:
     def __init__(self, directory, device="cuda"):
-        import torch
-
-        torch.set_num_threads(4)
         self.config = json.loads((directory / "config.json").read_text(encoding="utf-8"))
         self.labels = task_labels(self.config)
         if task_labels(self.config["split_manifest"]) != self.labels:
@@ -58,6 +55,10 @@ class Runtime:
             "research_zero",
         ):
             raise ValueError("Use a binary study system; historical models require their source archive")
+        if self.family != "research_linear":
+            import torch
+
+            torch.set_num_threads(4)
         self.device = device
         if self.family == "research_linear":
             from fit_baselines import LinearModel
@@ -75,13 +76,16 @@ class Runtime:
             self.model = load_model(device, checkpoint=directory / "best.pt", config=self.config).eval()
 
     def score(self, body):
-        import torch
+        if self.family == "research_linear":
+            logits = self.model.logits([body])[0]
+        else:
+            import torch
 
-        with torch.no_grad():
-            if self.family in ("research_linear", "research_sdk"):
-                logits = self.model.logits([body])[0]
-            else:
-                logits = self.model(self.model.windows(body))[0].cpu().numpy()
+            with torch.no_grad():
+                if self.family == "research_sdk":
+                    logits = self.model.logits([body])[0]
+                else:
+                    logits = self.model(self.model.windows(body))[0].cpu().numpy()
         logits = np.asarray(logits, dtype=float)
         if logits.shape != (len(self.labels),) or not np.isfinite(logits).all():
             raise ValueError("Runtime logits disagree with the declared task")
