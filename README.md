@@ -12,6 +12,7 @@ advantage over TF-IDF/logistic is uncertain, while it skips more documents,
 misses more review references and takes longer to run. The
 [critical review](decision_models/REVIEW.md) separates verified findings,
 implementation fixes and questions that need new evidence.
+Learning curves include the planned 16k and 25k LoRA fits for both model families.
 
 ## API
 
@@ -57,6 +58,21 @@ model downloads or collection packages. For collection, labeling and neural expe
 uv sync --frozen --python 3.13 --group models --group encoders --group laya
 ```
 
+For the recorded Windows/NVIDIA runtime, replace only the PyPI Torch wheel after
+that sync. The other PyTorch dependencies have already been installed:
+
+```powershell
+uv pip install --python .venv/Scripts/python.exe --no-deps --index-url https://download.pytorch.org/whl/cu126 "torch==2.14.0+cu126"
+uv run --no-sync python -c "import torch; assert torch.__version__ == '2.14.0+cu126'; assert torch.cuda.is_available(); print(torch.cuda.get_device_name(0))"
+```
+
+This CUDA wheel override is outside the cross-platform lockfile. Use
+`uv run --no-sync` for subsequent neural commands; reapply the override after
+another `uv sync`. Other platforms need their own supported CUDA installation;
+see the [uv PyTorch guide](https://docs.astral.sh/uv/guides/integration/pytorch/).
+Exact historical fitting also requires the archived sources, recorded versions,
+input snapshots and selected models described in the study guide.
+
 Set `SEC_USER_AGENT` and `OPENAI_API_KEY` in a local `.env` for collection and
 labelling only; copy `env.example` if needed. GPU experiments need CUDA-enabled
 PyTorch. Never commit `.env`. Compose does not load research credentials.
@@ -71,7 +87,7 @@ References are LLM labels; reported agreement does not establish investment usef
 
 Both workflows run on every branch push and pull-request update:
 
-- `ci.yml`: run Ruff and independently replay both published binary evidence packages on CPU.
+- `ci.yml`: run Ruff and independently replay all three published evidence packages on CPU.
 - `docker-build.yml`: build the inference image, verify its exact application-file allowlist and lack of neural/API dependencies, then check binary predictions, probabilities and routing.
 
 Update and commit `uv.lock` with dependency changes.
