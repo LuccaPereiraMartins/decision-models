@@ -1,8 +1,8 @@
 {
   "status": "passed",
-  "verified_utc": "2026-10-16T12:40:17.583151+00:00",
-  "paper_manifest_sha256": "f1b0892cd1008358980bdd843a998f2a416c1072b5eeece121fbfee9bbc46174",
-  "pdf_sha256": "fc0c901da108dbd3c9377b549cde5cf5700945c0fb3fb7fe0f33d949c79df547",
+  "verified_utc": "2026-10-22T21:03:55.153034+00:00",
+  "paper_manifest_sha256": "4b2756dd016c542cfba06fb7de2c143091d500e7d32e8b913956e945a9eb7bf0",
+  "pdf_sha256": "b3143ace077b1ef043f2320b06605d3ea5feecebe5354f534ca518727352b25d",
   "pages": 8,
   "main_pages": 6,
   "reference_pages": 1,
@@ -33,19 +33,21 @@
   ],
   "render_long_edge_pixels": 1400,
   "page_image_sha256": {
-    "1": "d090219950ce4943d0eab98fbc275ad6d90c8e4530e5e7de4fe153916d5f663d",
-    "2": "7a3062632f17dd6dca15ce556e7b549638a0569ef73e4ffe3e7d1e174ce6387b",
-    "3": "4046ae227b8d8b37a30d93c817248eafe476ecfa0494718ee2483d77c3cbd646",
+    "1": "4bb34f6ef9342aa5a16faadc04145e614a2d415488fd6847adbfe1fb3d531a44",
+    "2": "e2384dc7cdf62ace752a43067cf13a82b1a1465280680c43099ff8efd9fd4640",
+    "3": "1703ee9b4e6d028592172873795eae881417e409164207e6cc64f3d3fc4a70ca",
     "4": "fae3b0b0aaed3cf999859d820e4514bc213354bedcaadd624cc8e9cc4f7660c8",
-    "5": "d3424929250f9f062bdd9855226eda62e5c842228eef7d881130ae57142ea38b",
-    "6": "1b049d4f3d39ab2dcb63535730044a9d5dfea78698c8690410280c17dcc6fd11",
+    "5": "49fd31688c7bb1a3709fdc15e1860d148ff78ebf32b089c06a885d22914da2ec",
+    "6": "a40b728ebaca6226e7b405c0c332e4037338b680990d6bc221a83731147f9bd8",
     "7": "2d24fadc318b862225ccab9b212edf5276475d28f3972bb29866fefefbde27be",
-    "8": "f4a3840631ce1bf5b07e96b082e25f36782e93b8e7887e374d1f2064325d00c9"
+    "8": "a93a017f92d3b53aa4ec846e7346f59672fe6dc3605c3e91d32274812ae8c519"
   },
   "replay_checks": {
-    "binary_core": "16 comparisons passed",
-    "finbert25k": "3 development comparisons passed",
-    "renderer": "All tables, figures and prose reproduced byte-for-byte"
+    "binary_core": "16 comparisons passed; original evidence package hashes unchanged",
+    "finbert25k_development": "3 development comparisons passed; original package hashes unchanged",
+    "lora25k": "Both planned 25k test metrics/policies and paired bootstrap replayed; Laya epoch-three selection scores and changed decisions verified",
+    "renderer": "Result tables and learning curves reproduced from verified evidence",
+    "archive": "Clean source archive compiled independently; all eight rendered pages match the inspected PDF"
   },
-  "limits": "No new scientific results or test inference; existing evidence and conclusions preserved."
+  "limits": "Both 25k runs were planned and completed after the initial report because of runtime; their recipes were fixed without prior test outcomes. All sizes use the same test cohort and do not supply fresh-sample generalization or training-seed uncertainty."
 }

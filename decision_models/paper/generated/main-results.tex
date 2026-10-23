@@ -33,7 +33,7 @@ Table~\ref{tab:policy} applies calibration-selected thresholds unchanged to test
 
 \begin{table}[!htbp]
 \centering
-\caption{Achieved test outcomes for two calibration policies. The left pair uses an empirical 1\% calibration miss target; the right pair maximizes calibration skips within 20\%. All policies skip only routine predictions and preserve ties. Achieved test workloads are not assumed equal.}
+\caption{Test outcomes for the empirical 1\% calibration miss target and 20\% calibration skip budget. Policies skip only routine predictions, preserving ties; achieved test workloads differ. Rows span the 4k core comparison and the planned 25k fits.}
 \label{tab:policy}
 \small
 \setlength{\tabcolsep}{3.5pt}
@@ -48,6 +48,8 @@ FinBERT LoRA & 31/1543 & 5.3\% & 144/1543 & 19.8\%\\
 Laya native SDK & 14/1543 & 0.9\% & 95/1543 & 8.2\%\\
 Laya head & 14/1543 & 1.4\% & 240/1543 & 19.6\%\\
 Laya LoRA & 7/1543 & 2.5\% & 124/1543 & 19.7\%\\
+FinBERT LoRA (25k) & 9/1543 & 6.2\% & 65/1543 & 17.3\%\\
+Laya LoRA (25k) & 9/1543 & 7.1\% & 62/1543 & 17.5\%\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -58,17 +60,16 @@ Figure~\ref{fig:learning} shows the nested training-size curves alongside the sh
 
 \begin{figure}[!htbp]\centering
 \includegraphics[width=\linewidth]{learning-curves.png}
-\caption{Nested training-size curves for completed recipes. Left: macro F1. Right: review-reference miss rate at default decisions. Vertical segments are marginal whole-group 95\% intervals. LoRA curves stop at 16,000 training documents.}\label{fig:learning}\end{figure}
+\caption{Nested training-size curves. Left: macro F1. Right: review-reference miss rate. Vertical segments are marginal whole-group 95\% intervals.}
+\label{fig:learning}\end{figure}
 
-At 16k, Laya LoRA reaches F1 0.8424 and word TF-IDF/logistic 0.8245; FinBERT LoRA reaches 0.8140. Laya and TF-IDF default miss counts are 171 and 141, with 28.0\% and 24.3\% skipped. The successful commands take 20.66 hours and 59.5 seconds, respectively; FinBERT LoRA takes 2.51 hours. These larger-run point estimates supplement the fixed 4k primary comparison; they do not replace it.
+\input{generated/additional-results.tex}
 
-The matched pre-update comparisons in Table~\ref{tab:controls} separate task fitting from context, pooling and initial-head differences. Each recipe is compared with its own preserved initial state. These controls do not isolate pretraining or equalize classifier budgets across model families.
-
-The primary systems share 122 default missed references, with 146 additional Laya-only and 66 TF-IDF-only misses. This overlap describes the fixed predictions; it does not evaluate a new combined routing rule.
+Matched pre-update comparisons (Table~\ref{tab:controls}) compare each recipe with its own initial state, separating fitting from context, pooling and initial-head differences. They do not isolate pretraining or equalize classifier budgets.
 
 \begin{table}[!htbp]
 \centering
-\caption{Paired training-size F1 increments for fixed system families. Conditional 95\% intervals; supplementary comparisons are uncorrected.}
+\caption{Paired training-size F1 increments for fixed system families. Conditional 95\% intervals; comparisons are uncorrected for multiplicity. All sizes use the same frozen test cohort.}
 \label{tab:increments}
 \small
 \setlength{\tabcolsep}{3.5pt}
@@ -82,6 +83,8 @@ Frozen FinBERT/logistic & 4k to 16k & 0.0458 & $[0.0292, 0.0624]$\\
 Frozen FinBERT/logistic & 16k to 25k & 0.0069 & $[-0.0098, 0.0230]$\\
 Laya LoRA & 4k to 16k & 0.0581 & $[0.0428, 0.0735]$\\
 FinBERT LoRA & 4k to 16k & 0.0715 & $[0.0535, 0.0899]$\\
+FinBERT LoRA & 16k to 25k & 0.0148 & $[0.0019, 0.0284]$\\
+Laya LoRA & 16k to 25k & 0.0079 & $[-0.0039, 0.0204]$\\
 \bottomrule
 \end{tabularx}
 \end{table}
