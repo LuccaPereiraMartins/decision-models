@@ -66,6 +66,8 @@ The 25k LoRA runs were planned but completed after the initial report because of
 training time. Their recipes were fixed in advance without using prior test results.
 All sizes reuse the same frozen test cohort. Bootstrap intervals condition on one
 fitted run.
+The two planned 25k LoRA fits bring the complete study to 18 scored configurations;
+their separate evidence package preserves the original freeze unchanged.
 
 ## Reproduce the published evidence
 
