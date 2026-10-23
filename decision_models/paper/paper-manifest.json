@@ -22,15 +22,15 @@
     "generated/data-table.tex": "f00df3789464cb8d5465eb103873e9c02211315b1c2e959f6cb29b29498530ae",
     "generated/discussion.tex": "1a4a8c0fa37098e5ad64256147babdf91cee0cdbe06c05b77a5ee39c0072015b",
     "generated/main-results.tex": "5e5aa641ac8017c707654f3de4e58619ad006eb2c9ab87c2a047db3573893b10",
-    "generated/reproducibility.tex": "90172106423a053437ebf5ffbe80c5b5f8c729b9588d6d42fcd5b5fc1e1ebe62",
+    "generated/reproducibility.tex": "a068a7d2fc29d9da561d079d619f4f7012b574c5feb1bea22551eb7f35032cf6",
     "generated/supporting.tex": "bf24a47b09577b4c1bf88db12d54b4f0c527472a9839adf3f3867a6abd4aa75a",
     "paper.tex": "2b929c0cc5af4ae3f5fdb6dad4760c4f547a403da9a615284a1863305e040a7b",
     "references.tex": "86f2113145bc24928297cb08647696759a84c5a2f7dd9a63d6a52a27ada7bc9e"
   },
   "artifacts": {
-    "paper.pdf": "b3143ace077b1ef043f2320b06605d3ea5feecebe5354f534ca518727352b25d",
-    "arxiv-source.zip": "d048c617fad7d0e9afc09a49ee27beaa6c7ebff10ae5f564f7613017023bbac1",
-    "build-log.txt": "fdf9be23ec3f86eb75ab10a914e7d88615c59f6013a6d42a8bc37bcd62dac89f"
+    "paper.pdf": "96696c2207a886c2e70508e8af44ca30c0bba196dc35496de5090fa5bf5afc01",
+    "arxiv-source.zip": "dd6d67475fdf45de6949acada6514d7442ed5bd5a5636f46f0210506fdd026ac",
+    "build-log.txt": "f6a380ba9fa7ba88f716f3ff924891424b8ec8b232df06acdbca46fe3da6d03c"
   },
   "checks": "Protected original inputs; all numerical tables/figures regenerated from verified original and additional evidence; fresh source-archive compilation"
 }

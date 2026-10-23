@@ -1,8 +1,8 @@
 {
   "status": "passed",
-  "verified_utc": "2026-10-22T21:03:55.153034+00:00",
-  "paper_manifest_sha256": "4b2756dd016c542cfba06fb7de2c143091d500e7d32e8b913956e945a9eb7bf0",
-  "pdf_sha256": "b3143ace077b1ef043f2320b06605d3ea5feecebe5354f534ca518727352b25d",
+  "verified_utc": "2026-10-23T11:37:29.705645+00:00",
+  "paper_manifest_sha256": "34e7924120f1e701d21ae7a89c9c561ab65e3c8c8bbc39a08063512e713808b4",
+  "pdf_sha256": "96696c2207a886c2e70508e8af44ca30c0bba196dc35496de5090fa5bf5afc01",
   "pages": 8,
   "main_pages": 6,
   "reference_pages": 1,
@@ -47,7 +47,7 @@
     "finbert25k_development": "3 development comparisons passed; original package hashes unchanged",
     "lora25k": "Both planned 25k test metrics/policies and paired bootstrap replayed; Laya epoch-three selection scores and changed decisions verified",
     "renderer": "Result tables and learning curves reproduced from verified evidence",
-    "archive": "Clean source archive compiled independently; all eight rendered pages match the inspected PDF"
+    "archive": "Permanent evidence link pinned; clean archive rebuild matches all eight previously inspected pages pixel for pixel"
   },
   "limits": "Both 25k runs were planned and completed after the initial report because of runtime; their recipes were fixed without prior test outcomes. All sizes use the same test cohort and do not supply fresh-sample generalization or training-seed uncertainty."
 }

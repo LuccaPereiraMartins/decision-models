@@ -964,4 +964,4 @@ Requested font "[lmmono10-regular]:" at 10.0pt
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 0D5109DBBC4D9BD0AD45759575757F81;2388.
  )
-Output written on paper.xdv (8 pages, 241360 bytes).
+Output written on paper.xdv (8 pages, 241376 bytes).
