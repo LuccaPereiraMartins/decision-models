@@ -12,12 +12,35 @@ scores measure teacher agreement, not analyst-validated financial materiality.
 - [25k LoRA comparisons](reports/lora25k/README.md): completed FinBERT and
   Laya reused-test evaluations, paired intervals and independent CPU replay.
 - [Sources](sources.md): acquisition, reuse conditions and provenance limitations.
+- [Critical review](REVIEW.md): what the evidence supports and what remains unverified.
+
+## Reading the implementation
+
+Start with `baselines.make` and `fit_baselines.fit`: fit features on training
+documents, choose a logistic classifier on selection, then calibrate separately.
+`protocol.py` defines the common measurements and routing policy. Read
+`encoders.py` and `train.py` next for neural windows and document-level fitting.
+`evaluate_study.py` applies the frozen choices and computes paired intervals.
+Collection, historical identity recovery and scheduling are supporting machinery;
+they are not needed to understand the classifier or replay the published arithmetic.
+
+For each document, the algorithm is:
+
+1. Produce two logits, ordered as routine and review-worthy.
+2. Divide by the calibration-fitted temperature and apply softmax.
+3. Predict review-worthy at probability 0.5 or above, including ties.
+4. Skip only a routine prediction whose routine probability reaches the saved threshold.
+
+`fit_policies` checks whole probability ties and selects the largest feasible
+calibration skip count. Miss targets divide by review-worthy references;
+skip budgets divide by all documents. These are document counts, not measured
+reading time, economic losses or guarantees about future data.
 
 ## Design and interpretation
 
 The frozen corpus has 25,000 training, 1,000 selection, 500 calibration and 2,000
-test documents. Training ends in March 2026, development covers April–June and test
-July–September. Related-document groups cannot cross cohorts. SEC supplies
+test documents. Training ends in March 2026, development covers Aprilâ€“June and test
+Julyâ€“September. Related-document groups cannot cross cohorts. SEC supplies
 1,870/2,000 test documents; the other public sources provide limited coverage.
 
 Previously unclear references received binary decisions; definite references were
@@ -46,23 +69,26 @@ fitted run.
 
 ## Reproduce the published evidence
 
-From the repository root, with Python and NumPy installed:
+From the repository root, using an isolated Python environment with only NumPy:
 
 ```sh
-python decision_models/reports/binary-v2/verify.py
-python decision_models/reports/binary-finbert25k/verify.py
-python decision_models/reports/lora25k/verify.py
+uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/binary-v2/verify.py
+uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/binary-finbert25k/verify.py
+uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/lora25k/verify.py
 ```
 
 These independent verifiers check saved predictions, metrics, checkpoint selection,
 calibration, policies, resource arithmetic and package hashes. They use no bodies,
 model weights, GPU, network or API. They do not rerun model inference.
+The first `uv` invocation may download Python or NumPy; the verifier itself is offline.
+If NumPy is already installed, invoking any script directly with `python` works too.
 
 To regenerate the paper's numerical tables and figures, then compile its source:
 
 ```sh
-python decision_models/report.py
-python decision_models/build_paper.py --engine tectonic
+uv sync --frozen --python 3.13 --group reports
+uv run --no-sync python decision_models/report.py
+uv run --no-sync python decision_models/build_paper.py --engine tectonic
 ```
 
 Rendering needs the `reports` dependency group; Tectonic 0.17.0 is the tested engine.

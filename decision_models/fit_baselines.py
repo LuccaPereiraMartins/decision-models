@@ -60,13 +60,15 @@ class LinearModel:
         self.labels = task_labels(self.config)
         if task_labels(self.config["split_manifest"]) != self.labels:
             raise ValueError("Classifier and split tasks disagree")
-        self.model = joblib.load(directory / "model.joblib")
         if fingerprint(directory / "model.joblib") != self.config["artifact_sha256"]:
             raise ValueError("Fitted artifact changed")
+        self.model = joblib.load(directory / "model.joblib")
         self.encoder = None
         if self.config["kind"] == "finbert":
+            import torch
             from encoders import EncoderModel
 
+            torch.set_num_threads(4)
             self.encoder = EncoderModel(device, config=self.config).eval()
 
     def logits(self, bodies):
