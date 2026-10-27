@@ -585,62 +585,62 @@ language=dflt;-ss05;+tnum;+lnum;+smcp;+pcap;mapping=tex-text;"
 ;language=dflt;-ss05;+tnum;+lnum;+smcp;+pcap;mapping=tex-text;"
 
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 10.95pt on input line 26.
+(Font)              scaled to size 10.95pt on input line 25.
 Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
 ;+tnum;+lnum;mapping=tex-text;" at 10.95pt
  -> TeXGyreTermesX-Regular.otf
  (paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/ntxmi/m/it on input line 26.
+LaTeX Font Info:    Checking defaults for OML/ntxmi/m/it on input line 25.
 LaTeX Font Info:    Trying to load font information for OML+ntxmi on input line
- 26.
+ 25.
 (omlntxmi.fd
 File: omlntxmi.fd 2015/08/25 Fontinst v1.933 font definitions for OML/ntxmi.
 )
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 25.
 LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 2
-6.
+5.
  (ts1cmr.fd
 File: ts1cmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 25.
 LaTeX Font Info:    Trying to load font information for U+ntxexa on input line 
-26.
+25.
  (untxexa.fd
 File: untxexa.fd 2012/04/16 Fontinst v1.933 font definitions for U/ntxexa.
 )
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for LMS/ntxsy/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for LMS/ntxsy/m/n on input line 25.
 LaTeX Font Info:    Trying to load font information for LMS+ntxsy on input line
- 26.
+ 25.
  (lmsntxsy.fd
 File: lmsntxsy.fd 2016/07/02 Fontinst v1.933 font definitions for LMS/ntxsy.
 )
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 25.
 LaTeX Font Info:    Trying to load font information for LMX+ntxexx on input lin
-e 26.
+e 25.
  (lmxntxexx.fd
 File: lmxntxexx.fd 2016/07/03 Fontinst v1.933 font definitions for LMX/ntxexx.
 )
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
@@ -676,11 +676,11 @@ LaTeX Font Info:    ... okay on input line 26.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \microtypecontext on input line 26.
-Package microtype Info: Applying patch `item' on input line 26.
-Package microtype Info: Applying patch `toc' on input line 26.
-Package microtype Info: Applying patch `eqnum' on input line 26.
-Package microtype Info: Applying patch `footnote' on input line 26.
+LaTeX Info: Redefining \microtypecontext on input line 25.
+Package microtype Info: Applying patch `item' on input line 25.
+Package microtype Info: Applying patch `toc' on input line 25.
+Package microtype Info: Applying patch `eqnum' on input line 25.
+Package microtype Info: Applying patch `footnote' on input line 25.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: No adjustment of tracking.
@@ -693,7 +693,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring OFF on input line 26.
+Package hyperref Info: Link coloring OFF on input line 25.
 (nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
  (refcount.sty
@@ -703,25 +703,25 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count319
 )
-LaTeX Info: Redefining \ref on input line 26.
-LaTeX Info: Redefining \pageref on input line 26.
-LaTeX Info: Redefining \nameref on input line 26.
+LaTeX Info: Redefining \ref on input line 25.
+LaTeX Info: Redefining \pageref on input line 25.
+LaTeX Info: Redefining \nameref on input line 25.
  (paper.out) (paper.out)
 \@outlinefile=\write3
 \openout3 = `paper.out'.
 
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 17.28pt on input line 28.
+(Font)              scaled to size 17.28pt on input line 27.
 Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
 ;+tnum;+lnum;mapping=tex-text;" at 17.28pt
  -> TeXGyreTermesX-Regular.otf
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 12.0pt on input line 28.
+(Font)              scaled to size 12.0pt on input line 27.
 Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
 ;+tnum;+lnum;mapping=tex-text;" at 12.0pt
  -> TeXGyreTermesX-Regular.otf
 LaTeX Font Info:    Trying to load font information for OT1+minntx on input lin
-e 28.
+e 27.
 
 (ot1minntx.fd
 File: ot1minntx.fd 2022/01/20 v1.0 font definition file for OT1/minntx
@@ -755,7 +755,7 @@ Requested font "ntxexx" at 8.8pt
 Requested font "ntxexx" at 6.6pt
  -> ntxexx
 LaTeX Font Info:    Trying to load font information for U+ntxmia on input line 
-28.
+27.
  (untxmia.fd
 File: untxmia.fd 2018/04/14 Fontinst v1.933 font definitions for U/ntxmia.
 )
@@ -766,7 +766,7 @@ Requested font "ntxmia" at 8.8pt
 Requested font "ntxmia" at 6.6pt
  -> ntxmia
 LaTeX Font Info:    Trying to load font information for U+ntxsym on input line 
-28.
+27.
  (untxsym.fd
 File: untxsym.fd 2015/03/20 Fontinst v1.933 font definitions for U/ntxsym.
 )
@@ -777,7 +777,7 @@ Requested font "ntxsym" at 8.8pt
 Requested font "ntxsym" at 6.6pt
  -> ntxsym
 LaTeX Font Info:    Trying to load font information for U+ntxsyc on input line 
-28.
+27.
  (untxsyc.fd
 File: untxsyc.fd 2012/04/12 Fontinst v1.933 font definitions for U/ntxsyc.
 )
@@ -794,113 +794,82 @@ Requested font "ntxexa" at 8.8pt
 Requested font "ntxexa" at 6.6pt
  -> ntxexa
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 8.8pt on input line 28.
-Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
-;+tnum;+lnum;mapping=tex-text;" at 8.8pt
- -> TeXGyreTermesX-Regular.otf
-LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 9.0pt on input line 28.
-Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
-;+tnum;+lnum;mapping=tex-text;" at 9.0pt
- -> TeXGyreTermesX-Regular.otf
-Requested font "ntx-Regular-tlf-ot1" at 9.0pt
- -> ntx-Regular-tlf-ot1
-Requested font "ntx-Regular-tlf-ot1" at 7.3pt
- -> ntx-Regular-tlf-ot1
-Requested font "ntx-Regular-tlf-ot1" at 5.5pt
- -> ntx-Regular-tlf-ot1
-Requested font "ntxmi" at 9.0pt
- -> ntxmi
-Requested font "ntxmi7" at 7.3pt
- -> ntxmi7
-Requested font "ntxmi5" at 5.5pt
- -> ntxmi5
-Requested font "ntxsy" at 9.0pt
- -> ntxsy
-Requested font "ntxsy7" at 7.3pt
- -> ntxsy7
-Requested font "ntxsy5" at 5.5pt
- -> ntxsy5
-Requested font "ntxexx" at 9.0pt
- -> ntxexx
-Requested font "ntxexx" at 7.3pt
- -> ntxexx
-Requested font "ntxexx" at 5.5pt
- -> ntxexx
-Requested font "ntxmia" at 9.0pt
- -> ntxmia
-Requested font "ntxmia" at 7.3pt
- -> ntxmia
-Requested font "ntxmia" at 5.5pt
- -> ntxmia
-Requested font "ntxsym" at 9.0pt
- -> ntxsym
-Requested font "ntxsym" at 7.3pt
- -> ntxsym
-Requested font "ntxsym" at 5.5pt
- -> ntxsym
-Requested font "ntxsyc" at 9.0pt
- -> ntxsyc
-Requested font "ntxsyc" at 7.3pt
- -> ntxsyc
-Requested font "ntxsyc" at 5.5pt
- -> ntxsyc
-Requested font "ntxexa" at 9.0pt
- -> ntxexa
-Requested font "ntxexa" at 7.3pt
- -> ntxexa
-Requested font "ntxexa" at 5.5pt
- -> ntxexa
-LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 7.3pt on input line 28.
-Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
-;+tnum;+lnum;mapping=tex-text;" at 7.3pt
- -> TeXGyreTermesX-Regular.otf
-LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 10.0pt on input line 28.
+(Font)              scaled to size 10.0pt on input line 27.
 Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
 ;+tnum;+lnum;mapping=tex-text;" at 10.0pt
  -> TeXGyreTermesX-Regular.otf
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/b/n' will be
-(Font)              scaled to size 10.0pt on input line 28.
+(Font)              scaled to size 10.0pt on input line 27.
 Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+t
 num;+lnum;mapping=tex-text;" at 10.0pt
  -> TeXGyreTermesX-Bold.otf
  (generated/abstract.tex
 Requested font "ntx-Regular-tlf-ot1" at 10.0pt
  -> ntx-Regular-tlf-ot1
+Requested font "ntx-Regular-tlf-ot1" at 7.3pt
+ -> ntx-Regular-tlf-ot1
+Requested font "ntx-Regular-tlf-ot1" at 5.5pt
+ -> ntx-Regular-tlf-ot1
 Requested font "ntxmi" at 10.0pt
  -> ntxmi
+Requested font "ntxmi7" at 7.3pt
+ -> ntxmi7
+Requested font "ntxmi5" at 5.5pt
+ -> ntxmi5
 Requested font "ntxsy" at 10.0pt
  -> ntxsy
+Requested font "ntxsy7" at 7.3pt
+ -> ntxsy7
+Requested font "ntxsy5" at 5.5pt
+ -> ntxsy5
 Requested font "ntxexx" at 10.0pt
+ -> ntxexx
+Requested font "ntxexx" at 7.3pt
+ -> ntxexx
+Requested font "ntxexx" at 5.5pt
  -> ntxexx
 Requested font "ntxmia" at 10.0pt
  -> ntxmia
+Requested font "ntxmia" at 7.3pt
+ -> ntxmia
+Requested font "ntxmia" at 5.5pt
+ -> ntxmia
 Requested font "ntxsym" at 10.0pt
+ -> ntxsym
+Requested font "ntxsym" at 7.3pt
+ -> ntxsym
+Requested font "ntxsym" at 5.5pt
  -> ntxsym
 Requested font "ntxsyc" at 10.0pt
  -> ntxsyc
+Requested font "ntxsyc" at 7.3pt
+ -> ntxsyc
+Requested font "ntxsyc" at 5.5pt
+ -> ntxsyc
 Requested font "ntxexa" at 10.0pt
+ -> ntxexa
+Requested font "ntxexa" at 7.3pt
+ -> ntxexa
+Requested font "ntxexa" at 5.5pt
  -> ntxexa
 )
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/n' will be
-(Font)              scaled to size 14.4pt on input line 32.
+(Font)              scaled to size 14.4pt on input line 31.
 Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05
 ;+tnum;+lnum;mapping=tex-text;" at 14.4pt
  -> TeXGyreTermesX-Regular.otf
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/b/n' will be
-(Font)              scaled to size 14.4pt on input line 32.
+(Font)              scaled to size 14.4pt on input line 31.
 Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+t
 num;+lnum;mapping=tex-text;" at 14.4pt
  -> TeXGyreTermesX-Bold.otf
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/it' will be
-(Font)              scaled to size 10.95pt on input line 38.
+(Font)              scaled to size 10.95pt on input line 36.
 Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;-ss05;
 +tnum;+lnum;mapping=tex-text;" at 10.95pt
  -> TeXGyreTermesX-Italic.otf
 
-Underfull \hbox (badness 1184) in paragraph at lines 66--75
+Underfull \hbox (badness 1184) in paragraph at lines 64--73
 []\TU/TeXGyreTermesX(0)/m/n/10.95 Closely related decision-model studies also e
 xist. Nandakishore [[]] evaluates Laya Typed-
  []
@@ -909,7 +878,7 @@ xist. Nandakishore [[]] evaluates Laya Typed-
 
 ] (generated/data-table.tex)
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/b/n' will be
-(Font)              scaled to size 12.0pt on input line 117.
+(Font)              scaled to size 12.0pt on input line 115.
 Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+t
 num;+lnum;mapping=tex-text;" at 12.0pt
  -> TeXGyreTermesX-Bold.otf
@@ -968,20 +937,20 @@ Requested font "ntxexa" at 8.0pt
  -> ntxexa
 Requested font "ntxexa" at 6.1pt
  -> ntxexa
- (generated/main-results.tex [3]
+ [3] (generated/main-results.tex
 File: figures//confusion.png Graphic file (type bmp)
 <figures//confusion.png>
+ [4]
 File: figures//learning-curves.png Graphic file (type bmp)
 <figures//learning-curves.png>
- [4])
-(generated/discussion.tex) [5] (generated/conclusion.tex)
-(generated/reproducibility.tex) (references.tex
+
+(generated/additional-results.tex) [5]) (generated/discussion.tex)
+(generated/conclusion.tex) (generated/reproducibility.tex) [6] (references.tex
 Underfull \hbox (badness 10000) in paragraph at lines 4--7
 []\TU/TeXGyreTermesX(0)/m/n/10 Dogu Araci. FinBERT: Financial sentiment analysi
 s with pre-trained language models. 2019.
  []
 
-[6]
 LaTeX Font Info:    Font shape `TU/TeXGyreTermesX(0)/m/it' will be
 (Font)              scaled to size 10.0pt on input line 16.
 Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;-ss05;
@@ -995,4 +964,4 @@ Requested font "[lmmono10-regular]:" at 10.0pt
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 0D5109DBBC4D9BD0AD45759575757F81;2388.
  )
-Output written on paper.xdv (8 pages, 242156 bytes).
+Output written on paper.xdv (8 pages, 247592 bytes).

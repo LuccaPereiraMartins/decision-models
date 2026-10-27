@@ -19,14 +19,16 @@ def sha(path):
 
 
 def build(engine):
+    import report
+
     paper = HERE / "paper"
     evidence = HERE / "reports/binary-v2"
     sources = sorted(p for p in paper.rglob("*") if p.suffix in (".tex", ".png"))
-    previous = json.loads((paper / "paper-manifest.json").read_text(encoding="utf-8"))
+    additional = HERE / "reports/lora25k"
     inputs = json.loads((evidence / "manuscript-inputs.json").read_text(encoding="utf-8"))
     for name, expected in inputs["generated_files"].items():
         name = name.replace("\\", "/")
-        if name.startswith("figures/") or name in {
+        if name == "figures/confusion.png" or name in {
             "references.tex",
             "generated/data-table.tex",
             "generated/supporting.tex",
@@ -37,11 +39,19 @@ def build(engine):
         r"\\begin\{table\}.*?\\end\{table\}", (paper / "generated/main-results.tex").read_text(encoding="utf-8"), re.S
     )
     tables_sha256 = hashlib.sha256("\n".join(tables).encode()).hexdigest()
-    if tables_sha256 != previous["tables_sha256"]:
-        raise ValueError("Published result tables changed")
-
     with tempfile.TemporaryDirectory(prefix="triage-paper-") as temporary:
         clean = Path(temporary)
+        expected = clean / "verified"
+        shutil.copytree(paper, expected)
+        report.build(evidence, expected, additional)
+        for name in ("generated/data-table.tex", "generated/supporting.tex", "generated/additional-results.tex",
+                     "figures/confusion.png", "figures/learning-curves.png"):
+            if sha(paper / name) != sha(expected / name):
+                raise ValueError(f"Evidence-derived output changed: {name}; regenerate with report.py")
+        rebuilt_tables = re.findall(r"\\begin\{table\}.*?\\end\{table\}",
+                                    (expected / "generated/main-results.tex").read_text(encoding="utf-8"), re.S)
+        if tables != rebuilt_tables:
+            raise ValueError("Result tables disagree with verified original/additional evidence")
         archive = clean / "arxiv-source.zip"
         with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
             for path in sources:
@@ -62,12 +72,15 @@ def build(engine):
         "status": "compiled; visual review recorded separately in review.json",
         "freeze_sha256": sha(evidence / "freeze.json"),
         "evidence_sha256": {name: sha(evidence / name) for name in ("evidence.json.gz", "source.zip", "metadata.zip")},
+        "additional_evidence_sha256": sha(additional / "evidence.json.gz"),
+        "additional_verifier_sha256": sha(additional / "verify.py"),
+        "renderer_sha256": sha(HERE / "report.py"),
         "tables_sha256": tables_sha256,
         "builder_sha256": sha(Path(__file__)),
         "engine": subprocess.check_output([engine, "--version"], text=True).strip(),
         "source_files": {p.relative_to(paper).as_posix(): sha(p) for p in sources},
         "artifacts": {name: sha(paper / name) for name in ("paper.pdf", "arxiv-source.zip", "build-log.txt")},
-        "checks": "Frozen tables/figures/references and fresh source-archive build; earlier editions are in Git history",
+        "checks": "Protected original inputs; all numerical tables/figures regenerated from verified original and additional evidence; fresh source-archive compilation",
     }
     (paper / "paper-manifest.json").write_bytes((json.dumps(manifest, indent=2) + "\n").encode())
 

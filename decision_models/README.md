@@ -7,15 +7,39 @@ scores measure teacher agreement, not analyst-validated financial materiality.
 - [Paper](paper/paper.pdf): six main pages, references and one supporting page.
 - [Core evidence](reports/binary-v2/README.md): all 16 frozen comparisons, predictions,
   fitting records, measurements and independent CPU replay.
-- [FinBERT 25k extension](reports/binary-finbert25k/README.md): subsequent development
-  results, separate from the paper's test comparisons.
+- [FinBERT 25k development](reports/binary-finbert25k/README.md): the original
+  fitting evidence, preserved separately.
+- [25k LoRA comparisons](reports/lora25k/README.md): completed FinBERT and
+  Laya reused-test evaluations, paired intervals and independent CPU replay.
 - [Sources](sources.md): acquisition, reuse conditions and provenance limitations.
+
+## Reading the implementation
+
+Start with `baselines.make` and `fit_baselines.fit`: fit features on training
+documents, choose a logistic classifier on selection, then calibrate separately.
+`protocol.py` defines the common measurements and routing policy. Read
+`encoders.py` and `train.py` next for neural windows and document-level fitting.
+`evaluate_study.py` applies the frozen choices and computes paired intervals.
+Collection, historical identity recovery and scheduling are supporting machinery;
+they are not needed to understand the classifier or replay the published arithmetic.
+
+For each document, the algorithm is:
+
+1. Produce two logits, ordered as routine and review-worthy.
+2. Divide by the calibration-fitted temperature and apply softmax.
+3. Predict review-worthy at probability 0.5 or above, including ties.
+4. Skip only a routine prediction whose routine probability reaches the saved threshold.
+
+`fit_policies` checks whole probability ties and selects the largest feasible
+calibration skip count. Miss targets divide by review-worthy references;
+skip budgets divide by all documents. These are document counts, not measured
+reading time, economic losses or guarantees about future data.
 
 ## Design and interpretation
 
 The frozen corpus has 25,000 training, 1,000 selection, 500 calibration and 2,000
-test documents. Training ends in March 2026, development covers April–June and test
-July–September. Related-document groups cannot cross cohorts. SEC supplies
+test documents. Training ends in March 2026, development covers April-June and test
+July-September. Related-document groups cannot cross cohorts. SEC supplies
 1,870/2,000 test documents; the other public sources provide limited coverage.
 
 Previously unclear references received binary decisions; definite references were
@@ -27,42 +51,51 @@ not an independent confirmation on fresh documents. The paper states these limit
 | --- | --- |
 | Laya native SDK | No task fitting |
 | Laya head | 4,000 |
-| Laya LoRA | 4,000 and 16,000 |
+| Laya LoRA | 4,000, 16,000 and 25,000 |
 | Frozen FinBERT + logistic | 4,000, 16,000 and 25,000 |
-| FinBERT LoRA | 4,000 and 16,000 |
+| FinBERT LoRA | 4,000, 16,000 and 25,000 |
 | Word TF-IDF + logistic | 4,000, 16,000 and 25,000 |
 | Majority | Counts the shared 4,000 labels; no optimization |
 
 Three matched pre-update controls complete the 16 comparisons. The primary pair
 is Laya LoRA versus TF-IDF/logistic at 4k. Macro F1 is primary; false negatives,
 review recall, skipped reading and processing time quantify the routing tradeoff.
-Selection chooses recipes/checkpoints; calibration fits temperatures and thresholds;
-all choices precede test evaluation. Bootstrap intervals condition on one fitted run.
-The later FinBERT 25k experiment uses development cohorts only.
+Selection chooses recipes/checkpoints; calibration fits temperatures and thresholds.
+The 25k LoRA runs were planned but completed after the initial report because of
+training time. Their recipes were fixed in advance without using prior test results.
+All sizes reuse the same frozen test cohort. Bootstrap intervals condition on one
+fitted run.
+The two planned 25k LoRA fits bring the complete study to 18 scored configurations;
+their separate evidence package preserves the original freeze unchanged.
 
 ## Reproduce the published evidence
 
-From the repository root, with Python and NumPy installed:
+From the repository root, using an isolated Python environment with only NumPy:
 
 ```sh
-python decision_models/reports/binary-v2/verify.py
-python decision_models/reports/binary-finbert25k/verify.py
+uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/binary-v2/verify.py
+uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/binary-finbert25k/verify.py
+uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/lora25k/verify.py
 ```
 
 These independent verifiers check saved predictions, metrics, checkpoint selection,
 calibration, policies, resource arithmetic and package hashes. They use no bodies,
 model weights, GPU, network or API. They do not rerun model inference.
+The first `uv` invocation may download Python or NumPy; the verifier itself is offline.
+If NumPy is already installed, invoking any script directly with `python` works too.
 
 To regenerate the paper's numerical tables and figures, then compile its source:
 
 ```sh
-python decision_models/report.py
-python decision_models/build_paper.py --engine tectonic
+uv sync --frozen --python 3.13 --group reports
+uv run --no-sync python decision_models/report.py
+uv run --no-sync python decision_models/build_paper.py --engine tectonic
 ```
 
 Rendering needs the `reports` dependency group; Tectonic 0.17.0 is the tested engine.
-The renderer preserves editorial prose. The builder checks frozen result-table,
-figure and reference identities, compiles in a clean directory and produces
+The renderer preserves editorial prose. The builder checks protected original inputs
+and reconstructs numerical tables/figures from verified original and additional
+evidence, compiles in a clean directory and produces
 [arxiv-source.zip](paper/arxiv-source.zip). Inspect rendered pages after editing.
 See [paper/README.md](paper/README.md) for a standalone archive build.
 
@@ -116,7 +149,7 @@ in the [repository README](../README.md).
 
 Superseded three-class code, execution diaries, old paper editions and their data
 are available in [Git history](https://github.com/LuccaPereiraMartins/systematic-trading/tree/cbe5c5dd0424e71ee9a6199e311adc659885b86c/decision_models).
-The current tree keeps one paper and the two binary evidence packages.
+The current tree keeps one paper, the original binary evidence and its two extensions.
 
 ## Exploratory: tabular foundation-model heads
 
@@ -137,13 +170,13 @@ Verified CUDA results and CPU arithmetic replay are in
 [tabular development evidence](reports/tabular-development/README.md).
 
 ```sh
-uv pip install --system --group models --group encoders --group tabular
+uv sync --frozen --python 3.13 --group models --group encoders --group tabular
 # Laptop smoke test on synthetic, non-evidential documents (CPU or Apple MPS):
-python decision_models/tabular_smoke.py --output /tmp/tabular-smoke
-python decision_models/fit_tabular.py --splits /tmp/tabular-smoke --output /tmp/tabular-run \
+uv run --no-sync python decision_models/tabular_smoke.py --output /tmp/tabular-smoke
+uv run --no-sync python decision_models/fit_tabular.py --splits /tmp/tabular-smoke --output /tmp/tabular-run \
   --samples 300 --model tabiclv2 --device mps --dimensions 16 32 --context-size 512 --num-estimators 2
 # Frozen corpus on CUDA; repeat for --samples 16000/25000, --features tfidf or "finbert tfidf":
-python decision_models/fit_tabular.py --splits decision_models/data/research/binary-v2 \
+uv run --no-sync python decision_models/fit_tabular.py --splits decision_models/data/research/binary-v2 \
   --output decision_models/training_runs/tabular/kumo-large-finbert-n4000 \
   --samples 4000 --model kumo-large --features finbert --device cuda \
   --dimensions 32 64 96 --context-size 8192 --num-estimators 8

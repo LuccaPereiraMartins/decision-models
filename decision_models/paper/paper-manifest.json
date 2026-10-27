@@ -7,26 +7,30 @@
     "source.zip": "4e655866ffc8c7231075672bb906bfaacf0debb7b29d6a0d99b7389e3fa234b1",
     "metadata.zip": "c4a6b6b774fb623bedff45bebb1963ce1bf2b7213e27f7f43c2d11ff92a37d51"
   },
-  "tables_sha256": "8deebbf452f613c1d707031affcd8ce706b62d085e7404176458d2271d62b0d3",
-  "builder_sha256": "b6bbc5a1ce9ee2400d32b095cc608e4fe5e3bc1053dd26a1eae12e73a18016b5",
+  "additional_evidence_sha256": "05f8c3107c5801e0199267951c350924ea3e87302091adddd28653218a0f8e16",
+  "additional_verifier_sha256": "5828afdd0f288d1528b2c179154ab00fdee0d91e869659748e9aca30a7ed2151",
+  "renderer_sha256": "900304f597d992d532bb8ac741e2a34dc2243b836d98d59131612d611e5442ef",
+  "tables_sha256": "6d447b4af4f1d6c4ef3536702a13f0ee3fa6997bfa7f1506cc8abf67f8e4df3e",
+  "builder_sha256": "473780d28bd0df4495cf42b6d7a2d187213cccab8ace7882d2453c320c13197c",
   "engine": "Tectonic 0.17.0",
   "source_files": {
     "figures/confusion.png": "7352a8586a69c0e46f463dbee085200560ac84d82e8aa578badfe3eb88527105",
-    "figures/learning-curves.png": "392f2e9158aa7fe684283d043c21339d63eb1fdd09d696071bd95c827f081dd1",
-    "generated/abstract.tex": "093933e98b9fa844052866aa9ff785e858a70eb507dbcd9aa3b39d8789df9042",
-    "generated/conclusion.tex": "2e6975ddefdb8f3709c14e837278d4fba3ccc99653d3993ccbde75627d583524",
+    "figures/learning-curves.png": "8dabdc1f60389e62a85e56b82219a422062bf7eb0cf75b5435e6a71dac8c0b97",
+    "generated/abstract.tex": "5f25bb68535f4edd8fa16952922b2a03b1f9c97863610dd83d1afa8343e0a9ee",
+    "generated/additional-results.tex": "3901ab11e5c51b603200d10ac59969c0afc3175314bafaf97fe15be8459241e4",
+    "generated/conclusion.tex": "1cd97e6261524b846e8e8021d33101be5646f0b86f232a084b99a79e34be21c8",
     "generated/data-table.tex": "f00df3789464cb8d5465eb103873e9c02211315b1c2e959f6cb29b29498530ae",
     "generated/discussion.tex": "1a4a8c0fa37098e5ad64256147babdf91cee0cdbe06c05b77a5ee39c0072015b",
-    "generated/main-results.tex": "d916e519196504610735ff77dcdb53983d70dee7ba67d520f47333202404d2ce",
-    "generated/reproducibility.tex": "260d571412a59350daff0d066ecaf45823edd704ed0bfbfd7ffcc7eb18a9a790",
+    "generated/main-results.tex": "5e5aa641ac8017c707654f3de4e58619ad006eb2c9ab87c2a047db3573893b10",
+    "generated/reproducibility.tex": "a068a7d2fc29d9da561d079d619f4f7012b574c5feb1bea22551eb7f35032cf6",
     "generated/supporting.tex": "bf24a47b09577b4c1bf88db12d54b4f0c527472a9839adf3f3867a6abd4aa75a",
-    "paper.tex": "0c02187aea10e690b01d1fe9b56548bb49e4cdf246e861f827af6a9ab6033890",
+    "paper.tex": "76801b3eadcf0fb751c778e5f6c43a63edbf73551f7093431f305bca05c24bba",
     "references.tex": "86f2113145bc24928297cb08647696759a84c5a2f7dd9a63d6a52a27ada7bc9e"
   },
   "artifacts": {
-    "paper.pdf": "fc0c901da108dbd3c9377b549cde5cf5700945c0fb3fb7fe0f33d949c79df547",
-    "arxiv-source.zip": "a9a9c66d24c66de686a26a20f8568558908501fc6ecc1628b65f11656c138817",
-    "build-log.txt": "945209136bd7b5b135d074eebb52316ac0d56d18fef3f61b9bf4db8dd6e8022d"
+    "paper.pdf": "c23a5c083f68f0038faff90511db82fda6b1818946a4a155f129d31e923dfb38",
+    "arxiv-source.zip": "98a401ac11ea8ff7b1414d1528fb5d3243bbd2895bcf445e1bd207f593a829b3",
+    "build-log.txt": "08169ba0ba0027766f4443f3637eca5c2ddb510b793652d8fb226f56cae82eb9"
   },
-  "checks": "Frozen tables/figures/references and fresh source-archive build; earlier editions are in Git history"
+  "checks": "Protected original inputs; all numerical tables/figures regenerated from verified original and additional evidence; fresh source-archive compilation"
 }
