@@ -48,7 +48,7 @@ This also supports metrics and the TF-IDF/majority fitting CLI without PyTorch,
 model downloads or collection packages. For collection, labeling and neural experiments:
 
 ```bash
-uv sync --frozen --python 3.13 --group models --group encoders --group laya
+uv sync --frozen --python 3.13 --group models --group encoders --group laya --group tabular
 ```
 
 Set `SEC_USER_AGENT` and `OPENAI_API_KEY` in a local `.env` for collection and
@@ -65,7 +65,7 @@ References are LLM labels; reported agreement does not establish investment usef
 
 Both workflows run on every branch push and pull-request update:
 
-- `ci.yml`: run Ruff and independently replay all three published evidence packages on CPU.
+- `ci.yml`: run Ruff and independently replay all four published evidence packages on CPU.
 - `docker-build.yml`: build the inference image, verify its exact application-file allowlist and lack of neural/API dependencies, then check binary predictions, probabilities and routing.
 
 Update and commit `uv.lock` with dependency changes.

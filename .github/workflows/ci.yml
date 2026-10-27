@@ -26,3 +26,5 @@ jobs:
         run: uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/binary-finbert25k/verify.py
       - name: Replay additional 25k test comparison
         run: uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/lora25k/verify.py
+      - name: Replay tabular development comparisons
+        run: uv run --isolated --no-project --python 3.13 --with numpy==2.5.3 python decision_models/reports/tabular-development/verify.py

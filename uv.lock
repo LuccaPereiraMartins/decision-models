@@ -2534,6 +2534,23 @@ wheels = [
 ]
 
 [[package]]
+name = "structured-data-models"
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "huggingface-hub" },
+    { name = "numpy" },
+    { name = "pyarrow" },
+    { name = "safetensors" },
+    { name = "torch" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/97/33/cb15b007fc67fe53c9bff242e1ca9b7d57229ac39f82e3081db828405d1b/structured_data_models-0.2.1.tar.gz", hash = "sha256:035ead2627dff755987287fd13f7864b3a7be2c4b0bdc060a94add8d93c29a26", size = 2220106, upload-time = "2026-10-14T17:12:56.009Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/0e/cf1f2d36c52deb723b3d2e26f655c5adc28648853e62c1dec67e94d84de4/structured_data_models-0.2.1-py3-none-any.whl", hash = "sha256:4fa9a422dc3c55033cdb14096cae024b743b543ef2a8feb4b7cffb21c966f3da", size = 283697, upload-time = "2026-10-14T17:12:54.1Z" },
+]
+
+[[package]]
 name = "sympy"
 version = "1.14.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2590,6 +2607,9 @@ models = [
 reports = [
     { name = "matplotlib" },
 ]
+tabular = [
+    { name = "structured-data-models" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -2629,6 +2649,7 @@ models = [
     { name = "tiktoken", specifier = ">=0.14.0" },
 ]
 reports = [{ name = "matplotlib", specifier = ">=3.11.2" }]
+tabular = [{ name = "structured-data-models", specifier = "==0.2.1" }]
 
 [[package]]
 name = "tabulate"

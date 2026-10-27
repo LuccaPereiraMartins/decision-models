@@ -135,6 +135,7 @@ floating-point weights across hardware or software changes.
 | Bounded study and frozen evaluation | `study.py`, `evaluate_study.py` |
 | Paper rendering and packaging | `report.py`, `build_paper.py` |
 | Frozen CPU serving package | `build_model.py`, `serving/` |
+| Exploratory tabular foundation-model heads | `tabular.py`, `fit_tabular.py`, `tabular_smoke.py` |
 
 Collection, labelling and fitting are separate from evidence replay. Their CLIs
 explain required paths with `--help`. `study.py` requires a session JSON containing
@@ -149,3 +150,50 @@ in the [repository README](../README.md).
 Superseded three-class code, execution diaries, old paper editions and their data
 are available in [Git history](https://github.com/LuccaPereiraMartins/systematic-trading/tree/cbe5c5dd0424e71ee9a6199e311adc659885b86c/decision_models).
 The current tree keeps one paper, the original binary evidence and its two extensions.
+
+## Exploratory: tabular foundation-model heads
+
+`fit_tabular.py` replaces the logistic head of the frozen baselines with a pretrained
+in-context tabular model from NVIDIA [structured-data-models](https://github.com/NVIDIA/structured-data-models)
+(`kumo-small|medium|large`, open `nvidia/Kumo-Tabular` weights, or `tabiclv2`). Document
+features are cached FinBERT vectors (PCA) and/or word TF-IDF (truncated SVD), each reduced
+on training rows only. Training rows are the model's context, averaged over context bags
+when they exceed `--context-size`. Selection chooses the reduced width and any fine-tuning
+checkpoint, while calibration fits temperature and policies as in `protocol.py`.
+
+These runs are **development evidence only**: the script never loads test, and a
+generalization claim needs fresh held-out data. The development references are frozen
+FinBERT/logistic selection macro F1 0.7580/0.7869/0.8002 and TF-IDF/logistic
+0.7825/0.8152/0.8313 at 4k/16k/25k. Selection also chooses the TFM width, so compare
+the calibration-set F1 in `calibration.json` as well.
+Verified CUDA results and CPU arithmetic replay are in
+[tabular development evidence](reports/tabular-development/README.md).
+
+```sh
+uv sync --frozen --python 3.13 --group models --group encoders --group tabular
+# Laptop smoke test on synthetic, non-evidential documents (CPU or Apple MPS):
+uv run --no-sync python decision_models/tabular_smoke.py --output /tmp/tabular-smoke
+uv run --no-sync python decision_models/fit_tabular.py --splits /tmp/tabular-smoke --output /tmp/tabular-run \
+  --samples 300 --model tabiclv2 --device mps --dimensions 16 32 --context-size 512 --num-estimators 2
+# Frozen corpus on CUDA; repeat for --samples 16000/25000, --features tfidf or "finbert tfidf":
+uv run --no-sync python decision_models/fit_tabular.py --splits decision_models/data/research/binary-v2 \
+  --output decision_models/training_runs/tabular/kumo-large-finbert-n4000 \
+  --samples 4000 --model kumo-large --features finbert --device cuda \
+  --dimensions 32 64 96 --context-size 8192 --num-estimators 8
+```
+
+Add `--finetune-steps 300 --finetune-every 50` for full fine-tuning on context/query
+episodes sampled from training rows. Its default learning rate is 1e-5, following the
+sdm example. Step 0 is the pretrained model, so selection can keep it. Each run saves
+`reducer.joblib`, `context.npz` (reduced training rows and labels), optional `finetuned.pt`,
+and the usual config, search, decision, calibration, selection and performance files.
+Fine-tuning uses bf16 CUDA, finite-loss/gradient checks and gradient clipping at 1.
+`--finetune-max-seconds 900` bounds the fit and rejects an excessive five-step
+forecast. `finetune-last.pt` preserves model/best weights, optimizer and RNG state
+at selection checkpoints or a budget stop; automatic resume is not implemented.
+
+There are two hardware limits. With sdm 0.2.1, pretrained KumoTabular returns constant
+probabilities on MPS, so Kumo runs on CPU on a Mac; TabICLv2 works on MPS. FinBERT
+vectors for the long real documents are the expensive step: the sqlite cache shares them
+across runs, so compute them once with `--encoder-device cuda`. The hosted Kumo Tabular
+NIM, `nvcr.io/nim/nvidia/kumo-tabular`, needs a Linux NVIDIA GPU and is not wired in here.
